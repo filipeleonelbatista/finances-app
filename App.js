@@ -1,20 +1,40 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StatusBar as RNStatusBar } from 'react-native';
+import React from 'react';
+import Routes from './src/routes';
+import { View } from 'react-native';
+
+import AppLoading from 'expo-app-loading';
+
+import {
+  Poppins_400Regular,
+  Poppins_600SemiBold, useFonts
+} from '@expo-google-fonts/poppins';
+import { PaymentsContextProvider } from './src/context/PaymentsContext';
+
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+  let [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_600SemiBold,
+  });
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  if (!fontsLoaded) {
+    return <AppLoading />;
+  }
+
+  return (
+    <>
+      <View style={{
+        height: RNStatusBar.currentHeight,
+        backgroundColor: '#442c61'
+      }}>
+        <StatusBar style="light" />
+      </View>
+      <PaymentsContextProvider>
+        <Routes />
+      </PaymentsContextProvider>
+    </>
+  );
+
+}

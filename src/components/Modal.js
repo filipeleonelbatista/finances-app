@@ -1,0 +1,74 @@
+import React from 'react';
+
+import { Dimensions, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { RectButton, ScrollView } from 'react-native-gesture-handler';
+
+import { Feather } from '@expo/vector-icons';
+import { useHeaderHeight } from '@react-navigation/elements'
+
+export default function Modal({ open, onClose, children }) {
+  const height = useHeaderHeight()
+
+  if (!open) return null
+
+  return (
+    <KeyboardAvoidingView
+      behavior={'padding'}
+      keyboardVerticalOffset={height + 48}
+      style={styles.container}
+      enabled
+    >
+      <View style={styles.card}>
+        <RectButton onPress={() => onClose()} style={styles.button}>
+          <Feather name="x" size={24} color="#FFF" />
+        </RectButton>
+        <ScrollView style={styles.cardContent}>
+          {children}
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    flex: 1,
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+    backgroundColor: '#000000cd',
+    zIndex: 100,
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  card: {
+    position: 'relative',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 16,
+    width: '100%',
+    display: 'flex',
+    minHeight: 65,
+  },
+  cardContent: {
+    width: '100%',
+    display: 'flex',
+  },
+  button: {
+    position: 'absolute',
+    zIndex: 150,
+    top: 8,
+    right: 8,
+    width: 48,
+    height: 48,
+    borderRadius: 32,
+    backgroundColor: '#000000ad',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  buttonText: {
+    fontSize: 24,
+    color: '#f0f2f5',
+  },
+})

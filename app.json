@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "family-finances",
-    "slug": "family-finances",
+    "name": "Finança$",
+    "slug": "finances",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#442c61"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -20,7 +20,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#9c44dc"
       }
     },
     "web": {
