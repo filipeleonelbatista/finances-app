@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useEffect, useState } from "react";
 import { Alert, ToastAndroid } from "react-native";
 import { v4 } from 'uuid';
 
@@ -23,29 +23,18 @@ export function PaymentsContextProvider(props) {
 
     await AsyncStorage.setItem('transactions', JSON.stringify(newTransactionList));
 
-    setTransactionsList(JSON.stringify(newTransactionList));
+    loadTransactions()
 
     ToastAndroid.show('Transação Adicionada', ToastAndroid.SHORT);
   }
 
-  const loadData = async () => {
-    const value = await AsyncStorage.getItem('transactions')
-
-    if (value !== null) {
-      setTransactionsList(value)
-    } else {
-      await AsyncStorage.setItem('transaction', JSON.stringify([]))
-    }
-  }
-
-  async function loadTransactions() {
+  const loadTransactions = useCallback(async () => {
     // await AsyncStorage.clear();
     try {
       const value = await AsyncStorage.getItem('transactions');
-      const valueArray = JSON.parse(value || '[]')
-      console.log("to aqui", valueArray);
+      const valueArray = JSON.parse(value)
       if (value !== null) {
-        setTransactionsList()
+        setTransactionsList(valueArray)
       } else {
         await AsyncStorage.setItem('transactions', JSON.stringify([]));
       }
@@ -95,20 +84,12 @@ export function PaymentsContextProvider(props) {
     }
 
     return;
-  }
+
+  }, [setTransactionsList]);
 
   useEffect(() => {
-    const ExecuteAsync = async () => {
-      // await loadTransactions();
-      await loadData();
-    }
-    ExecuteAsync();
-  }, [])
-
-
-  useEffect(() => {
-    console.log('TRList', transactionsList)
-  }, [transactionsList])
+    loadTransactions();
+  }, [loadTransactions]);
 
   return (
     <PaymentsContext.Provider

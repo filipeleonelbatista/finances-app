@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
-import { ActivityIndicator, Dimensions, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
 
+import { useNavigation } from '@react-navigation/native';
 import bgImg from '../assets/images/background.png';
 import logo from '../assets/images/logo.png';
 import AddItemForm from '../components/AddItemForm';
@@ -12,7 +13,7 @@ import Modal from '../components/Modal';
 import { usePayments } from '../hooks/usePayments';
 
 export default function Finances() {
-  const [currentTransactions, setCurrentTransactions] = useState()
+  const navigation = useNavigation();
 
   const {
     transactionsList,
@@ -23,11 +24,7 @@ export default function Finances() {
 
   const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
 
-  useEffect(() => {
-    if (transactionsList != '') {
-      setCurrentTransactions(JSON.parse(transactionsList))
-    }
-  }, [])
+  console.log("Estou na home", transactionsList)
 
   return (
     <>
@@ -89,29 +86,37 @@ export default function Finances() {
             <Text style={{ marginBottom: 4 }}>Clique no item para ver os detalhes</Text>
           </View>
 
-
-          {
-            currentTransactions && currentTransactions.length > 0 ? currentTransactions.map(item => (
-              <TouchableOpacity key={item.id} style={styles.listCardItem}>
-                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-                  <Feather
-                    name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
-                    size={48}
-                    color={item.isEnabled ? "#e83e5a" : "12a454"}
-                  />
-                  <Text style={styles.cardTextListItem} >{item.description}</Text>
-                </View>
-                <Text style={styles.cardTextListItem} >R$ {item.amount.tofixed(2)}</Text>
-              </TouchableOpacity>
-            ))
-              : (
-                <ActivityIndicator />
+          <FlatList
+            style={{
+              width: '100%',
+            }}
+            data={transactionsList}
+            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+            renderItem={({ item }) => {
+              return (
+                <RectButton key={item.id} style={styles.listCardItem}>
+                  <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                    <Feather
+                      name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
+                      size={48}
+                      color={item.isEnabled ? "#e83e5a" : "#12a454"}
+                    />
+                    <View style={{ flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
+                      <Text style={styles.cardTextListItem} >{item.description}</Text>
+                      <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.cardTextListItem} >R$ {item.amount}</Text>
+                </RectButton>
               )
-          }
+            }
+            }
+          />
+
 
           <View style={styles.listRow}>
-            <Text style={styles.listTitle}>Balanço atual</Text>
-            <Text style={styles.listTitle}>R$ 2345,88</Text>
+            <Text style={styles.listTitle}>Total</Text>
+            <Text style={styles.listTitle}>{Total}</Text>
           </View>
 
           <RectButton onPress={() => {
@@ -121,9 +126,9 @@ export default function Finances() {
           </RectButton>
 
 
-          <TouchableOpacity onPress={() => navigation.navigate('AboutUs')} style={styles.listButtonFilter}>
+          <RectButton onPress={() => navigation.navigate('AboutUs')} style={styles.listButtonFilter}>
             <Text style={styles.listButtonFilterText}>Sobre o app</Text>
-          </TouchableOpacity>
+          </RectButton>
 
         </View>
       </ScrollView>
@@ -268,8 +273,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   listCardItem: {
+    width: '100%',
     flexDirection: 'row',
-    width: "100%",
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: 4,
