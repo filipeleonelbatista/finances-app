@@ -1,10 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import { StatusBar as RNStatusBar } from 'react-native';
 import React from 'react';
+import { ActivityIndicator, StatusBar as RNStatusBar, View, Image } from 'react-native';
 import Routes from './src/routes';
-import { View } from 'react-native';
-
-import AppLoading from 'expo-app-loading';
 
 import {
   Poppins_400Regular,
@@ -12,6 +9,7 @@ import {
 } from '@expo-google-fonts/poppins';
 import { PaymentsContextProvider } from './src/context/PaymentsContext';
 
+import logo from './src/assets/icon.png';
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -20,7 +18,23 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return (
+      <View style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#442c61"
+      }}>
+        <Image
+          source={logo}
+          style={{
+            width: 100,
+            height: 100,
+            marginBottom: 24,
+          }}
+        />
+        <ActivityIndicator color={"#FFF"} />
+      </View>)
   }
 
   return (
