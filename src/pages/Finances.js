@@ -1,23 +1,24 @@
 import React, { useMemo, useState } from 'react';
 
-import { Dimensions, FlatList, Image, ImageBackground, StyleSheet, Text, Touchable, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
 
+import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
+import dayjs from "dayjs";
 import bgImg from '../assets/images/background.png';
 import logo from '../assets/images/logo.png';
 import AddItemForm from '../components/AddItemForm';
 import Modal from '../components/Modal';
 import { usePayments } from '../hooks/usePayments';
-import { Picker } from '@react-native-picker/picker';
 
 export default function Finances() {
   const navigation = useNavigation();
 
   const [selectedtypeofpayment, setselectedtypeofpayment] = useState('0');
-  const [selectedPeriod, setSelectedPeriod] = useState('Todos');
+  const [selectedPeriod, setSelectedPeriod] = useState('Este mês');
 
   const {
     transactionsList,
@@ -43,7 +44,60 @@ export default function Finances() {
         return false;
       })
 
-      return filteredType;
+      const filteredByPeriod = filteredType.filter(item => {
+        const itemDate = dayjs(item.date)
+
+        if (selectedPeriod === 'Todos') {
+          return true;
+        }
+        if (selectedPeriod === 'Este mês') {
+          const firstDayOfMonth = dayjs().startOf('month');
+          const lastDayOfMonth = dayjs().endOf('month');
+          return itemDate.isAfter(firstDayOfMonth) && itemDate.isBefore(lastDayOfMonth);
+        }
+        if (selectedPeriod === 'Esta semana') {
+          const startOfWeek = dayjs().startOf('week');
+          const endOfWeek = dayjs().endOf('week');
+          return itemDate.isAfter(startOfWeek) && itemDate.isBefore(endOfWeek);
+        }
+        if (selectedPeriod === 'Semana passada') {
+          const startOfLastWeek = dayjs().subtract(1, 'week').startOf('week');
+          const endOfLastWeek = dayjs().subtract(1, 'week').endOf('week');
+          return itemDate.isAfter(startOfLastWeek) && itemDate.isBefore(endOfLastWeek);
+        }
+        if (selectedPeriod === 'Duas semanas atrás') {
+          const startOfLastWeek = dayjs().subtract(2, 'week').startOf('week');
+          const endOfLastWeek = dayjs().subtract(2, 'week').endOf('week');
+          return itemDate.isAfter(startOfLastWeek) && itemDate.isBefore(endOfLastWeek);
+        }
+        if (selectedPeriod === 'Três semanas atrás') {
+          const startOfLastWeek = dayjs().subtract(3, 'week').startOf('week');
+          const endOfLastWeek = dayjs().subtract(3, 'week').endOf('week');
+          return itemDate.isAfter(startOfLastWeek) && itemDate.isBefore(endOfLastWeek);
+        }
+        if (selectedPeriod === 'Mês passado') {
+          const startOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
+          const endOfLastMonth = dayjs().subtract(1, 'month').endOf('month');
+          return itemDate.isAfter(startOfLastMonth) && itemDate.isBefore(endOfLastMonth);
+        }
+      })
+
+      const sortedByDateArray = filteredByPeriod.sort((a, b) => {
+        const dateA = dayjs(a.date);
+        const dateB = dayjs(b.date);
+
+        if (dateA.isBefore(dateB)) {
+          return 1;
+        }
+
+        if (dateA.isAfter(dateB)) {
+          return -1;
+        }
+
+        return 0;
+      })
+
+      return sortedByDateArray;
     }
     return [];
   }, [transactionsList, selectedPeriod, selectedtypeofpayment])
@@ -111,6 +165,10 @@ export default function Finances() {
 
         <View style={styles.list}>
           <View style={styles.listRow}>
+            <Text style={{ marginBottom: 4, marginTop: -15 }}>* Totais apenas dos itens do mês atual</Text>
+          </View>
+
+          <View style={styles.listRow}>
             <Text style={styles.listTitle}>Extrato</Text>
 
             <Picker
@@ -133,11 +191,11 @@ export default function Finances() {
             </Picker>
           </View>
 
-          {/* <View style={styles.listRow}>
+          <View style={styles.listRow}>
             <FlatList
               horizontal
               ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-              data={['Todos', 'Este Mês', 'Esta semana']}
+              data={['Este mês', 'Esta semana', 'Semana passada', 'Duas semanas atrás', 'Três semanas atrás', 'Mês passado', 'Todos']}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={{
@@ -161,46 +219,39 @@ export default function Finances() {
                 </TouchableOpacity>
               )}
             />
-          </View> */}
+          </View>
 
           <View style={styles.listRow}>
             <Text style={{ marginBottom: 4 }}>Clique no item para ver os detalhes</Text>
           </View>
 
-          <FlatList
-            style={{
-              width: '100%',
-            }}
-            data={filteredList}
-            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-            renderItem={({ item }) => {
-              return (
-                <RectButton key={item.id} style={styles.listCardItem}>
-                  <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-                    <Feather
-                      name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
-                      size={48}
-                      color={item.isEnabled ? "#e83e5a" : "#12a454"}
-                    />
-                    <View style={{ flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
-                      <Text style={styles.cardTextListItem} >{item.description}</Text>
-                      <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
-                    </View>
+          {
+            filteredList.map(item => (
+              <RectButton key={item.id} style={styles.listCardItem}>
+                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                  <Feather
+                    name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
+                    size={48}
+                    color={item.isEnabled ? "#e83e5a" : "#12a454"}
+                  />
+                  <View style={{ flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
+                    <Text style={styles.cardTextListItem} >{item.description}</Text>
+                    <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
                   </View>
-                  <Text style={styles.cardTextListItem} >
-                    {item.isEnabled ? "-" : ""}
-                    {item.amount.toLocaleString('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL',
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                      useGrouping: true,
-                    })}
-                  </Text>
-                </RectButton>
-              )
-            }}
-          />
+                </View>
+                <Text style={styles.cardTextListItem} >
+                  {item.isEnabled ? "-" : ""}
+                  {item.amount.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                    useGrouping: true,
+                  })}
+                </Text>
+              </RectButton>
+            ))
+          }
 
 
           <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>

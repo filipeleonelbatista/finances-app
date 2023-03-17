@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import dayjs from 'dayjs';
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { Alert, ToastAndroid } from "react-native";
 import { v4 } from 'uuid';
@@ -42,16 +43,22 @@ export function PaymentsContextProvider(props) {
       let expenses = 0;
       let total = 0;
 
+
+      const firstDayOfMonth = dayjs().startOf('month');
+      const lastDayOfMonth = dayjs().endOf('month');
+
       valueArray.map(transaction => {
-        if (transaction.isEnabled) {
-          expenses = expenses + parseFloat(transaction.amount);
-        } else {
-          incomings = incomings + parseFloat(transaction.amount);
+        const itemDate = dayjs(transaction.date)
+        if (itemDate.isAfter(firstDayOfMonth) && itemDate.isBefore(lastDayOfMonth)) {
+          if (transaction.isEnabled) {
+            expenses = expenses + parseFloat(transaction.amount);
+          } else {
+            incomings = incomings + parseFloat(transaction.amount);
+          }
         }
       });
 
       total = incomings - expenses;
-
 
       setTotal(total.toLocaleString('pt-BR', {
         style: 'currency',
