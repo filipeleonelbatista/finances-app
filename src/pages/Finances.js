@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
-import { Dimensions, FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Image, ImageBackground, StyleSheet, Text, Touchable, TouchableOpacity, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
@@ -11,9 +11,13 @@ import logo from '../assets/images/logo.png';
 import AddItemForm from '../components/AddItemForm';
 import Modal from '../components/Modal';
 import { usePayments } from '../hooks/usePayments';
+import { Picker } from '@react-native-picker/picker';
 
 export default function Finances() {
   const navigation = useNavigation();
+
+  const [selectedtypeofpayment, setselectedtypeofpayment] = useState('0');
+  const [selectedPeriod, setSelectedPeriod] = useState('Todos');
 
   const {
     transactionsList,
@@ -24,7 +28,38 @@ export default function Finances() {
 
   const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
 
-  console.log("Estou na home", transactionsList)
+  const filteredList = useMemo(() => {
+    if (transactionsList) {
+      const filteredType = transactionsList.filter(item => {
+        if (selectedtypeofpayment === '0') {
+          return true;
+        }
+        if (selectedtypeofpayment === '1' && !item.isEnabled) {
+          return true;
+        }
+        if (selectedtypeofpayment === '2' && item.isEnabled) {
+          return true;
+        }
+        return false;
+      })
+
+      return filteredType;
+    }
+    return [];
+  }, [transactionsList, selectedPeriod, selectedtypeofpayment])
+
+  const listTotal = useMemo(() => {
+    let TotalList = 0.0;
+
+    for (const item of filteredList) {
+      if (item.isEnabled) {
+        TotalList = TotalList - item.amount
+      } else {
+        TotalList = TotalList + item.amount
+      }
+    }
+    return TotalList
+  }, [filteredList])
 
   return (
     <>
@@ -63,7 +98,7 @@ export default function Finances() {
               <Text style={styles.cardText}>Saídas</Text>
               <Feather name="arrow-down-circle" size={48} color="#e83e5a" />
             </View>
-            <Text style={styles.cardValue}>{Expenses}</Text>
+            <Text style={styles.cardValue}>-{Expenses}</Text>
           </View>
           <View style={styles.cardGreen}>
             <View style={styles.cardTitleOrientation}>
@@ -77,10 +112,56 @@ export default function Finances() {
         <View style={styles.list}>
           <View style={styles.listRow}>
             <Text style={styles.listTitle}>Extrato</Text>
-            <TouchableOpacity style={styles.listButtonFilter}>
-              <Text style={styles.listButtonFilterText}>Filtrar por</Text>
-            </TouchableOpacity>
+
+            <Picker
+              selectedValue={selectedtypeofpayment}
+              onValueChange={(itemValue, itemIndex) =>
+                setselectedtypeofpayment(itemValue)
+              }
+              mode='dropdown'
+              dropdownIconColor={'#9c44dc'}
+              dropdownIconRippleColor={'#9c44dc'}
+              enabled
+              style={{
+                width: '50%',
+                borderRadius: 4,
+              }}
+            >
+              <Picker.Item label="Todas" value="0" />
+              <Picker.Item label="Entradas" value="1" />
+              <Picker.Item label="Saídas" value="2" />
+            </Picker>
           </View>
+
+          {/* <View style={styles.listRow}>
+            <FlatList
+              horizontal
+              ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+              data={['Todos', 'Este Mês', 'Esta semana']}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    borderWidth: 1,
+                    borderRadius: 16,
+                    backgroundColor: 'transparent',
+                    borderColor: item === selectedPeriod ? '#9c44dc' : '#666',
+                  }}
+                  onPress={() => setSelectedPeriod(item)}
+                >
+                  <Text style={{
+                    color: item === selectedPeriod ? '#9c44dc' : '#666',
+                  }}>
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View> */}
 
           <View style={styles.listRow}>
             <Text style={{ marginBottom: 4 }}>Clique no item para ver os detalhes</Text>
@@ -90,7 +171,7 @@ export default function Finances() {
             style={{
               width: '100%',
             }}
-            data={transactionsList}
+            data={filteredList}
             ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
             renderItem={({ item }) => {
               return (
@@ -106,21 +187,37 @@ export default function Finances() {
                       <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
                     </View>
                   </View>
-                  <Text style={styles.cardTextListItem} >R$ {item.amount}</Text>
+                  <Text style={styles.cardTextListItem} >
+                    {item.isEnabled ? "-" : ""}
+                    {item.amount.toLocaleString('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                      useGrouping: true,
+                    })}
+                  </Text>
                 </RectButton>
               )
-            }
-            }
+            }}
           />
 
 
-          <View style={styles.listRow}>
+          <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
             <Text style={styles.listTitle}>Total</Text>
-            <Text style={styles.listTitle}>{Total}</Text>
+            <Text style={styles.listTitle}>
+              {listTotal.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                useGrouping: true,
+              })}
+            </Text>
           </View>
 
           <RectButton onPress={() => {
-            console.log("Olha isso", transactionsList)
+            console.log("Olha isso", filteredList, selectedtypeofpayment)
           }} style={{ ...styles.button, marginTop: 32 }}>
             <Text style={{ ...styles.buttonText, fontWeight: 'bold' }} >Exportar em CSV</Text>
           </RectButton>

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Finança$",
+    "name": "Financas",
     "slug": "finances",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,10 +21,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#9c44dc"
-      }
+      },
+      "package": "com.filipegaucho22.finances"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "007d84b9-db5f-4e91-8537-b64bd4edafbe"
+      }
     }
   }
 }

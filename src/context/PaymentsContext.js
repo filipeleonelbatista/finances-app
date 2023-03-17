@@ -32,7 +32,7 @@ export function PaymentsContextProvider(props) {
     // await AsyncStorage.clear();
     try {
       const value = await AsyncStorage.getItem('transactions');
-      const valueArray = JSON.parse(value)
+      const valueArray = JSON.parse(value ?? '[]')
       if (value !== null) {
         setTransactionsList(valueArray)
       } else {
@@ -43,7 +43,7 @@ export function PaymentsContextProvider(props) {
       let total = 0;
 
       valueArray.map(transaction => {
-        if (transaction.isExpense) {
+        if (transaction.isEnabled) {
           expenses = expenses + parseFloat(transaction.amount);
         } else {
           incomings = incomings + parseFloat(transaction.amount);
@@ -52,25 +52,29 @@ export function PaymentsContextProvider(props) {
 
       total = incomings - expenses;
 
-      let totalFormat = String(total).replace(/\D/g, "");
-      totalFormat = totalFormat.replace(/(\d)(\d{2})$/, "$1,$2");
-      totalFormat = totalFormat.replace(/(?=(\d{3})+(\D))\B/g, ".");
 
-      let expenseFormat = String(expenses).replace(/\D/g, "");
-      expenseFormat = expenseFormat.replace(/(\d)(\d{2})$/, "$1,$2");
-      expenseFormat = expenseFormat.replace(/(?=(\d{3})+(\D))\B/g, ".");
+      setTotal(total.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: true,
+      }));
+      setExpenses(expenses.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: true,
+      }));
+      setIncomings(incomings.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: true,
+      }));
 
-      let incomingsFormat = String(incomings).replace(/\D/g, "");
-      incomingsFormat = incomingsFormat.replace(/(\d)(\d{2})$/, "$1,$2");
-      incomingsFormat = incomingsFormat.replace(/(?=(\d{3})+(\D))\B/g, ".");
-
-      let resultTotal = total >= 0 ? "R$ " + (totalFormat === "0" ? "0,00" : (total < 100 ? "0," + (total < 10 ? "0" + totalFormat : totalFormat) : totalFormat)) : "-R$ " + (total > -100 ? "0," + (total > -10 ? "0" + totalFormat : totalFormat) : totalFormat);
-      let resultExpense = expenses === 0 ? "R$ 0,00" : (expenses < 100 ? "-R$ 0," + (expenses < 10 ? "0" + expenseFormat : expenseFormat) : "-R$ " + expenseFormat);
-      let resultIncoming = incomings === 0 ? "R$ 0,00" : (incomings < 100 ? "R$ 0," + (incomings < 10 ? "0" + incomingsFormat : incomingsFormat) : "R$ " + incomingsFormat);
-
-      setTotal(resultTotal);
-      setExpenses(resultExpense);
-      setIncomings(resultIncoming);
     } catch (e) {
       console.log(e)
       Alert.alert(
