@@ -8,11 +8,17 @@ import { Feather } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import bgImg from '../assets/images/background.png';
 import logo from '../assets/images/logo.png';
 import AddItemForm from '../components/AddItemForm';
 import Modal from '../components/Modal';
 import { usePayments } from '../hooks/usePayments';
+import EditItemForm from '../components/EditItemForm';
+
+dayjs.extend(isSameOrAfter)
+dayjs.extend(isSameOrBefore)
 
 export default function Finances() {
   const navigation = useNavigation();
@@ -24,10 +30,26 @@ export default function Finances() {
     transactionsList,
     Incomings,
     Expenses,
-    Total
+    Total,
+    Saldo,
+    Tithe
   } = usePayments();
 
+  const formatCurrency = (value) => {
+    return value
+      .toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: true,
+      })
+  }
+
   const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
+  const [openModalSeeTransaction, setOpenModalSeeTransaction] = useState(false);
+
+  const [selectedTransaction, setSelectedTransaction] = useState();
 
   const filteredList = useMemo(() => {
     if (transactionsList) {
@@ -53,32 +75,32 @@ export default function Finances() {
         if (selectedPeriod === 'Este mês') {
           const firstDayOfMonth = dayjs().startOf('month');
           const lastDayOfMonth = dayjs().endOf('month');
-          return itemDate.isAfter(firstDayOfMonth) && itemDate.isBefore(lastDayOfMonth);
+          return itemDate.isSameOrAfter(firstDayOfMonth) && itemDate.isSameOrBefore(lastDayOfMonth);
         }
         if (selectedPeriod === 'Esta semana') {
           const startOfWeek = dayjs().startOf('week');
           const endOfWeek = dayjs().endOf('week');
-          return itemDate.isAfter(startOfWeek) && itemDate.isBefore(endOfWeek);
+          return itemDate.isSameOrAfter(startOfWeek) && itemDate.isSameOrBefore(endOfWeek);
         }
         if (selectedPeriod === 'Semana passada') {
           const startOfLastWeek = dayjs().subtract(1, 'week').startOf('week');
           const endOfLastWeek = dayjs().subtract(1, 'week').endOf('week');
-          return itemDate.isAfter(startOfLastWeek) && itemDate.isBefore(endOfLastWeek);
+          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
         }
         if (selectedPeriod === 'Duas semanas atrás') {
           const startOfLastWeek = dayjs().subtract(2, 'week').startOf('week');
           const endOfLastWeek = dayjs().subtract(2, 'week').endOf('week');
-          return itemDate.isAfter(startOfLastWeek) && itemDate.isBefore(endOfLastWeek);
+          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
         }
         if (selectedPeriod === 'Três semanas atrás') {
           const startOfLastWeek = dayjs().subtract(3, 'week').startOf('week');
           const endOfLastWeek = dayjs().subtract(3, 'week').endOf('week');
-          return itemDate.isAfter(startOfLastWeek) && itemDate.isBefore(endOfLastWeek);
+          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
         }
         if (selectedPeriod === 'Mês passado') {
           const startOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
           const endOfLastMonth = dayjs().subtract(1, 'month').endOf('month');
-          return itemDate.isAfter(startOfLastMonth) && itemDate.isBefore(endOfLastMonth);
+          return itemDate.isSameOrAfter(startOfLastMonth) && itemDate.isSameOrBefore(endOfLastMonth);
         }
       })
 
@@ -117,6 +139,9 @@ export default function Finances() {
 
   return (
     <>
+      <Modal open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
+        <EditItemForm onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
+      </Modal>
       <Modal open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
         <AddItemForm onClose={() => setOpenModalAddTransaction(false)} />
       </Modal>
@@ -142,25 +167,39 @@ export default function Finances() {
         >
           <View style={styles.cardWite}>
             <View style={styles.cardTitleOrientation}>
+              <Text style={styles.cardText}>Saldo</Text>
+              <Feather name={Saldo > 0 ? "arrow-up-circle" : "arrow-down-circle"} size={48} color={Saldo > 0 ? "#12a454" : "#e83e5a"} />
+            </View>
+            <Text style={styles.cardValue}>{formatCurrency(Saldo)}</Text>
+          </View>
+          <View style={styles.cardWite}>
+            <View style={styles.cardTitleOrientation}>
               <Text style={styles.cardText}>Entradas</Text>
               <Feather name="arrow-up-circle" size={48} color="#12a454" />
             </View>
-            <Text style={styles.cardValue}>{Incomings}</Text>
+            <Text style={styles.cardValue}>{formatCurrency(Incomings)}</Text>
           </View>
           <View style={styles.cardWite}>
             <View style={styles.cardTitleOrientation}>
               <Text style={styles.cardText}>Saídas</Text>
               <Feather name="arrow-down-circle" size={48} color="#e83e5a" />
             </View>
-            <Text style={styles.cardValue}>-{Expenses}</Text>
+            <Text style={styles.cardValue}>-{formatCurrency(Expenses)}</Text>
           </View>
           <View style={styles.cardGreen}>
             <View style={styles.cardTitleOrientation}>
               <Text style={styles.cardTextGreen}>Total</Text>
               <Feather name="dollar-sign" size={48} color="#FFF" />
             </View>
-            <Text style={styles.cardValueGreen}>{Total}</Text>
+            <Text style={styles.cardValueGreen}>{formatCurrency(Total)}</Text>
           </View>
+          {/* <View style={styles.cardGreen}>
+            <View style={styles.cardTitleOrientation}>
+              <Text style={styles.cardTextGreen}>Dízimo</Text>
+              <Feather name="dollar-sign" size={48} color="#FFF" />
+            </View>
+            <Text style={styles.cardValueGreen}>{formatCurrency(Tithe)}</Text>
+          </View> */}
         </ScrollView>
 
         <View style={styles.list}>
@@ -227,7 +266,14 @@ export default function Finances() {
 
           {
             filteredList.map(item => (
-              <RectButton key={item.id} style={styles.listCardItem}>
+              <RectButton
+                key={item.id}
+                onPress={() => {
+                  setSelectedTransaction(item)
+                  setOpenModalSeeTransaction(true)
+                }}
+                style={styles.listCardItem}
+              >
                 <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                   <Feather
                     name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
@@ -267,11 +313,11 @@ export default function Finances() {
             </Text>
           </View>
 
-          <RectButton onPress={() => {
-            console.log("Olha isso", filteredList, selectedtypeofpayment)
+          {/* <RectButton onPress={() => {
+            console.log("Olha isso", filteredList, transactionsList)
           }} style={{ ...styles.button, marginTop: 32 }}>
             <Text style={{ ...styles.buttonText, fontWeight: 'bold' }} >Exportar em CSV</Text>
-          </RectButton>
+          </RectButton> */}
 
 
           <RectButton onPress={() => navigation.navigate('AboutUs')} style={styles.listButtonFilter}>

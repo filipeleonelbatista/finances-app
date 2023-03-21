@@ -8,9 +8,51 @@ export const PaymentsContext = createContext({});
 
 export function PaymentsContextProvider(props) {
   const [transactionsList, setTransactionsList] = useState('');
-  const [Incomings, setIncomings] = useState("R$ 0,00");
-  const [Expenses, setExpenses] = useState("R$ 0,00");
-  const [Total, setTotal] = useState("R$ 0,00");
+  const [Incomings, setIncomings] = useState(0);
+  const [Expenses, setExpenses] = useState(0);
+  const [Total, setTotal] = useState(0);
+  const [Tithe, setTithe] = useState(0);
+  const [Saldo, setSaldo] = useState(0);
+
+  async function updateTransaction(currentTransaction) {
+    const index = transactionsList.findIndex(item => item.id === currentTransaction.id)
+    if (index !== -1) {
+      const newTransactionList = transactionsList;
+      newTransactionList[index] = currentTransaction;
+
+      await AsyncStorage.setItem('transactions', JSON.stringify(newTransactionList));
+
+      loadTransactions()
+
+      ToastAndroid.show('Transação Atualizada', ToastAndroid.SHORT);
+    }
+  }
+
+  async function deleteTransaction(currentTransaction) {
+    Alert.alert(
+      "Deseja realmente deletar esse registro?",
+      "Esta ação é irreversível! Deseja continuar?",
+      [
+        {
+          text: 'Não',
+          style: 'cancel',
+          onPress: () => console.log('Não pressed'),
+        },
+        {
+          text: 'Sim',
+          onPress: async () => {
+
+            const newTransactionList = transactionsList.filter(item => item.id !== currentTransaction.id);
+
+            await AsyncStorage.setItem('transactions', JSON.stringify(newTransactionList));
+
+            loadTransactions()
+
+            ToastAndroid.show('Transação Removida', ToastAndroid.SHORT);
+          },
+        },
+      ])
+  }
 
   async function addTrasaction(newTransaction) {
 
@@ -42,6 +84,7 @@ export function PaymentsContextProvider(props) {
       let incomings = 0;
       let expenses = 0;
       let total = 0;
+      let saldo = 0;
 
 
       const firstDayOfMonth = dayjs().startOf('month');
@@ -49,6 +92,11 @@ export function PaymentsContextProvider(props) {
 
       valueArray.map(transaction => {
         const itemDate = dayjs(transaction.date)
+        if (transaction.isEnabled) {
+          saldo = saldo - parseFloat(transaction.amount);
+        } else {
+          saldo = saldo + parseFloat(transaction.amount);
+        }
         if (itemDate.isAfter(firstDayOfMonth) && itemDate.isBefore(lastDayOfMonth)) {
           if (transaction.isEnabled) {
             expenses = expenses + parseFloat(transaction.amount);
@@ -59,39 +107,14 @@ export function PaymentsContextProvider(props) {
       });
 
       total = incomings - expenses;
-
-      setTotal(total.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-        useGrouping: true,
-      }));
-      setExpenses(expenses.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-        useGrouping: true,
-      }));
-      setIncomings(incomings.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-        useGrouping: true,
-      }));
+      setSaldo(saldo)
+      setTithe(((total * 10) / 100));
+      setTotal(total);
+      setExpenses(expenses);
+      setIncomings(incomings);
 
     } catch (e) {
       console.log(e)
-      Alert.alert(
-        "Erro",
-        "Não foi possível carregar dados do armazenamento\n\nErro:\n" + e,
-        [
-          { text: "OK", onPress: () => console.log('Ok pressed') }
-        ],
-        { cancelable: false }
-      );
     }
 
     return;
@@ -109,7 +132,11 @@ export function PaymentsContextProvider(props) {
         Incomings,
         Expenses,
         Total,
+        Tithe,
+        Saldo,
         addTrasaction,
+        updateTransaction,
+        deleteTransaction,
       }}
     >
       {props.children}
