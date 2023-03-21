@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 
-import { Dimensions, FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
@@ -11,63 +12,33 @@ import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import bgImg from '../assets/images/background.png';
-import logo from '../assets/images/logo.png';
-import AddItemForm from '../components/AddItemForm';
+import AutonomyForm from '../components/AutonomyForm';
 import Modal from '../components/Modal';
-import { usePayments } from '../hooks/usePayments';
-import EditItemForm from '../components/EditItemForm';
+import { useRuns } from '../hooks/useRuns';
+import AddFuelForm from '../components/AddFuelForm';
 import Menu from '../components/Menu';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 
-export default function Finances() {
+export default function Runs() {
   const navigation = useNavigation();
 
-  const [selectedtypeofpayment, setselectedtypeofpayment] = useState('0');
   const [selectedPeriod, setSelectedPeriod] = useState('Este mês');
 
   const {
-    transactionsList,
-    Incomings,
-    Expenses,
-    Total,
-    Saldo,
-    Tithe
-  } = usePayments();
+    FuelList,
+    autonomy,
+    deleteTransaction
+  } = useRuns();
 
-  const formatCurrency = (value) => {
-    return value
-      .toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-        useGrouping: true,
-      })
-  }
-
+  const [openModalSetAutonomy, setOpenModalSetAutonomy] = useState(false);
   const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
-  const [openModalSeeTransaction, setOpenModalSeeTransaction] = useState(false);
-
-  const [selectedTransaction, setSelectedTransaction] = useState();
 
   const filteredList = useMemo(() => {
-    if (transactionsList) {
-      const filteredType = transactionsList.filter(item => {
-        if (selectedtypeofpayment === '0') {
-          return true;
-        }
-        if (selectedtypeofpayment === '1' && !item.isEnabled) {
-          return true;
-        }
-        if (selectedtypeofpayment === '2' && item.isEnabled) {
-          return true;
-        }
-        return false;
-      })
+    if (FuelList) {
 
-      const filteredByPeriod = filteredType.filter(item => {
+      const filteredByPeriod = FuelList.filter(item => {
         const itemDate = dayjs(item.date)
 
         if (selectedPeriod === 'Todos') {
@@ -77,31 +48,6 @@ export default function Finances() {
           const firstDayOfMonth = dayjs().startOf('month');
           const lastDayOfMonth = dayjs().endOf('month');
           return itemDate.isSameOrAfter(firstDayOfMonth) && itemDate.isSameOrBefore(lastDayOfMonth);
-        }
-        if (selectedPeriod === 'Esta semana') {
-          const startOfWeek = dayjs().startOf('week');
-          const endOfWeek = dayjs().endOf('week');
-          return itemDate.isSameOrAfter(startOfWeek) && itemDate.isSameOrBefore(endOfWeek);
-        }
-        if (selectedPeriod === 'Semana passada') {
-          const startOfLastWeek = dayjs().subtract(1, 'week').startOf('week');
-          const endOfLastWeek = dayjs().subtract(1, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Duas semanas atrás') {
-          const startOfLastWeek = dayjs().subtract(2, 'week').startOf('week');
-          const endOfLastWeek = dayjs().subtract(2, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Três semanas atrás') {
-          const startOfLastWeek = dayjs().subtract(3, 'week').startOf('week');
-          const endOfLastWeek = dayjs().subtract(3, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Mês passado') {
-          const startOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
-          const endOfLastMonth = dayjs().subtract(1, 'month').endOf('month');
-          return itemDate.isSameOrAfter(startOfLastMonth) && itemDate.isSameOrBefore(endOfLastMonth);
         }
       })
 
@@ -123,34 +69,36 @@ export default function Finances() {
       return sortedByDateArray;
     }
     return [];
-  }, [transactionsList, selectedPeriod, selectedtypeofpayment])
+  }, [FuelList, selectedPeriod])
 
   const listTotal = useMemo(() => {
     let TotalList = 0.0;
 
     for (const item of filteredList) {
-      if (item.isEnabled) {
-        TotalList = TotalList - item.amount
-      } else {
-        TotalList = TotalList + item.amount
-      }
+      TotalList = TotalList + (item.amount * item.volume)
     }
     return TotalList
   }, [filteredList])
 
   return (
     <>
-      <Modal open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
-        <EditItemForm onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
+      <Modal open={openModalSetAutonomy} onClose={() => setOpenModalSetAutonomy(false)}>
+        <AutonomyForm onClose={() => setOpenModalSetAutonomy(false)} />
       </Modal>
       <Modal open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
-        <AddItemForm onClose={() => setOpenModalAddTransaction(false)} />
+        <AddFuelForm onClose={() => setOpenModalAddTransaction(false)} />
       </Modal>
       <ScrollView style={styles.container}>
         <ImageBackground source={bgImg} style={styles.header}>
           <View style={styles.headerItens}>
             <View style={styles.headerEmpty} />
-            <Image source={logo} style={styles.imageHeader} />
+            <Text style={{
+              fontFamily: 'Poppins_600SemiBold',
+              fontSize: 24,
+              color: '#FFF'
+            }}>
+              Corrida<Text style={{ color: '#543b6c' }}>$</Text>
+            </Text>
             <RectButton onPress={() => setOpenModalAddTransaction(true)} style={styles.headerButton}>
               <Feather name="plus" size={24} color="#FFF" />
             </RectButton>
@@ -166,57 +114,43 @@ export default function Finances() {
           }}
           style={styles.ScrollViewContainer}
         >
-          <View style={styles.cardWite}>
+          <RectButton onPress={() => setOpenModalSetAutonomy(true)} style={styles.cardWite}>
             <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Saldo</Text>
-              <Feather name={Saldo > 0 ? "arrow-up-circle" : "arrow-down-circle"} size={48} color={Saldo > 0 ? "#12a454" : "#e83e5a"} />
+              <Text style={styles.cardText}>Autonomia</Text>
+              <Feather name={"arrow-up-circle"} size={48} color={"#12a454"} />
             </View>
-            <Text style={styles.cardValue}>{formatCurrency(Saldo)}</Text>
-          </View>
+            <Text style={styles.cardValue}>{autonomy ?? 0}L</Text>
+          </RectButton>
           <View style={styles.cardWite}>
             <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Entradas</Text>
+              <Text style={styles.cardText}>Km Atual</Text>
               <Feather name="arrow-up-circle" size={48} color="#12a454" />
             </View>
-            <Text style={styles.cardValue}>{formatCurrency(Incomings)}</Text>
-          </View>
-          <View style={styles.cardWite}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Saídas</Text>
-              <Feather name="arrow-down-circle" size={48} color="#e83e5a" />
-            </View>
-            <Text style={styles.cardValue}>-{formatCurrency(Expenses)}</Text>
+            <Text style={styles.cardValue}>{filteredList[0]?.currentDistance ?? 0}</Text>
           </View>
           <View style={styles.cardGreen}>
             <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardTextGreen}>Total</Text>
+              <Text style={styles.cardTextGreen}>Km Estimado</Text>
               <Feather name="dollar-sign" size={48} color="#FFF" />
             </View>
-            <Text style={styles.cardValueGreen}>{formatCurrency(Total)}</Text>
+            <Text style={styles.cardValueGreen}>{filteredList[0] ? ((autonomy * filteredList[0]?.volume) + filteredList[0]?.currentDistance) : 0}</Text>
           </View>
-          {/* <View style={styles.cardGreen}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardTextGreen}>Dízimo</Text>
-              <Feather name="dollar-sign" size={48} color="#FFF" />
-            </View>
-            <Text style={styles.cardValueGreen}>{formatCurrency(Tithe)}</Text>
-          </View> */}
         </ScrollView>
 
         <View style={styles.list}>
           <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, marginTop: -15 }}>* Totais apenas dos itens do mês atual</Text>
+            <Text style={{ marginBottom: 4, marginTop: -15 }}>* Totais referentes ao ultimo abastecimento</Text>
           </View>
 
           <Menu />
 
           <View style={styles.listRow}>
-            <Text style={styles.listTitle}>Extrato</Text>
+            <Text style={styles.listTitle}>Abastecimentos</Text>
 
             <Picker
-              selectedValue={selectedtypeofpayment}
+              selectedValue={selectedPeriod}
               onValueChange={(itemValue, itemIndex) =>
-                setselectedtypeofpayment(itemValue)
+                setSelectedPeriod(itemValue)
               }
               mode='dropdown'
               dropdownIconColor={'#9c44dc'}
@@ -227,44 +161,13 @@ export default function Finances() {
                 borderRadius: 4,
               }}
             >
-              <Picker.Item label="Todas" value="0" />
-              <Picker.Item label="Entradas" value="1" />
-              <Picker.Item label="Saídas" value="2" />
+              <Picker.Item label="Este mês" value="Este mês" />
+              <Picker.Item label="Todas" value="Todas" />
             </Picker>
           </View>
 
           <View style={styles.listRow}>
-            <FlatList
-              horizontal
-              ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-              data={['Este mês', 'Esta semana', 'Semana passada', 'Duas semanas atrás', 'Três semanas atrás', 'Mês passado', 'Todos']}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    paddingHorizontal: 8,
-                    paddingVertical: 4,
-                    borderWidth: 1,
-                    borderRadius: 16,
-                    backgroundColor: 'transparent',
-                    borderColor: item === selectedPeriod ? '#9c44dc' : '#666',
-                  }}
-                  onPress={() => setSelectedPeriod(item)}
-                >
-                  <Text style={{
-                    color: item === selectedPeriod ? '#9c44dc' : '#666',
-                  }}>
-                    {item}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-
-          <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4 }}>Clique no item para ver os detalhes</Text>
+            <Text style={{ marginBottom: 4 }}>Clique no item para excluir</Text>
           </View>
 
           {
@@ -272,25 +175,35 @@ export default function Finances() {
               <RectButton
                 key={item.id}
                 onPress={() => {
-                  setSelectedTransaction(item)
-                  setOpenModalSeeTransaction(true)
+                  deleteTransaction(item)
                 }}
                 style={styles.listCardItem}
               >
                 <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-                  <Feather
-                    name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
+                  <MaterialCommunityIcons
+                    name={"fuel"}
                     size={48}
-                    color={item.isEnabled ? "#e83e5a" : "#12a454"}
+                    color={"#12a454"}
                   />
                   <View style={{ flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
-                    <Text style={styles.cardTextListItem} >{item.description}</Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
+                    <Text style={styles.cardTextListItem} >{item.location}</Text>
+                    <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >
+                      {new Date(item.date).toLocaleDateString('pt-BR')}
+                    </Text>
+                    <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >
+                      {item.amount.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                        useGrouping: true,
+                      })} - {item.volume} Litros
+                    </Text>
                   </View>
                 </View>
                 <Text style={styles.cardTextListItem} >
                   {item.isEnabled ? "-" : ""}
-                  {item.amount.toLocaleString('pt-BR', {
+                  {(item.amount * item.volume).toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL',
                     minimumFractionDigits: 2,
@@ -315,12 +228,6 @@ export default function Finances() {
               })}
             </Text>
           </View>
-
-          {/* <RectButton onPress={() => {
-            console.log("Olha isso", filteredList, transactionsList)
-          }} style={{ ...styles.button, marginTop: 32 }}>
-            <Text style={{ ...styles.buttonText, fontWeight: 'bold' }} >Exportar em CSV</Text>
-          </RectButton> */}
 
         </View>
       </ScrollView>

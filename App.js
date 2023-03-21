@@ -10,6 +10,7 @@ import {
 import { PaymentsContextProvider } from './src/context/PaymentsContext';
 
 import logo from './src/assets/icon.png';
+import { RunsContextProvider } from './src/context/RunsContext';
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -46,7 +47,9 @@ export default function App() {
         <StatusBar style="light" />
       </View>
       <PaymentsContextProvider>
-        <Routes />
+        <RunsContextProvider>
+          <Routes />
+        </RunsContextProvider>
       </PaymentsContextProvider>
     </>
   );

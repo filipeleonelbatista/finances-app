@@ -5,15 +5,29 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import AboutUs from './pages/AboutUs';
 import Finances from './pages/Finances';
+import Runs from './pages/Runs';
 
 const Stack = createStackNavigator();
 
 export default function Routes() {
     return (
         <NavigationContainer>
-            <Stack.Navigator screenOptions={{ headerShown: false, cardStyle: { backgroundColor: '#F2F3F5' } }}>
-                <Stack.Screen name="Finances" component={Finances} />
-                <Stack.Screen name="AboutUs" component={AboutUs} />
+            <Stack.Navigator
+                initialRouteName='Finanças'
+                screenOptions={{ headerShown: false, cardStyle: { backgroundColor: '#F2F3F5' } }}
+            >
+                <Stack.Screen
+                    name="Finanças"
+                    component={Finances}
+                />
+                <Stack.Screen
+                    name="Combustível"
+                    component={Runs}
+                />
+                <Stack.Screen
+                    name="Sobre"
+                    component={AboutUs}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );
