@@ -13,10 +13,9 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import bgImg from '../assets/images/background.png';
 import logo from '../assets/images/logo.png';
 import AddItemForm from '../components/AddItemForm';
+import EditItemForm from '../components/EditItemForm';
 import Modal from '../components/Modal';
 import { usePayments } from '../hooks/usePayments';
-import EditItemForm from '../components/EditItemForm';
-import Menu from '../components/Menu';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -139,7 +138,7 @@ export default function Finances() {
   }, [filteredList])
 
   return (
-    <Menu>
+    <>
       <Modal open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
         <EditItemForm onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
       </Modal>
@@ -194,13 +193,13 @@ export default function Finances() {
             </View>
             <Text style={styles.cardValueGreen}>{formatCurrency(Total)}</Text>
           </View>
-          {/* <View style={styles.cardGreen}>
+          <View style={styles.cardGreen}>
             <View style={styles.cardTitleOrientation}>
               <Text style={styles.cardTextGreen}>Dízimo</Text>
               <Feather name="dollar-sign" size={48} color="#FFF" />
             </View>
             <Text style={styles.cardValueGreen}>{formatCurrency(Tithe)}</Text>
-          </View> */}
+          </View>
         </ScrollView>
 
         <View style={styles.list}>
@@ -322,7 +321,7 @@ export default function Finances() {
 
         </View>
       </ScrollView>
-    </Menu>
+    </>
   );
 }
 

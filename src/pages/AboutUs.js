@@ -1,15 +1,14 @@
-import React from 'react';
-import { ImageBackground, Image, View, Text, StyleSheet, Dimensions, Linking, Clipboard, Alert } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { Alert, Clipboard, Dimensions, Image, ImageBackground, Linking, StyleSheet, Text, View } from 'react-native';
+import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
-import userImg from '../assets/images/20867392.png'
-import bgImg from '../assets/images/background.png'
-import jsImg from '../assets/images/js.png'
-import reactImg from '../assets/images/react.png'
-import nodeImg from '../assets/images/nodejs.png'
-import Menu from '../components/Menu';
+import userImg from '../assets/images/20867392.png';
+import bgImg from '../assets/images/background.png';
+import jsImg from '../assets/images/js.png';
+import nodeImg from '../assets/images/nodejs.png';
+import reactImg from '../assets/images/react.png';
 
 export default function AboutUs() {
     const navigation = useNavigation()
@@ -27,7 +26,7 @@ export default function AboutUs() {
     }
 
     return (
-        <Menu>
+        <>
             <ScrollView
                 style={styles.ScrollViewContainer}
             >
@@ -83,7 +82,7 @@ export default function AboutUs() {
                     </Text>
                 </RectButton>
             </ScrollView>
-        </Menu>
+        </>
     );
 }
 

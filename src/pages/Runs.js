@@ -3,8 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Dimensions, ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
-import { Feather } from '@expo/vector-icons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
@@ -12,11 +11,10 @@ import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import bgImg from '../assets/images/background.png';
+import AddFuelForm from '../components/AddFuelForm';
 import AutonomyForm from '../components/AutonomyForm';
 import Modal from '../components/Modal';
 import { useRuns } from '../hooks/useRuns';
-import AddFuelForm from '../components/AddFuelForm';
-import Menu from '../components/Menu';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -81,7 +79,7 @@ export default function Runs() {
   }, [filteredList])
 
   return (
-    <Menu>
+    <>
       <Modal open={openModalSetAutonomy} onClose={() => setOpenModalSetAutonomy(false)}>
         <AutonomyForm onClose={() => setOpenModalSetAutonomy(false)} />
       </Modal>
@@ -229,7 +227,7 @@ export default function Runs() {
 
         </View>
       </ScrollView>
-    </Menu>
+    </>
   );
 }
 
