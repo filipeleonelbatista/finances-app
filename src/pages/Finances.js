@@ -139,7 +139,7 @@ export default function Finances() {
   }, [filteredList])
 
   return (
-    <>
+    <Menu>
       <Modal open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
         <EditItemForm onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
       </Modal>
@@ -207,8 +207,6 @@ export default function Finances() {
           <View style={styles.listRow}>
             <Text style={{ marginBottom: 4, marginTop: -15 }}>* Totais apenas dos itens do mês atual</Text>
           </View>
-
-          <Menu />
 
           <View style={styles.listRow}>
             <Text style={styles.listTitle}>Extrato</Text>
@@ -324,7 +322,7 @@ export default function Finances() {
 
         </View>
       </ScrollView>
-    </>
+    </Menu>
   );
 }
 

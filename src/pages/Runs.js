@@ -81,7 +81,7 @@ export default function Runs() {
   }, [filteredList])
 
   return (
-    <>
+    <Menu>
       <Modal open={openModalSetAutonomy} onClose={() => setOpenModalSetAutonomy(false)}>
         <AutonomyForm onClose={() => setOpenModalSetAutonomy(false)} />
       </Modal>
@@ -141,8 +141,6 @@ export default function Runs() {
           <View style={styles.listRow}>
             <Text style={{ marginBottom: 4, marginTop: -15 }}>* Totais referentes ao ultimo abastecimento</Text>
           </View>
-
-          <Menu />
 
           <View style={styles.listRow}>
             <Text style={styles.listTitle}>Abastecimentos</Text>
@@ -231,7 +229,7 @@ export default function Runs() {
 
         </View>
       </ScrollView>
-    </>
+    </Menu>
   );
 }
 

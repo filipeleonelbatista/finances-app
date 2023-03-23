@@ -13,7 +13,7 @@ export default function Routes() {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName='Finanças'
+                initialRouteName='Combustível'
                 screenOptions={{ headerShown: false, cardStyle: { backgroundColor: '#F2F3F5' } }}
             >
                 <Stack.Screen
