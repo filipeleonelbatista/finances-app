@@ -15,6 +15,7 @@ import AddFuelForm from '../components/AddFuelForm';
 import AutonomyForm from '../components/AutonomyForm';
 import Modal from '../components/Modal';
 import { useRuns } from '../hooks/useRuns';
+import Menu from '../components/Menu';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -46,6 +47,11 @@ export default function Runs() {
           const firstDayOfMonth = dayjs().startOf('month');
           const lastDayOfMonth = dayjs().endOf('month');
           return itemDate.isSameOrAfter(firstDayOfMonth) && itemDate.isSameOrBefore(lastDayOfMonth);
+        }
+        if (selectedPeriod === 'Mês anterior') {
+          const startOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
+          const endOfLastMonth = dayjs().subtract(1, 'month').endOf('month');
+          return itemDate.isSameOrAfter(startOfLastMonth) && itemDate.isSameOrBefore(endOfLastMonth);
         }
       })
 
@@ -79,7 +85,7 @@ export default function Runs() {
   }, [filteredList])
 
   return (
-    <>
+    <Menu>
       <Modal open={openModalSetAutonomy} onClose={() => setOpenModalSetAutonomy(false)}>
         <AutonomyForm onClose={() => setOpenModalSetAutonomy(false)} />
       </Modal>
@@ -112,20 +118,6 @@ export default function Runs() {
           }}
           style={styles.ScrollViewContainer}
         >
-          <RectButton onPress={() => setOpenModalSetAutonomy(true)} style={styles.cardWite}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Autonomia</Text>
-              <Feather name={"arrow-up-circle"} size={48} color={"#12a454"} />
-            </View>
-            <Text style={styles.cardValue}>{autonomy ?? 0}L</Text>
-          </RectButton>
-          <View style={styles.cardWite}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Km Atual</Text>
-              <Feather name="arrow-up-circle" size={48} color="#12a454" />
-            </View>
-            <Text style={styles.cardValue}>{filteredList[0]?.currentDistance ?? 0}</Text>
-          </View>
           <View style={styles.cardGreen}>
             <View style={styles.cardTitleOrientation}>
               <Text style={styles.cardTextGreen}>Km Estimado</Text>
@@ -133,6 +125,20 @@ export default function Runs() {
             </View>
             <Text style={styles.cardValueGreen}>{filteredList[0] ? ((autonomy * filteredList[0]?.volume) + filteredList[0]?.currentDistance) : 0}</Text>
           </View>
+          <View style={styles.cardWite}>
+            <View style={styles.cardTitleOrientation}>
+              <Text style={styles.cardText}>Km Atual</Text>
+              <Feather name="arrow-up-circle" size={48} color="#12a454" />
+            </View>
+            <Text style={styles.cardValue}>{filteredList[0]?.currentDistance ?? 0}</Text>
+          </View>
+          <RectButton onPress={() => setOpenModalSetAutonomy(true)} style={styles.cardWite}>
+            <View style={styles.cardTitleOrientation}>
+              <Text style={styles.cardText}>Autonomia</Text>
+              <Feather name={"arrow-up-circle"} size={48} color={"#12a454"} />
+            </View>
+            <Text style={styles.cardValue}>{autonomy ?? 0}L</Text>
+          </RectButton>
         </ScrollView>
 
         <View style={styles.list}>
@@ -157,6 +163,7 @@ export default function Runs() {
                 borderRadius: 4,
               }}
             >
+              <Picker.Item label="Mês anterior" value="Mês anterior" />
               <Picker.Item label="Este mês" value="Este mês" />
               <Picker.Item label="Todas" value="Todas" />
             </Picker>
@@ -227,7 +234,7 @@ export default function Runs() {
 
         </View>
       </ScrollView>
-    </>
+    </Menu>
   );
 }
 

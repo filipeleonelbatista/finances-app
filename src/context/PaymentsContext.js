@@ -84,6 +84,7 @@ export function PaymentsContextProvider(props) {
       let incomings = 0;
       let expenses = 0;
       let total = 0;
+      let titheTotal = 0;
       let saldo = 0;
 
 
@@ -92,6 +93,13 @@ export function PaymentsContextProvider(props) {
 
       valueArray.map(transaction => {
         const itemDate = dayjs(transaction.date)
+        if (!transaction.hasOwnProperty("id_fuel")) {
+          if (transaction.isEnabled) {
+            titheTotal = titheTotal - parseFloat(transaction.amount);
+          } else {
+            titheTotal = titheTotal + parseFloat(transaction.amount);
+          }
+        }
         if (transaction.isEnabled) {
           saldo = saldo - parseFloat(transaction.amount);
         } else {
@@ -108,7 +116,7 @@ export function PaymentsContextProvider(props) {
 
       total = incomings - expenses;
       setSaldo(saldo)
-      setTithe(((total * 10) / 100));
+      setTithe(((titheTotal * 10) / 100));
       setTotal(total);
       setExpenses(expenses);
       setIncomings(incomings);

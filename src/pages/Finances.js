@@ -16,6 +16,7 @@ import AddItemForm from '../components/AddItemForm';
 import EditItemForm from '../components/EditItemForm';
 import Modal from '../components/Modal';
 import { usePayments } from '../hooks/usePayments';
+import Menu from '../components/Menu';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -71,6 +72,11 @@ export default function Finances() {
 
         if (selectedPeriod === 'Todos') {
           return true;
+        }
+        if (selectedPeriod === 'Próximo mês') {
+          const startOfNextMonth = dayjs().add(1, 'month').startOf('month');
+          const endOfNextMonth = dayjs().add(2, 'month').startOf('month').subtract(1, 'day');
+          return itemDate.isSameOrAfter(startOfNextMonth) && itemDate.isSameOrBefore(endOfNextMonth);
         }
         if (selectedPeriod === 'Este mês') {
           const firstDayOfMonth = dayjs().startOf('month');
@@ -138,7 +144,7 @@ export default function Finances() {
   }, [filteredList])
 
   return (
-    <>
+    <Menu>
       <Modal open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
         <EditItemForm onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
       </Modal>
@@ -232,9 +238,10 @@ export default function Finances() {
 
           <View style={styles.listRow}>
             <FlatList
+              showsHorizontalScrollIndicator={false}
               horizontal
               ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-              data={['Este mês', 'Esta semana', 'Semana passada', 'Duas semanas atrás', 'Três semanas atrás', 'Mês passado', 'Todos']}
+              data={['Próximo mês', 'Este mês', 'Esta semana', 'Semana passada', 'Duas semanas atrás', 'Três semanas atrás', 'Mês passado', 'Todos']}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={{
@@ -312,16 +319,9 @@ export default function Finances() {
               })}
             </Text>
           </View>
-
-          {/* <RectButton onPress={() => {
-            console.log("Olha isso", filteredList, transactionsList)
-          }} style={{ ...styles.button, marginTop: 32 }}>
-            <Text style={{ ...styles.buttonText, fontWeight: 'bold' }} >Exportar em CSV</Text>
-          </RectButton> */}
-
         </View>
       </ScrollView>
-    </>
+    </Menu>
   );
 }
 

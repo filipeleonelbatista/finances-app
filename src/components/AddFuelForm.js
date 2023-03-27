@@ -99,7 +99,7 @@ export default function AddFuelForm({ onClose }) {
                 <TextInput style={styles.input}
                     keyboardType="decimal-pad"
                     placeholder="Quantidade em litros abastecidos"
-                    onChangeText={(text) => formik.setFieldValue('volume', text)}
+                    onChangeText={(text) => formik.setFieldValue('volume', moeda(text))}
                     value={formik.values.volume}
                 />
                 {formik.errors.volume && (

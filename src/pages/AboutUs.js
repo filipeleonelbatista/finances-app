@@ -9,6 +9,7 @@ import bgImg from '../assets/images/background.png';
 import jsImg from '../assets/images/js.png';
 import nodeImg from '../assets/images/nodejs.png';
 import reactImg from '../assets/images/react.png';
+import Menu from '../components/Menu';
 
 export default function AboutUs() {
     const navigation = useNavigation()
@@ -26,7 +27,7 @@ export default function AboutUs() {
     }
 
     return (
-        <>
+        <Menu>
             <ScrollView
                 style={styles.ScrollViewContainer}
             >
@@ -82,7 +83,7 @@ export default function AboutUs() {
                     </Text>
                 </RectButton>
             </ScrollView>
-        </>
+        </Menu>
     );
 }
 
