@@ -1,17 +1,31 @@
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { Alert, Clipboard, Dimensions, Image, ImageBackground, Linking, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, Clipboard, Dimensions, Image, ImageBackground, Linking, PermissionsAndroid, StyleSheet, Text, ToastAndroid, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
-import userImg from '../assets/images/20867392.png';
+import XLSX from 'xlsx';
+import * as MediaLibrary from 'expo-media-library';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+
+import userImg from '../assets/icon.png';
 import bgImg from '../assets/images/background.png';
-import jsImg from '../assets/images/js.png';
-import nodeImg from '../assets/images/nodejs.png';
-import reactImg from '../assets/images/react.png';
 import Menu from '../components/Menu';
+import { usePayments } from '../hooks/usePayments';
 
 export default function AboutUs() {
+    const {
+        transactionsList,
+        Incomings,
+        Expenses,
+        Total,
+        Saldo,
+        Tithe
+    } = usePayments();
+
+    const [csvContent, setCsvContent] = useState(null);
+
     const navigation = useNavigation()
 
     function handleCopyToClipboardPixKey() {
@@ -24,6 +38,76 @@ export default function AboutUs() {
         ],
             { cancelable: false }
         );
+    }
+
+    function formatDate(value) {
+        return new Date(value).toLocaleDateString('pt-BR')
+    }
+
+    async function exportDataToExcel() {
+        const dataCsv = transactionsList.map(item => [item.id, item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), `${item.isEnabled ? '-' : ''}${item.amount}`])
+
+        let TotalList = 0.0;
+
+        for (const item of transactionsList) {
+            if (item.isEnabled) {
+                TotalList = TotalList - item.amount
+            } else {
+                TotalList = TotalList + item.amount
+            }
+        }
+
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([
+            ['Minhas finanças'],
+            ['Identificador', 'Descrição', 'Tipo', 'Data', 'Valor'],
+            ...dataCsv,
+            ['', '', '', 'Total:', `${TotalList}`],
+            ['', '', '', 'Dizimo:', `${Tithe}`],
+        ]);
+        XLSX.utils.book_append_sheet(wb, ws, "Financas");
+        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' })
+
+        let fileUri = FileSystem.documentDirectory + "financas.xlsx";
+
+        try {
+            FileSystem.writeAsStringAsync(fileUri, wbout, { encoding: FileSystem.EncodingType.Base64 })
+                .then(() => {
+                    ToastAndroid.show('Exportado com sucesso', ToastAndroid.SHORT);
+                    Sharing.shareAsync(fileUri)
+                })
+
+
+        } catch (error) {
+            console.log(error)
+        }
+
+
+    }
+
+    async function handleOpenCSV() {
+        try {
+
+            let perm = await MediaLibrary.getPermissionsAsync();
+
+            if (perm.status != 'granted') {
+                let currentPerm = await MediaLibrary.requestPermissionsAsync();
+                if ('granted' === currentPerm.status) {
+                    exportDataToExcel()
+                } else {
+                    ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
+                }
+            }
+            else {
+                exportDataToExcel()
+            }
+        } catch (error) {
+            ToastAndroid.show('Houve um problema', ToastAndroid.SHORT);
+            console.log("Error while check permissions")
+            console.log(error)
+            return
+        }
     }
 
     return (
@@ -43,43 +127,16 @@ export default function AboutUs() {
                         </View>
                     </View>
                 </View>
-                <View style={styles.content}>
-                    <Text style={styles.dev}>Filipe de Leonel Batista</Text>
-                    <Text style={styles.subtitle}>Desenvolvedor de Software PL</Text>
-                    <View style={styles.contentImg}>
-                        <Image source={jsImg} style={styles.techs} />
-                        <Image source={reactImg} style={styles.techs} />
-                        <Image source={nodeImg} style={styles.techs} />
-                    </View>
-                    <RectButton onPress={handleCopyToClipboardPixKey} style={styles.button}>
-                        <Text style={styles.buttonText} >
-                            Me pague uma pizza 😉
-                        </Text>
-                    </RectButton>
-                    <Text style={styles.subtitle}>Via PIX</Text>
-                </View>
-                <RectButton onPress={() => { Linking.openURL("https://www.instagram.com/filipeleonelbatista/") }} style={styles.button}>
-                    <Feather name="instagram" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                <RectButton onPress={handleOpenCSV} style={styles.button}>
+                    <Feather name="globe" size={24} style={{ marginRight: 6 }} color="#FFF" />
                     <Text style={styles.buttonText} >
-                        Instagram
-                    </Text>
-                </RectButton>
-                <RectButton onPress={() => { Linking.openURL("https://github.com/filipeleonelbatista/") }} style={styles.button}>
-                    <Feather name="github" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                    <Text style={styles.buttonText} >
-                        Github
-                    </Text>
-                </RectButton>
-                <RectButton onPress={() => { Linking.openURL("https://www.linkedin.com/in/filipeleonelbatista/") }} style={styles.button}>
-                    <Feather name="linkedin" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                    <Text style={styles.buttonText} >
-                        Linkedin
+                        Exportar finanças
                     </Text>
                 </RectButton>
                 <RectButton onPress={() => { Linking.openURL("https://desenvolvedordeaplicativos.com.br/") }} style={styles.button}>
                     <Feather name="globe" size={24} style={{ marginRight: 6 }} color="#FFF" />
                     <Text style={styles.buttonText} >
-                        Meu portfólio
+                        Sobre
                     </Text>
                 </RectButton>
             </ScrollView>

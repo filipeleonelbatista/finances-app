@@ -15,9 +15,20 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.filipegaucho22.finances",
+      "buildNumber": "1.21.0",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Permitir que $(PRODUCT_NAME) acesse suas fotos.",
+        "NSPhotoLibraryAddUsageDescription": "Permitir que $(PRODUCT_NAME) salve fotos."
+      }
     },
     "android": {
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_MEDIA_LOCATION"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#9c44dc"
@@ -27,6 +38,16 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Permitir que $(PRODUCT_NAME) acesse suas fotos.",
+          "savePhotosPermission": "Permitir que $(PRODUCT_NAME) salve fotos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "007d84b9-db5f-4e91-8537-b64bd4edafbe"
