@@ -1,44 +1,37 @@
 import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
-import { Alert, Clipboard, Dimensions, Image, ImageBackground, Linking, PermissionsAndroid, StyleSheet, Text, ToastAndroid, View } from 'react-native';
+import React from 'react';
+import { Dimensions, Image, ImageBackground, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
-import XLSX from 'xlsx';
-import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
+import XLSX from 'xlsx';
 
 import userImg from '../assets/icon.png';
 import bgImg from '../assets/images/background.png';
 import Menu from '../components/Menu';
 import { usePayments } from '../hooks/usePayments';
+import { useSettings } from '../hooks/useSettings';
 
 export default function AboutUs() {
     const {
         transactionsList,
-        Incomings,
-        Expenses,
-        Total,
-        Saldo,
         Tithe
     } = usePayments();
 
-    const [csvContent, setCsvContent] = useState(null);
-
-    const navigation = useNavigation()
-
-    function handleCopyToClipboardPixKey() {
-        Clipboard.setString("f1bfe5be-67eb-42ad-8928-f71e02e1c99b");
-        Alert.alert(
-            "Chave pix copiada",
-            "Agora só fazer um pix de qualquer valor usando a chave copiada neste botão", !
-        [
-            { text: "OK", onPress: () => console.log("OK Pressed") }
-        ],
-            { cancelable: false }
-        );
-    }
+    const {
+        isEnableTitheCard,
+        handleSwitchViewTitheCard,
+        willAddFuelToTransactionList,
+        handleToggleWillAddFuel,
+        willUsePrefixToRemoveTihteSum,
+        handleWillRemovePrefixToRemove,
+        prefixTithe,
+        handleSetPrefixTithe,
+        startPage,
+        handleStartPage,
+    } = useSettings()
 
     function formatDate(value) {
         return new Date(value).toLocaleDateString('pt-BR')
@@ -117,7 +110,7 @@ export default function AboutUs() {
             >
                 <ImageBackground source={bgImg} style={styles.header}>
                     <View style={styles.headerItens}>
-                        <Text style={styles.title}>Sobre mim</Text>
+                        <Text style={styles.title}>Sobre o app</Text>
                     </View>
                 </ImageBackground>
                 <View style={styles.imageContainer}>
@@ -127,16 +120,58 @@ export default function AboutUs() {
                         </View>
                     </View>
                 </View>
+                <View style={{ height: 8 }} />
+                <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                    <Switch
+                        trackColor={{ false: "#767577", true: "#767577" }}
+                        thumbColor={isEnableTitheCard ? "#9c44dc" : "#3e3e3e"}
+                        ios_backgroundColor="#3e3e3e"
+                        onValueChange={handleSwitchViewTitheCard}
+                        value={isEnableTitheCard}
+                    />
+                    <Text style={styles.labelSwitch}>Habilitar card de Dízimo</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                    <Switch
+                        trackColor={{ false: "#767577", true: "#767577" }}
+                        thumbColor={willAddFuelToTransactionList ? "#9c44dc" : "#3e3e3e"}
+                        ios_backgroundColor="#3e3e3e"
+                        onValueChange={handleToggleWillAddFuel}
+                        value={willAddFuelToTransactionList}
+                    />
+                    <Text style={styles.labelSwitch}>Habilitar adicionar abastecimento automaticamente em finanças</Text>
+                </View>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                    <Switch
+                        trackColor={{ false: "#767577", true: "#767577" }}
+                        thumbColor={willUsePrefixToRemoveTihteSum ? "#9c44dc" : "#3e3e3e"}
+                        ios_backgroundColor="#3e3e3e"
+                        onValueChange={handleWillRemovePrefixToRemove}
+                        value={willUsePrefixToRemoveTihteSum}
+                    />
+                    <Text style={styles.labelSwitch}>Remover itens com o prefixo da soma do Dízimo</Text>
+                </View>
+                <View style={{ paddingHorizontal: 24 }}>
+                    <Text style={styles.label}>Prefixo</Text>
+                    <TextInput style={{ ...styles.input, backgroundColor: !willUsePrefixToRemoveTihteSum ? "#DDD" : "#FFF" }}
+                        placeholder="Prefixo"
+                        onChangeText={handleSetPrefixTithe}
+                        value={prefixTithe}
+                        editable={willUsePrefixToRemoveTihteSum}
+                    />
+                    <Text style={styles.helperText}>Se o título da transação tiver este prefixo não será contado na soma do dízimo</Text>
+                </View>
                 <RectButton onPress={handleOpenCSV} style={styles.button}>
-                    <Feather name="globe" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                    <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
                     <Text style={styles.buttonText} >
                         Exportar finanças
                     </Text>
                 </RectButton>
-                <RectButton onPress={() => { Linking.openURL("https://desenvolvedordeaplicativos.com.br/") }} style={styles.button}>
+                <RectButton onPress={() => { Linking.openURL("https://filipeleonelbatista.vercel.app/") }} style={styles.button}>
                     <Feather name="globe" size={24} style={{ marginRight: 6 }} color="#FFF" />
                     <Text style={styles.buttonText} >
-                        Sobre
+                        Sobre o desenvolvedor
                     </Text>
                 </RectButton>
             </ScrollView>
@@ -176,7 +211,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginVertical: 20,
-
     },
     imageBorder: {
         width: 128,
@@ -224,6 +258,7 @@ const styles = StyleSheet.create({
     ScrollViewContainer: {
         width: '100%',
         height: 'auto',
+        paddingBottom: 16,
     },
     header: {
         height: 150,
@@ -320,5 +355,33 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins_400Regular',
         color: '#f0f2f5',
         textAlign: 'center',
+    },
+    labelSwitch: {
+        width: '80%',
+        fontSize: 16,
+        color: '#363f5f',
+        fontFamily: 'Poppins_400Regular',
+    },
+    label: {
+        marginTop: 18,
+        fontSize: 18,
+        color: '#363f5f',
+        fontFamily: 'Poppins_400Regular',
+    },
+    input: {
+        marginTop: 6,
+        paddingHorizontal: 12,
+        backgroundColor: '#FFF',
+        borderColor: "#CCC",
+        borderRadius: 4,
+        width: '100%',
+        height: 48,
+        borderWidth: 1
+    },
+    helperText: {
+        fontFamily: 'Poppins_400Regular',
+        fontSize: 12,
+        color: '#666',
+        textAlign: 'left',
     },
 })

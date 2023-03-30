@@ -7,14 +7,16 @@ import { StyleSheet } from "react-native";
 import AboutUs from "./pages/AboutUs";
 import Finances from "./pages/Finances";
 import Runs from "./pages/Runs";
+import { useSettings } from "./hooks/useSettings";
 
 const Stack = createStackNavigator();
 
 export default function Routes() {
+  const { startPage } = useSettings();
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Combustível"
+        initialRouteName={"Finanças"}
         screenOptions={{
           headerShown: false,
         }}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { Dimensions, FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
@@ -6,7 +6,6 @@ import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';
 
 import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -14,27 +13,32 @@ import bgImg from '../assets/images/background.png';
 import logo from '../assets/images/logo.png';
 import AddItemForm from '../components/AddItemForm';
 import EditItemForm from '../components/EditItemForm';
+import Menu from '../components/Menu';
 import Modal from '../components/Modal';
 import { usePayments } from '../hooks/usePayments';
-import Menu from '../components/Menu';
+import { useSettings } from '../hooks/useSettings';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 
 export default function Finances() {
-  const navigation = useNavigation();
-
-  const [selectedtypeofpayment, setselectedtypeofpayment] = useState('0');
-  const [selectedPeriod, setSelectedPeriod] = useState('Este mês');
-
   const {
-    transactionsList,
     Incomings,
     Expenses,
     Total,
     Saldo,
-    Tithe
+    Tithe,
+    selectedTransaction, setSelectedTransaction,
+    filteredList,
+    listTotal,
+    selectedtypeofpayment, setselectedtypeofpayment,
+    selectedPeriod, setSelectedPeriod,
+    filterLabels
   } = usePayments();
+
+  const {
+    isEnableTitheCard
+  } = useSettings();
 
   const formatCurrency = (value) => {
     return value
@@ -50,98 +54,6 @@ export default function Finances() {
   const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
   const [openModalSeeTransaction, setOpenModalSeeTransaction] = useState(false);
 
-  const [selectedTransaction, setSelectedTransaction] = useState();
-
-  const filteredList = useMemo(() => {
-    if (transactionsList) {
-      const filteredType = transactionsList.filter(item => {
-        if (selectedtypeofpayment === '0') {
-          return true;
-        }
-        if (selectedtypeofpayment === '1' && !item.isEnabled) {
-          return true;
-        }
-        if (selectedtypeofpayment === '2' && item.isEnabled) {
-          return true;
-        }
-        return false;
-      })
-
-      const filteredByPeriod = filteredType.filter(item => {
-        const itemDate = dayjs(item.date)
-
-        if (selectedPeriod === 'Todos') {
-          return true;
-        }
-        if (selectedPeriod === 'Próximo mês') {
-          const startOfNextMonth = dayjs().add(1, 'month').startOf('month');
-          const endOfNextMonth = dayjs().add(2, 'month').startOf('month').subtract(1, 'day');
-          return itemDate.isSameOrAfter(startOfNextMonth) && itemDate.isSameOrBefore(endOfNextMonth);
-        }
-        if (selectedPeriod === 'Este mês') {
-          const firstDayOfMonth = dayjs().startOf('month');
-          const lastDayOfMonth = dayjs().endOf('month');
-          return itemDate.isSameOrAfter(firstDayOfMonth) && itemDate.isSameOrBefore(lastDayOfMonth);
-        }
-        if (selectedPeriod === 'Esta semana') {
-          const startOfWeek = dayjs().startOf('week');
-          const endOfWeek = dayjs().endOf('week');
-          return itemDate.isSameOrAfter(startOfWeek) && itemDate.isSameOrBefore(endOfWeek);
-        }
-        if (selectedPeriod === 'Semana passada') {
-          const startOfLastWeek = dayjs().subtract(1, 'week').startOf('week');
-          const endOfLastWeek = dayjs().subtract(1, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Duas semanas atrás') {
-          const startOfLastWeek = dayjs().subtract(2, 'week').startOf('week');
-          const endOfLastWeek = dayjs().subtract(2, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Três semanas atrás') {
-          const startOfLastWeek = dayjs().subtract(3, 'week').startOf('week');
-          const endOfLastWeek = dayjs().subtract(3, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Mês passado') {
-          const startOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
-          const endOfLastMonth = dayjs().subtract(1, 'month').endOf('month');
-          return itemDate.isSameOrAfter(startOfLastMonth) && itemDate.isSameOrBefore(endOfLastMonth);
-        }
-      })
-
-      const sortedByDateArray = filteredByPeriod.sort((a, b) => {
-        const dateA = dayjs(a.date);
-        const dateB = dayjs(b.date);
-
-        if (dateA.isBefore(dateB)) {
-          return 1;
-        }
-
-        if (dateA.isAfter(dateB)) {
-          return -1;
-        }
-
-        return 0;
-      })
-
-      return sortedByDateArray;
-    }
-    return [];
-  }, [transactionsList, selectedPeriod, selectedtypeofpayment])
-
-  const listTotal = useMemo(() => {
-    let TotalList = 0.0;
-
-    for (const item of filteredList) {
-      if (item.isEnabled) {
-        TotalList = TotalList - item.amount
-      } else {
-        TotalList = TotalList + item.amount
-      }
-    }
-    return TotalList
-  }, [filteredList])
 
   return (
     <Menu>
@@ -199,13 +111,17 @@ export default function Finances() {
             </View>
             <Text style={styles.cardValueGreen}>{formatCurrency(Total)}</Text>
           </View>
-          <View style={styles.cardGreen}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardTextGreen}>Dízimo</Text>
-              <Feather name="dollar-sign" size={48} color="#FFF" />
-            </View>
-            <Text style={styles.cardValueGreen}>{formatCurrency(Tithe)}</Text>
-          </View>
+          {
+            isEnableTitheCard && (
+              <View style={styles.cardGreen}>
+                <View style={styles.cardTitleOrientation}>
+                  <Text style={styles.cardTextGreen}>Dízimo</Text>
+                  <Feather name="dollar-sign" size={48} color="#FFF" />
+                </View>
+                <Text style={styles.cardValueGreen}>{formatCurrency(Tithe)}</Text>
+              </View>
+            )
+          }
         </ScrollView>
 
         <View style={styles.list}>
@@ -241,7 +157,7 @@ export default function Finances() {
               showsHorizontalScrollIndicator={false}
               horizontal
               ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-              data={['Próximo mês', 'Este mês', 'Esta semana', 'Semana passada', 'Duas semanas atrás', 'Três semanas atrás', 'Mês passado', 'Todos']}
+              data={filterLabels}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={{

@@ -3,11 +3,13 @@ import React, { createContext, useCallback, useEffect, useState } from "react";
 import { Alert, ToastAndroid } from "react-native";
 import { v4 } from 'uuid';
 import { usePayments } from '../hooks/usePayments';
+import { useSettings } from '../hooks/useSettings';
 
 export const RunsContext = createContext({});
 
 export function RunsContextProvider(props) {
   const { addTrasaction: addPaymentTransaction, deleteTransaction: deletePayentTransaction } = usePayments();
+  const { willAddFuelToTransactionList } = useSettings()
   const [FuelList, setFuelList] = useState('');
   const [autonomy, setAutonomy] = useState(0);
 
@@ -54,17 +56,20 @@ export function RunsContextProvider(props) {
       }
     ]
 
-    const newPaymentTransaction = {
-      id_fuel: current_id,
-      description: `Abastecimento - ${newTransaction.location}`,
-      amount: newTransaction.amount * newTransaction.volume,
-      date: newTransaction.date,
-      isEnabled: true
+    if (willAddFuelToTransactionList) {
+      const newPaymentTransaction = {
+        id_fuel: current_id,
+        description: `Abastecimento - ${newTransaction.location}`,
+        amount: newTransaction.amount * newTransaction.volume,
+        date: newTransaction.date,
+        isEnabled: true
+      }
+
+      await addPaymentTransaction(newPaymentTransaction)
+
+      await AsyncStorage.setItem('fuel', JSON.stringify(newTransactionList));
     }
 
-    await addPaymentTransaction(newPaymentTransaction)
-
-    await AsyncStorage.setItem('fuel', JSON.stringify(newTransactionList));
 
     loadTransactions()
 

@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { ActivityIndicator, StatusBar as RNStatusBar, View, Image } from 'react-native';
+import { ActivityIndicator, Image, StatusBar as RNStatusBar, View } from 'react-native';
 import Routes from './src/routes';
 
 import {
@@ -11,6 +11,7 @@ import { PaymentsContextProvider } from './src/context/PaymentsContext';
 
 import logo from './src/assets/icon.png';
 import { RunsContextProvider } from './src/context/RunsContext';
+import { SettingsContextProvider } from './src/context/SettingsContext';
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -46,11 +47,13 @@ export default function App() {
       }}>
         <StatusBar style="light" />
       </View>
-      <PaymentsContextProvider>
-        <RunsContextProvider>
-          <Routes />
-        </RunsContextProvider>
-      </PaymentsContextProvider>
+      <SettingsContextProvider>
+        <PaymentsContextProvider>
+          <RunsContextProvider>
+            <Routes />
+          </RunsContextProvider>
+        </PaymentsContextProvider>
+      </SettingsContextProvider>
     </>
   );
 
