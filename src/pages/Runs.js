@@ -185,13 +185,13 @@ export default function Runs() {
                 }}
                 style={styles.listCardItem}
               >
-                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', gap: 4, alignItems: 'center', width: '100%' }}>
                   <MaterialCommunityIcons
                     name={"fuel"}
                     size={48}
                     color={"#12a454"}
                   />
-                  <View style={{ flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
+                  <View style={{ flexDirection: 'column', gap: 0.5, alignItems: 'flex-start', width: '60%' }}>
                     <Text style={styles.cardTextListItem} >{item.location}</Text>
                     <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >
                       {new Date(item.date).toLocaleDateString('pt-BR')}
@@ -206,17 +206,20 @@ export default function Runs() {
                       })} - {item.volume} Litros
                     </Text>
                   </View>
+                  <View>
+                    <Text style={styles.cardTextListItem} >
+                      {item.isEnabled ? "-" : ""}
+                      {(item.amount * item.volume).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                        useGrouping: true,
+                      })}
+                    </Text>
+                  </View>
                 </View>
-                <Text style={styles.cardTextListItem} >
-                  {item.isEnabled ? "-" : ""}
-                  {(item.amount * item.volume).toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                    useGrouping: true,
-                  })}
-                </Text>
+
               </RectButton>
             ))
           }

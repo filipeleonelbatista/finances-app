@@ -129,7 +129,7 @@ export default function Finances() {
 
         <View style={styles.list}>
           <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, marginTop: -15 }}>* Totais apenas dos itens do mês atual</Text>
+            <Text style={{ marginBottom: 4, marginTop: -15 }}>* Totais apenas dos itens do mês selecionado</Text>
           </View>
 
           <View style={styles.listRow}>
@@ -200,27 +200,34 @@ export default function Finances() {
                 }}
                 style={styles.listCardItem}
               >
-                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', gap: 4, alignItems: 'center', width: '100%' }}>
                   <Feather
                     name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
                     size={48}
                     color={item.isEnabled ? "#e83e5a" : "#12a454"}
                   />
-                  <View style={{ flexDirection: 'column', gap: 0.5, alignItems: 'flex-start' }}>
+                  <View style={{
+                    flexDirection: 'column', gap: 0.5, alignItems: 'flex-start',
+                    width: '60%',
+                  }}>
                     <Text style={styles.cardTextListItem} >{item.description}</Text>
                     <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
                   </View>
+                  <View style={{
+                    alignItems: 'flex-start',
+                  }}>
+                    <Text style={styles.cardTextListItem} >
+                      {item.isEnabled ? "-" : ""}
+                      {item.amount.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                        useGrouping: true,
+                      })}
+                    </Text>
+                  </View>
                 </View>
-                <Text style={styles.cardTextListItem} >
-                  {item.isEnabled ? "-" : ""}
-                  {item.amount.toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                    useGrouping: true,
-                  })}
-                </Text>
               </RectButton>
             ))
           }
