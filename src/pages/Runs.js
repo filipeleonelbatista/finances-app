@@ -236,6 +236,8 @@ export default function Runs() {
           </View>
 
         </View>
+
+        <View style={{ height: 80 }} />
       </ScrollView>
     </Menu>
   );

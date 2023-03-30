@@ -239,6 +239,8 @@ export default function Finances() {
             </Text>
           </View>
         </View>
+
+        <View style={{ height: 80 }} />
       </ScrollView>
     </Menu>
   );
