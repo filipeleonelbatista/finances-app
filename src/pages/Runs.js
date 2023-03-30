@@ -92,6 +92,11 @@ export default function Runs() {
       <Modal open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
         <AddFuelForm onClose={() => setOpenModalAddTransaction(false)} />
       </Modal>
+
+      <RectButton onPress={() => setOpenModalAddTransaction(true)} style={styles.headerButton}>
+        <Feather name="plus" size={24} color="#FFF" />
+      </RectButton>
+
       <ScrollView style={styles.container}>
         <ImageBackground source={bgImg} style={styles.header}>
           <View style={styles.headerItens}>
@@ -103,9 +108,7 @@ export default function Runs() {
             }}>
               Corrida<Text style={{ color: '#543b6c' }}>$</Text>
             </Text>
-            <RectButton onPress={() => setOpenModalAddTransaction(true)} style={styles.headerButton}>
-              <Feather name="plus" size={24} color="#FFF" />
-            </RectButton>
+            <View style={styles.headerEmpty} />
           </View>
         </ImageBackground>
 
@@ -276,12 +279,16 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   headerButton: {
-    width: 48,
-    height: 48,
+    width: 62,
+    height: 62,
     borderRadius: 32,
     backgroundColor: '#543b6c',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    position: 'absolute',
+    right: 20,
+    bottom: 90,
+    zIndex: 50,
   },
   imageHeader: {
     width: 130,
