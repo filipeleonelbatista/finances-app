@@ -38,7 +38,7 @@ export default function AddItemForm({ onClose }) {
         const submittedDate = formValues.date.split('/')
         const data = {
             amount: parseFloat(formValues.amount.replaceAll('.', '').replace(',', '.')),
-            date: new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime(),
+            date: new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000,
             description: formValues.description,
             isEnabled: formValues.isEnabled,
         }

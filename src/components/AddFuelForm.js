@@ -46,7 +46,7 @@ export default function AddFuelForm({ onClose }) {
             volume: parseFloat(formValues.volume.replaceAll('.', '').replace(',', '.')),
             type: formValues.type,
             amount: parseFloat(formValues.amount.replaceAll('.', '').replace(',', '.')),
-            date: new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime(),
+            date: new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000,
             location: formValues.location,
         }
         addTrasaction(data)

@@ -66,10 +66,9 @@ export function RunsContextProvider(props) {
       }
 
       await addPaymentTransaction(newPaymentTransaction)
-
-      await AsyncStorage.setItem('fuel', JSON.stringify(newTransactionList));
     }
 
+    await AsyncStorage.setItem('fuel', JSON.stringify(newTransactionList));
 
     loadTransactions()
 

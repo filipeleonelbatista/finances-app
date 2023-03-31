@@ -110,7 +110,13 @@ export default function AboutUs() {
             >
                 <ImageBackground source={bgImg} style={styles.header}>
                     <View style={styles.headerItens}>
-                        <Text style={styles.title}>Sobre o app</Text>
+                        <Text style={{
+                            fontFamily: 'Poppins_600SemiBold',
+                            fontSize: 24,
+                            color: '#FFF'
+                        }}>
+                            Configuraçõe<Text style={{ color: '#543b6c' }}>$</Text>
+                        </Text>
                     </View>
                 </ImageBackground>
                 <View style={styles.imageContainer}>
@@ -218,7 +224,8 @@ const styles = StyleSheet.create({
         borderRadius: 64,
         backgroundColor: '#543b6c',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        elevation: 6,
     },
     imageBackgroundWhite: {
         width: 120,
@@ -261,12 +268,13 @@ const styles = StyleSheet.create({
         paddingBottom: 16,
     },
     header: {
-        height: 150,
+        height: 130,
         width: '100%',
         backgroundColor: '#9c44dc',
     },
     headerItens: {
         marginHorizontal: 24,
+        marginTop: 16,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center'
@@ -349,6 +357,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        elevation: 6,
     },
     buttonText: {
         fontSize: 18,

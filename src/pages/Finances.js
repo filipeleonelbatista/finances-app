@@ -200,23 +200,22 @@ export default function Finances() {
                 }}
                 style={styles.listCardItem}
               >
-                <View style={{ flexDirection: 'row', gap: 4, alignItems: 'center', width: '100%' }}>
+                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
                   <Feather
                     name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
-                    size={48}
+                    size={28}
                     color={item.isEnabled ? "#e83e5a" : "#12a454"}
                   />
                   <View style={{
-                    flexDirection: 'column', gap: 0.5, alignItems: 'flex-start',
-                    width: '60%',
+                    flexDirection: 'column', alignItems: 'flex-start', width: '50%',
                   }}>
                     <Text style={styles.cardTextListItem} >{item.description}</Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
+                    <Text style={{ ...styles.cardTextListItem, fontSize: 12 }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
                   </View>
                   <View style={{
-                    alignItems: 'flex-start',
+                    alignItems: 'flex-end', width: '34%'
                   }}>
-                    <Text style={styles.cardTextListItem} >
+                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16 }} >
                       {item.isEnabled ? "-" : ""}
                       {item.amount.toLocaleString('pt-BR', {
                         style: 'currency',
@@ -301,6 +300,7 @@ const styles = StyleSheet.create({
     right: 20,
     bottom: 90,
     zIndex: 50,
+    elevation: 6,
   },
   imageHeader: {
     width: 130,
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   },
   cardValueGreen: {
     fontFamily: 'Poppins_400Regular',
-    fontSize: 28,
+    fontSize: 22,
     color: '#f0f2f5'
   },
   cardText: {
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   },
   cardValue: {
     fontFamily: 'Poppins_400Regular',
-    fontSize: 28,
+    fontSize: 22,
     color: '#363f5f'
   },
   cardTitleOrientation: {

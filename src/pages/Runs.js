@@ -128,13 +128,6 @@ export default function Runs() {
             </View>
             <Text style={styles.cardValueGreen}>{filteredList[0] ? ((autonomy * filteredList[0]?.volume) + filteredList[0]?.currentDistance) : 0}</Text>
           </View>
-          <View style={styles.cardWite}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Km Atual</Text>
-              <Feather name="arrow-up-circle" size={48} color="#12a454" />
-            </View>
-            <Text style={styles.cardValue}>{filteredList[0]?.currentDistance ?? 0}</Text>
-          </View>
           <RectButton onPress={() => setOpenModalSetAutonomy(true)} style={styles.cardWite}>
             <View style={styles.cardTitleOrientation}>
               <Text style={styles.cardText}>Autonomia</Text>
@@ -142,6 +135,13 @@ export default function Runs() {
             </View>
             <Text style={styles.cardValue}>{autonomy ?? 0}L</Text>
           </RectButton>
+          <View style={styles.cardWite}>
+            <View style={styles.cardTitleOrientation}>
+              <Text style={styles.cardText}>Km Atual</Text>
+              <Feather name="arrow-up-circle" size={48} color="#12a454" />
+            </View>
+            <Text style={styles.cardValue}>{filteredList[0]?.currentDistance ?? 0}</Text>
+          </View>
         </ScrollView>
 
         <View style={styles.list}>
@@ -185,18 +185,20 @@ export default function Runs() {
                 }}
                 style={styles.listCardItem}
               >
-                <View style={{ flexDirection: 'row', gap: 4, alignItems: 'center', width: '100%' }}>
+                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
                   <MaterialCommunityIcons
                     name={"fuel"}
-                    size={48}
+                    size={28}
                     color={"#12a454"}
                   />
-                  <View style={{ flexDirection: 'column', gap: 0.5, alignItems: 'flex-start', width: '60%' }}>
+                  <View style={{
+                    flexDirection: 'column', alignItems: 'flex-start', width: '50%',
+                  }}>
                     <Text style={styles.cardTextListItem} >{item.location}</Text>
                     <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >
                       {new Date(item.date).toLocaleDateString('pt-BR')}
                     </Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >
+                    <Text style={{ ...styles.cardTextListItem, fontSize: 12 }} >
                       {item.amount.toLocaleString('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
@@ -206,8 +208,10 @@ export default function Runs() {
                       })} - {item.volume} Litros
                     </Text>
                   </View>
-                  <View>
-                    <Text style={styles.cardTextListItem} >
+                  <View style={{
+                    alignItems: 'flex-end', width: '34%'
+                  }}>
+                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16 }} >
                       {item.isEnabled ? "-" : ""}
                       {(item.amount * item.volume).toLocaleString('pt-BR', {
                         style: 'currency',
@@ -294,6 +298,7 @@ const styles = StyleSheet.create({
     right: 20,
     bottom: 90,
     zIndex: 50,
+    elevation: 6,
   },
   imageHeader: {
     width: 130,
@@ -332,7 +337,7 @@ const styles = StyleSheet.create({
   },
   cardValueGreen: {
     fontFamily: 'Poppins_400Regular',
-    fontSize: 28,
+    fontSize: 22,
     color: '#f0f2f5'
   },
   cardText: {
@@ -343,7 +348,7 @@ const styles = StyleSheet.create({
   },
   cardValue: {
     fontFamily: 'Poppins_400Regular',
-    fontSize: 28,
+    fontSize: 22,
     color: '#363f5f'
   },
   cardTitleOrientation: {

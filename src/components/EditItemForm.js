@@ -49,11 +49,10 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
         const data = {
             ...selectedTransaction,
             amount: parseFloat(formValues.amount.replaceAll('.', '').replace(',', '.')),
-            date: new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime(),
+            date: new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000,
             description: formValues.description,
             isEnabled: formValues.isEnabled,
         }
-
         updateTransaction(data)
         onClose()
     }
