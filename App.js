@@ -12,6 +12,7 @@ import { PaymentsContextProvider } from './src/context/PaymentsContext';
 import logo from './src/assets/icon.png';
 import { RunsContextProvider } from './src/context/RunsContext';
 import { SettingsContextProvider } from './src/context/SettingsContext';
+import { ThemeContextProvider } from './src/context/ThemeContext';
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -47,13 +48,15 @@ export default function App() {
       }}>
         <StatusBar style="light" />
       </View>
-      <SettingsContextProvider>
-        <PaymentsContextProvider>
-          <RunsContextProvider>
-            <Routes />
-          </RunsContextProvider>
-        </PaymentsContextProvider>
-      </SettingsContextProvider>
+      <ThemeContextProvider>
+        <SettingsContextProvider>
+          <PaymentsContextProvider>
+            <RunsContextProvider>
+              <Routes />
+            </RunsContextProvider>
+          </PaymentsContextProvider>
+        </SettingsContextProvider>
+      </ThemeContextProvider>
     </>
   );
 

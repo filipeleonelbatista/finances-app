@@ -17,6 +17,7 @@ import Menu from '../components/Menu';
 import Modal from '../components/Modal';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
+import { useTheme } from '../hooks/useTheme';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -39,6 +40,10 @@ export default function Finances() {
   const {
     isEnableTitheCard
   } = useSettings();
+
+  const {
+    currentTheme
+  } = useTheme();
 
   const formatCurrency = (value) => {
     return value
@@ -72,7 +77,13 @@ export default function Finances() {
         <ImageBackground source={bgImg} style={styles.header}>
           <View style={styles.headerItens}>
             <View style={styles.headerEmpty} />
-            <Image source={logo} style={styles.imageHeader} />
+            <Text style={{
+              fontFamily: 'Poppins_600SemiBold',
+              fontSize: 28,
+              color: currentTheme === 'dark' ? '#1c1e21' : '#FFF'
+            }}>
+              Finança<Text style={{ color: '#543b6c' }}>$</Text>
+            </Text>
             <View style={styles.headerEmpty} />
           </View>
         </ImageBackground>
@@ -86,26 +97,26 @@ export default function Finances() {
           }}
           style={styles.ScrollViewContainer}
         >
-          <View style={styles.cardWite}>
+          <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
             <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Saldo</Text>
+              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Saldo</Text>
               <Feather name={Saldo > 0 ? "arrow-up-circle" : "arrow-down-circle"} size={48} color={Saldo > 0 ? "#12a454" : "#e83e5a"} />
             </View>
-            <Text style={styles.cardValue}>{formatCurrency(Saldo)}</Text>
+            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{formatCurrency(Saldo)}</Text>
           </View>
-          <View style={styles.cardWite}>
+          <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
             <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Entradas</Text>
+              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Entradas</Text>
               <Feather name="arrow-up-circle" size={48} color="#12a454" />
             </View>
-            <Text style={styles.cardValue}>{formatCurrency(Incomings)}</Text>
+            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{formatCurrency(Incomings)}</Text>
           </View>
-          <View style={styles.cardWite}>
+          <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
             <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Saídas</Text>
+              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Saídas</Text>
               <Feather name="arrow-down-circle" size={48} color="#e83e5a" />
             </View>
-            <Text style={styles.cardValue}>-{formatCurrency(Expenses)}</Text>
+            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>-{formatCurrency(Expenses)}</Text>
           </View>
           <View style={styles.cardGreen}>
             <View style={styles.cardTitleOrientation}>
@@ -129,11 +140,11 @@ export default function Finances() {
 
         <View style={styles.list}>
           <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, marginTop: -15 }}>* Totais apenas dos itens do mês selecionado</Text>
+            <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais apenas dos itens do período selecionado</Text>
           </View>
 
           <View style={styles.listRow}>
-            <Text style={styles.listTitle}>Extrato</Text>
+            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Extrato</Text>
 
             <Picker
               selectedValue={selectedtypeofpayment}
@@ -146,7 +157,7 @@ export default function Finances() {
               enabled
               style={{
                 width: '50%',
-                borderRadius: 4,
+                borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
               }}
             >
               <Picker.Item label="Todas" value="0" />
@@ -172,12 +183,12 @@ export default function Finances() {
                     borderWidth: 1,
                     borderRadius: 16,
                     backgroundColor: 'transparent',
-                    borderColor: item === selectedPeriod ? '#9c44dc' : '#666',
+                    borderColor: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
                   }}
                   onPress={() => setSelectedPeriod(item)}
                 >
                   <Text style={{
-                    color: item === selectedPeriod ? '#9c44dc' : '#666',
+                    color: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
                   }}>
                     {item}
                   </Text>
@@ -187,7 +198,7 @@ export default function Finances() {
           </View>
 
           <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4 }}>Clique no item para ver os detalhes</Text>
+            <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Clique no item para ver os detalhes</Text>
           </View>
 
           {
@@ -198,7 +209,7 @@ export default function Finances() {
                   setSelectedTransaction(item)
                   setOpenModalSeeTransaction(true)
                 }}
-                style={styles.listCardItem}
+                style={{...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF'}}
               >
                 <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
                   <Feather
@@ -209,13 +220,13 @@ export default function Finances() {
                   <View style={{
                     flexDirection: 'column', alignItems: 'flex-start', width: '50%',
                   }}>
-                    <Text style={styles.cardTextListItem} >{item.description}</Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 12 }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
+                    <Text style={{...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'}} >{item.description}</Text>
+                    <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
                   </View>
                   <View style={{
                     alignItems: 'flex-end', width: '34%'
                   }}>
-                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16 }} >
+                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
                       {item.isEnabled ? "-" : ""}
                       {item.amount.toLocaleString('pt-BR', {
                         style: 'currency',
@@ -233,8 +244,8 @@ export default function Finances() {
 
 
           <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
-            <Text style={styles.listTitle}>Total</Text>
-            <Text style={styles.listTitle}>
+            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
+            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
               {listTotal.toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
@@ -257,7 +268,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
-    backgroundColor: '#f0f2f5',
   },
   title: {
     textAlign: 'center',
@@ -319,6 +329,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     paddingHorizontal: 16,
     paddingVertical: 8,
+    elevation: 4,
   },
   cardGreen: {
     flexDirection: 'column',
@@ -329,6 +340,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#543b6c',
     paddingHorizontal: 16,
     paddingVertical: 8,
+    elevation: 4,
   },
   cardTextGreen: {
     fontFamily: 'Poppins_400Regular',
@@ -402,6 +414,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     paddingHorizontal: 16,
     paddingVertical: 8,
+    elevation: 4,
   },
   cardTextListItem: {
     fontFamily: 'Poppins_400Regular',

@@ -6,22 +6,24 @@ import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import bgImg from '../assets/images/background.png';
 import AddFuelForm from '../components/AddFuelForm';
 import AutonomyForm from '../components/AutonomyForm';
+import Menu from '../components/Menu';
 import Modal from '../components/Modal';
 import { useRuns } from '../hooks/useRuns';
-import Menu from '../components/Menu';
+import { useTheme } from '../hooks/useTheme';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 
 export default function Runs() {
-  const navigation = useNavigation();
+  const {
+    currentTheme
+  } = useTheme();
 
   const [selectedPeriod, setSelectedPeriod] = useState('Este mês');
 
@@ -104,7 +106,7 @@ export default function Runs() {
             <Text style={{
               fontFamily: 'Poppins_600SemiBold',
               fontSize: 24,
-              color: '#FFF'
+              color: currentTheme === 'dark' ? '#1c1e21' : '#FFF'
             }}>
               Corrida<Text style={{ color: '#543b6c' }}>$</Text>
             </Text>
@@ -128,29 +130,29 @@ export default function Runs() {
             </View>
             <Text style={styles.cardValueGreen}>{filteredList[0] ? ((autonomy * filteredList[0]?.volume) + filteredList[0]?.currentDistance) : 0}</Text>
           </View>
-          <RectButton onPress={() => setOpenModalSetAutonomy(true)} style={styles.cardWite}>
+          <RectButton onPress={() => setOpenModalSetAutonomy(true)} style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
             <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Autonomia</Text>
+              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Autonomia</Text>
               <Feather name={"arrow-up-circle"} size={48} color={"#12a454"} />
             </View>
-            <Text style={styles.cardValue}>{autonomy ?? 0}L</Text>
+            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{autonomy ?? 0}L</Text>
           </RectButton>
-          <View style={styles.cardWite}>
+          <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
             <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardText}>Km Atual</Text>
+              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Km Atual</Text>
               <Feather name="arrow-up-circle" size={48} color="#12a454" />
             </View>
-            <Text style={styles.cardValue}>{filteredList[0]?.currentDistance ?? 0}</Text>
+            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{filteredList[0]?.currentDistance ?? 0}</Text>
           </View>
         </ScrollView>
 
         <View style={styles.list}>
           <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, marginTop: -15 }}>* Totais referentes ao ultimo abastecimento</Text>
+            <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais referentes ao ultimo abastecimento</Text>
           </View>
 
           <View style={styles.listRow}>
-            <Text style={styles.listTitle}>Abastecimentos</Text>
+            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Abastecimentos</Text>
 
             <Picker
               selectedValue={selectedPeriod}
@@ -164,6 +166,7 @@ export default function Runs() {
               style={{
                 width: '50%',
                 borderRadius: 4,
+                borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
               }}
             >
               <Picker.Item label="Mês anterior" value="Mês anterior" />
@@ -173,7 +176,7 @@ export default function Runs() {
           </View>
 
           <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4 }}>Clique no item para excluir</Text>
+            <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Clique no item para excluir</Text>
           </View>
 
           {
@@ -183,7 +186,7 @@ export default function Runs() {
                 onPress={() => {
                   deleteTransaction(item)
                 }}
-                style={styles.listCardItem}
+                style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}
               >
                 <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
                   <MaterialCommunityIcons
@@ -194,11 +197,11 @@ export default function Runs() {
                   <View style={{
                     flexDirection: 'column', alignItems: 'flex-start', width: '50%',
                   }}>
-                    <Text style={styles.cardTextListItem} >{item.location}</Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 14 }} >
+                    <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.location}</Text>
+                    <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
                       {new Date(item.date).toLocaleDateString('pt-BR')}
                     </Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 12 }} >
+                    <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
                       {item.amount.toLocaleString('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
@@ -211,7 +214,7 @@ export default function Runs() {
                   <View style={{
                     alignItems: 'flex-end', width: '34%'
                   }}>
-                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16 }} >
+                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
                       {item.isEnabled ? "-" : ""}
                       {(item.amount * item.volume).toLocaleString('pt-BR', {
                         style: 'currency',
@@ -230,8 +233,8 @@ export default function Runs() {
 
 
           <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
-            <Text style={styles.listTitle}>Total</Text>
-            <Text style={styles.listTitle}>
+            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
+            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
               {listTotal.toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
@@ -255,7 +258,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
-    backgroundColor: '#f0f2f5',
   },
   title: {
     textAlign: 'center',
@@ -317,6 +319,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     paddingHorizontal: 16,
     paddingVertical: 8,
+    elevation: 4,
   },
   cardGreen: {
     flexDirection: 'column',
@@ -327,6 +330,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#543b6c',
     paddingHorizontal: 16,
     paddingVertical: 8,
+    elevation: 4,
   },
   cardTextGreen: {
     fontFamily: 'Poppins_400Regular',
@@ -400,6 +404,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     paddingHorizontal: 16,
     paddingVertical: 8,
+    elevation: 4,
   },
   cardTextListItem: {
     fontFamily: 'Poppins_400Regular',

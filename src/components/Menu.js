@@ -2,33 +2,42 @@ import { Feather } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React from 'react';
 import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../hooks/useTheme';
 
 export default function Menu({ children }) {
   const navigation = useNavigation();
 
   const route = useRoute();
 
+
+  const {
+    currentTheme
+  } = useTheme();
+
+  console.log("Olha isso", currentTheme === 'dark' ? '#1c1e21' : '#FFF')
+
   return (
     <View style={{
       width: Dimensions.get('window').width,
       height: Dimensions.get('screen').height - (Dimensions.get('screen').height - Dimensions.get('window').height + (StatusBar.currentHeight < 50 ? StatusBar.currentHeight : 0)),
       position: 'relative',
+      backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#f0f2f5'
     }}>
       {children}
       <View style={{ height: 70 }} />
       <View style={styles.menu}>
         <ScrollView horizontal contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
-          <TouchableOpacity onPress={() => navigation.navigate('Finanças')} style={styles.button}>
-            <Feather name={"dollar-sign"} size={26} color={route.name === "Finanças" ? "#9c44dc" : "#000000"} />
-            <Text style={{ ...styles.title, color: route.name === "Finanças" ? "#9c44dc" : "#000000" }}>Finanças</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Finanças')} style={{ ...styles.button, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
+            <Feather name={"dollar-sign"} size={26} color={route.name === "Finanças" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />
+            <Text style={{ ...styles.title, color: route.name === "Finanças" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21') }}>Finanças</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Combustível')} style={styles.button}>
-            <Feather name="droplet" size={26} color={route.name === "Combustível" ? "#9c44dc" : "#000000"} />
-            <Text style={{ ...styles.title, color: route.name === "Combustível" ? "#9c44dc" : "#000000" }}>Combustível</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Combustível')} style={{ ...styles.button, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
+            <Feather name="droplet" size={26} color={route.name === "Combustível" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />
+            <Text style={{ ...styles.title, color: route.name === "Combustível" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21') }}>Combustível</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Sobre')} style={styles.button}>
-            <Feather name="settings" size={26} color={route.name === "Sobre" ? "#9c44dc" : "#000000"} />
-            <Text style={{ ...styles.title, color: route.name === "Sobre" ? "#9c44dc" : "#000000" }}>Sobre o app</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Sobre')} style={{ ...styles.button, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
+            <Feather name="settings" size={26} color={route.name === "Sobre" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />
+            <Text style={{ ...styles.title, color: route.name === "Sobre" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21') }}>Sobre o app</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>

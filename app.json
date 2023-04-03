@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "cover",
@@ -16,7 +16,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.filipegaucho22.finances",
+      "bundleIdentifier": "com.finances",
       "buildNumber": "1.21.0",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Permitir que $(PRODUCT_NAME) acesse suas fotos.",
@@ -33,7 +33,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#9c44dc"
       },
-      "package": "com.filipegaucho22.finances"
+      "package": "com.finances"
     },
     "web": {
       "favicon": "./assets/favicon.png"
