@@ -127,7 +127,7 @@ export function PaymentsContextProvider(props) {
 
   const Saldo = useMemo(() => {
     let soma = 0.0
-    for (const item of filteredList) {
+    for (const item of transactionsList) {
       if (item.isEnabled) {
         soma = soma - parseFloat(item.amount);
       } else {
