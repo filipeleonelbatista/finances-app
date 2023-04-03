@@ -8,9 +8,14 @@ import { Dimensions, Pressable, StyleSheet, Switch, Text, TextInput, View } from
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as Yup from 'yup';
 import { usePayments } from '../hooks/usePayments';
+import { useTheme } from '../hooks/useTheme';
 
 export default function EditItemForm({ onClose, selectedTransaction }) {
     const [isEditable, setIsEditable] = useState(false)
+
+    const {
+        currentTheme
+    } = useTheme();
 
     function moeda(e) {
         let value = String(e);
@@ -66,12 +71,18 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
 
     return (
         <>
-            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0 }}>{isEditable ? 'Editar' : 'Visualizar'} transação</Text>
-            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0 }}>{isEditable ? 'Edite' : 'Visualize'} informações sobre o entrada ou saída selecionada.</Text>
+            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{isEditable ? 'Editar' : 'Visualizar'} transação</Text>
+            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{isEditable ? 'Edite' : 'Visualize'} informações sobre o entrada ou saída selecionada.</Text>
 
             <View>
-                <Text style={styles.label}>Descrição</Text>
-                <TextInput style={styles.input}
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Descrição</Text>
+                <TextInput
+                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                    style={{
+                        ...styles.input,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                    }}
                     placeholder="Descrição"
                     editable={isEditable}
                     selectTextOnFocus={isEditable}
@@ -83,8 +94,14 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
                 )}
             </View>
             <View>
-                <Text style={styles.label}>Valor</Text>
-                <TextInput style={styles.input}
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor</Text>
+                <TextInput
+                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                    style={{
+                        ...styles.input,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                    }}
                     editable={isEditable}
                     selectTextOnFocus={isEditable}
                     keyboardType="decimal-pad"
@@ -97,12 +114,13 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
                 <Text style={styles.helperText}>{formik.errors.amount}</Text>
             )}
             <View>
-                <Text style={styles.label}>Data</Text>
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data</Text>
                 <View style={styles.inputGroup}>
                     <Pressable
                         onPress={() => {
                             !isEditable ? null :
                                 DateTimePickerAndroid.open({
+                                    themeVariant: currentTheme,
                                     value: new Date(Date.now()),
                                     onChange,
                                     mode: 'date',
@@ -126,13 +144,20 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
                                 selectTextOnFocus={isEditable}
                                 maxLength={10}
                                 value={formik.values.date}
-                                style={{ ...styles.inputInputGroup, width: '100%' }}
+                                placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                                style={{
+                                    ...styles.inputInputGroup,
+                                    width: '100%',
+                                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                                }}
                             />
                         </View>
                     </Pressable>
                     <TouchableOpacity onPress={() => {
                         !isEditable ? null :
                             DateTimePickerAndroid.open({
+                                themeVariant: currentTheme,
                                 value: new Date(Date.now()),
                                 onChange,
                                 mode: 'date',
@@ -157,9 +182,9 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
                     onValueChange={toggleSwitch}
                     value={formik.values.isEnabled}
                 />
-                <Text style={styles.labelSwitch}>É despesa?</Text>
+                <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>É despesa?</Text>
             </View>
-            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0 }}>Deixe marcado caso esteja adicionando uma saída (Despesa).</Text>
+            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Deixe marcado caso esteja adicionando uma saída (Despesa).</Text>
 
             {isEditable ? (
                 <>

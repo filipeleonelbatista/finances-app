@@ -6,19 +6,24 @@ import { Dimensions, StyleSheet, Text, TextInput, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as Yup from 'yup';
 import { useRuns } from '../hooks/useRuns';
+import { useTheme } from '../hooks/useTheme';
 
 export default function AutonomyForm({ onClose }) {
     const { setAutonomyValue, autonomy } = useRuns();
 
+    const {
+        currentTheme
+    } = useTheme();
+
     const formSchema = useMemo(() => {
         return Yup.object().shape({
-            autonomy: Yup.number().required("O campo Autonomia é obrigatório"),
+            autonomy: Yup.string().required("O campo Autonomia é obrigatório"),
         })
     }, [])
 
     const formik = useFormik({
         initialValues: {
-            autonomy: autonomy,
+            autonomy: String(autonomy),
         },
         validationSchema: formSchema,
         onSubmit: values => {
@@ -33,12 +38,18 @@ export default function AutonomyForm({ onClose }) {
 
     return (
         <>
-            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0 }}>Autonomia</Text>
-            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0 }}>Adicione a autonomia do veículo para estimar o uso do combustível.</Text>
+            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Autonomia</Text>
+            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Adicione a autonomia do veículo para estimar o uso do combustível.</Text>
 
             <View>
-                <Text style={styles.label}>Valor do Km/L</Text>
-                <TextInput style={styles.input}
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor do Km/L</Text>
+                <TextInput
+                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                    style={{
+                        ...styles.input,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                    }}
                     keyboardType="decimal-pad"
                     placeholder="Valor do Km/L"
                     onChangeText={(text) => formik.setFieldValue('autonomy', text)}

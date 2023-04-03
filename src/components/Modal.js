@@ -5,9 +5,14 @@ import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
 import { useHeaderHeight } from '@react-navigation/elements'
+import { useTheme } from '../hooks/useTheme';
 
 export default function Modal({ open, onClose, children }) {
   const height = useHeaderHeight()
+
+  const {
+    currentTheme
+  } = useTheme();
 
   if (!open) return null
 
@@ -18,7 +23,7 @@ export default function Modal({ open, onClose, children }) {
       style={styles.container}
       enabled
     >
-      <View style={styles.card}>
+      <View style={{ ...styles.card, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#fff' }}>
         <RectButton onPress={() => onClose()} style={styles.button}>
           <Feather name="x" size={24} color="#FFF" />
         </RectButton>
@@ -50,6 +55,7 @@ const styles = StyleSheet.create({
     width: '100%',
     display: 'flex',
     minHeight: 65,
+    elevation: 4,
   },
   cardContent: {
     width: '100%',

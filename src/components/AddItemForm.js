@@ -8,9 +8,14 @@ import { Dimensions, Pressable, StyleSheet, Switch, Text, TextInput, View } from
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as Yup from 'yup';
 import { usePayments } from '../hooks/usePayments';
+import { useTheme } from '../hooks/useTheme';
 
 export default function AddItemForm({ onClose }) {
     const { addTrasaction } = usePayments();
+
+    const {
+        currentTheme
+    } = useTheme();
 
     const formSchema = useMemo(() => {
         return Yup.object().shape({
@@ -62,12 +67,18 @@ export default function AddItemForm({ onClose }) {
 
     return (
         <>
-            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0 }}>Adicionar transação</Text>
-            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0 }}>Adicione informações sobre o entrada ou saída que está adicionando.</Text>
+            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Adicionar transação</Text>
+            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Adicione informações sobre o entrada ou saída que está adicionando.</Text>
 
             <View>
-                <Text style={styles.label}>Descrição</Text>
-                <TextInput style={styles.input}
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Descrição</Text>
+                <TextInput
+                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                    style={{
+                        ...styles.input,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                    }}
                     placeholder="Descrição"
                     onChangeText={(text) => formik.setFieldValue('description', text)}
                     value={formik.values.description}
@@ -77,8 +88,14 @@ export default function AddItemForm({ onClose }) {
                 )}
             </View>
             <View>
-                <Text style={styles.label}>Valor</Text>
-                <TextInput style={styles.input}
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor</Text>
+                <TextInput
+                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                    style={{
+                        ...styles.input,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                    }}
                     keyboardType="decimal-pad"
                     placeholder="Valor"
                     onChangeText={(text) => formik.setFieldValue('amount', moeda(text))}
@@ -89,11 +106,12 @@ export default function AddItemForm({ onClose }) {
                 <Text style={styles.helperText}>{formik.errors.amount}</Text>
             )}
             <View>
-                <Text style={styles.label}>Data</Text>
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data</Text>
                 <View style={styles.inputGroup}>
                     <Pressable
                         onPress={() => {
                             DateTimePickerAndroid.open({
+                                themeVariant: currentTheme,
                                 value: new Date(Date.now()),
                                 onChange,
                                 mode: 'date',
@@ -115,12 +133,20 @@ export default function AddItemForm({ onClose }) {
                                 keyboardType="decimal-pad"
                                 maxLength={10}
                                 value={formik.values.date}
-                                style={{ ...styles.inputInputGroup, width: '100%' }}
+
+                                placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                                style={{
+                                    ...styles.inputInputGroup,
+                                    width: '100%',
+                                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                                }}
                             />
                         </View>
                     </Pressable>
                     <TouchableOpacity onPress={() => {
                         DateTimePickerAndroid.open({
+                            themeVariant: currentTheme,
                             value: new Date(Date.now()),
                             onChange,
                             mode: 'date',
@@ -144,9 +170,9 @@ export default function AddItemForm({ onClose }) {
                     onValueChange={toggleSwitch}
                     value={formik.values.isEnabled}
                 />
-                <Text style={styles.labelSwitch}>É despesa?</Text>
+                <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>É despesa?</Text>
             </View>
-            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0 }}>Deixe marcado caso esteja adicionando uma saída (Despesa).</Text>
+            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Deixe marcado caso esteja adicionando uma saída (Despesa).</Text>
 
             <TouchableOpacity onPress={formik.submitForm} style={styles.buttonSave}>
                 <Text style={styles.buttonText}>Adicionar</Text>

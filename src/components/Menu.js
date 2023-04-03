@@ -9,12 +9,9 @@ export default function Menu({ children }) {
 
   const route = useRoute();
 
-
   const {
     currentTheme
   } = useTheme();
-
-  console.log("Olha isso", currentTheme === 'dark' ? '#1c1e21' : '#FFF')
 
   return (
     <View style={{

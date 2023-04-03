@@ -105,7 +105,7 @@ export default function Runs() {
             <View style={styles.headerEmpty} />
             <Text style={{
               fontFamily: 'Poppins_600SemiBold',
-              fontSize: 24,
+              fontSize: 28,
               color: currentTheme === 'dark' ? '#1c1e21' : '#FFF'
             }}>
               Corrida<Text style={{ color: '#543b6c' }}>$</Text>
@@ -165,7 +165,6 @@ export default function Runs() {
               enabled
               style={{
                 width: '50%',
-                borderRadius: 4,
                 borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
               }}
             >

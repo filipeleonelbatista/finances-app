@@ -148,7 +148,7 @@ export default function AboutUs() {
                         <View style={styles.headerItens}>
                             <Text style={{
                                 fontFamily: 'Poppins_600SemiBold',
-                                fontSize: 24,
+                                fontSize: 28,
                                 color: currentTheme === 'dark' ? '#1c1e21' : '#FFF'
                             }}>
                                 Configuraçõe<Text style={{ color: '#543b6c' }}>$</Text>
@@ -207,17 +207,21 @@ export default function AboutUs() {
                     </View>
                     <View style={{ paddingHorizontal: 24 }}>
                         <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Prefixo</Text>
-                        <TextInput style={{
-                            ...styles.input,
-                            backgroundColor: !willUsePrefixToRemoveTihteSum ? "#DDD" : '#FFF',
-                            marginBottom: 4
-                        }}
+                        <TextInput
+
+                            placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                            style={{
+                                ...styles.input,
+                                backgroundColor: !willUsePrefixToRemoveTihteSum ? currentTheme === 'dark' ? '#333' : '#DDD' : currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                                color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                                marginBottom: 4
+                            }}
                             placeholder="Prefixo"
                             onChangeText={handleSetPrefixTithe}
                             value={prefixTithe}
                             editable={willUsePrefixToRemoveTihteSum}
                         />
-                        <Text style={{...styles.helperText, color: currentTheme === 'dark' ? "#CCC" : "#666"}}>Se o título da transação tiver este prefixo não será contado na soma do dízimo</Text>
+                        <Text style={{ ...styles.helperText, color: currentTheme === 'dark' ? "#CCC" : "#666" }}>Se o título da transação tiver este prefixo não será contado na soma do dízimo</Text>
                     </View>
                     <RectButton onPress={handleOpenCSV} style={styles.button}>
                         <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />

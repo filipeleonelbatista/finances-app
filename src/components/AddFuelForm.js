@@ -3,15 +3,20 @@ import React, { useMemo } from 'react';
 
 import { Feather } from '@expo/vector-icons';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 import { useFormik } from 'formik';
-import { Dimensions, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Dimensions, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as Yup from 'yup';
 import { useRuns } from '../hooks/useRuns';
-import { Picker } from '@react-native-picker/picker';
+import { useTheme } from '../hooks/useTheme';
 
 export default function AddFuelForm({ onClose }) {
     const { addTrasaction } = useRuns();
+
+    const {
+        currentTheme
+    } = useTheme();
 
     const formSchema = useMemo(() => {
         return Yup.object().shape({
@@ -68,12 +73,18 @@ export default function AddFuelForm({ onClose }) {
 
     return (
         <>
-            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0 }}>Adicionar abastecimento</Text>
-            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0 }}>Adicione informações sobre o abastecimento.</Text>
+            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Adicionar abastecimento</Text>
+            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Adicione informações sobre o abastecimento.</Text>
 
             <View>
-                <Text style={styles.label}>Local</Text>
-                <TextInput style={styles.input}
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Local</Text>
+                <TextInput
+                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                    style={{
+                        ...styles.input,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                    }}
                     placeholder="Local"
                     onChangeText={(text) => formik.setFieldValue('location', text)}
                     value={formik.values.location}
@@ -83,8 +94,14 @@ export default function AddFuelForm({ onClose }) {
                 )}
             </View>
             <View>
-                <Text style={styles.label}>Km Atual</Text>
-                <TextInput style={styles.input}
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Km Atual</Text>
+                <TextInput
+                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                    style={{
+                        ...styles.input,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                    }}
                     keyboardType="decimal-pad"
                     placeholder="Km Atual"
                     onChangeText={(text) => formik.setFieldValue('currentDistance', text)}
@@ -95,8 +112,14 @@ export default function AddFuelForm({ onClose }) {
                 )}
             </View>
             <View>
-                <Text style={styles.label}>Quantidade em litros abastecidos</Text>
-                <TextInput style={styles.input}
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Quantidade em litros abastecidos</Text>
+                <TextInput
+                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                    style={{
+                        ...styles.input,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                    }}
                     keyboardType="decimal-pad"
                     placeholder="Quantidade em litros abastecidos"
                     onChangeText={(text) => formik.setFieldValue('volume', moeda(text))}
@@ -107,8 +130,14 @@ export default function AddFuelForm({ onClose }) {
                 )}
             </View>
             <View>
-                <Text style={styles.label}>Valor do litro</Text>
-                <TextInput style={styles.input}
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor do litro</Text>
+                <TextInput
+                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                    style={{
+                        ...styles.input,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                    }}
                     keyboardType="decimal-pad"
                     placeholder="Valor do litro"
                     onChangeText={(text) => formik.setFieldValue('amount', moeda(text))}
@@ -119,7 +148,7 @@ export default function AddFuelForm({ onClose }) {
                 )}
             </View>
             <View>
-                <Text style={styles.label}>Tipo do combustivel</Text>
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Tipo do combustivel</Text>
                 <Picker
                     selectedValue={formik.values.type ?? 'Comun'}
                     onValueChange={(itemValue, itemIndex) =>
@@ -131,7 +160,7 @@ export default function AddFuelForm({ onClose }) {
                     enabled
                     style={{
                         width: '100%',
-                        borderRadius: 4,
+                        borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
                     }}
                 >
                     <Picker.Item label="Comun" value="Comun" />
@@ -142,11 +171,12 @@ export default function AddFuelForm({ onClose }) {
                 )}
             </View>
             <View>
-                <Text style={styles.label}>Data</Text>
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data</Text>
                 <View style={styles.inputGroup}>
                     <Pressable
                         onPress={() => {
                             DateTimePickerAndroid.open({
+                                themeVariant: currentTheme,
                                 value: new Date(Date.now()),
                                 onChange,
                                 mode: 'date',
@@ -168,12 +198,19 @@ export default function AddFuelForm({ onClose }) {
                                 keyboardType="decimal-pad"
                                 maxLength={10}
                                 value={formik.values.date}
-                                style={{ ...styles.inputInputGroup, width: '100%' }}
+                                placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                                style={{
+                                    ...styles.inputInputGroup,
+                                    width: '100%',
+                                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                                }}
                             />
                         </View>
                     </Pressable>
                     <TouchableOpacity onPress={() => {
                         DateTimePickerAndroid.open({
+                            themeVariant: currentTheme,
                             value: new Date(Date.now()),
                             onChange,
                             mode: 'date',
