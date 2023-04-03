@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { Dimensions, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { Dimensions, KeyboardAvoidingView, StyleSheet, View, BackHandler } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
-import { useHeaderHeight } from '@react-navigation/elements'
+import { useHeaderHeight } from '@react-navigation/elements';
 import { useTheme } from '../hooks/useTheme';
+
+import { useFocusEffect } from '@react-navigation/native';
+
+
 
 export default function Modal({ open, onClose, children }) {
   const height = useHeaderHeight()
@@ -15,6 +19,15 @@ export default function Modal({ open, onClose, children }) {
   } = useTheme();
 
   if (!open) return null
+
+  useFocusEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      onClose();
+      return true;
+    });
+
+    return () => backHandler.remove();
+  })
 
   return (
     <KeyboardAvoidingView

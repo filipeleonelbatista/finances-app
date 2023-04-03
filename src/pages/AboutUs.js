@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import React from 'react';
-import { Dimensions, Image, ImageBackground, KeyboardAvoidingView, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
+import { BackHandler, Dimensions, Image, ImageBackground, KeyboardAvoidingView, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import * as FileSystem from 'expo-file-system';
@@ -17,8 +17,10 @@ import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useTheme } from '../hooks/useTheme';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 export default function AboutUs() {
+    const navigation = useNavigation();
 
     const height = useHeaderHeight()
 
@@ -133,6 +135,15 @@ export default function AboutUs() {
             return
         }
     }
+
+    useFocusEffect(() => {
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            navigation.navigate('Finanças');
+            return true;
+        });
+
+        return () => backHandler.remove();
+    })
 
     return (
         <Menu>
