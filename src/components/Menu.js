@@ -22,7 +22,7 @@ export default function Menu({ children }) {
     }}>
       {children}
       <View style={{ height: 70 }} />
-      <View style={styles.menu}>
+      <View style={{ ...styles.menu, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#f0f2f5' }}>
         <ScrollView horizontal contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
           <TouchableOpacity onPress={() => navigation.navigate('Finanças')} style={{ ...styles.button, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
             <Feather name={"dollar-sign"} size={26} color={route.name === "Finanças" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />

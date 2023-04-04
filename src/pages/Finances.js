@@ -38,7 +38,8 @@ export default function Finances() {
   } = usePayments();
 
   const {
-    isEnableTitheCard
+    isEnableTitheCard,
+    isEnableTotalHistoryCard
   } = useSettings();
 
   const {
@@ -97,13 +98,17 @@ export default function Finances() {
           }}
           style={styles.ScrollViewContainer}
         >
-          <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Saldo</Text>
-              <Feather name={Saldo > 0 ? "arrow-up-circle" : "arrow-down-circle"} size={48} color={Saldo > 0 ? "#12a454" : "#e83e5a"} />
-            </View>
-            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{formatCurrency(Saldo)}</Text>
-          </View>
+          {
+            isEnableTotalHistoryCard && (
+              <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
+                <View style={styles.cardTitleOrientation}>
+                  <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Saldo</Text>
+                  <Feather name={Saldo > 0 ? "arrow-up-circle" : "arrow-down-circle"} size={48} color={Saldo > 0 ? "#12a454" : "#e83e5a"} />
+                </View>
+                <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{formatCurrency(Saldo)}</Text>
+              </View>
+            )
+          }
           <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
             <View style={styles.cardTitleOrientation}>
               <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Entradas</Text>
@@ -209,7 +214,7 @@ export default function Finances() {
                   setSelectedTransaction(item)
                   setOpenModalSeeTransaction(true)
                 }}
-                style={{...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF'}}
+                style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}
               >
                 <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
                   <Feather
@@ -220,7 +225,7 @@ export default function Finances() {
                   <View style={{
                     flexDirection: 'column', alignItems: 'flex-start', width: '50%',
                   }}>
-                    <Text style={{...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'}} >{item.description}</Text>
+                    <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.description}</Text>
                     <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
                   </View>
                   <View style={{

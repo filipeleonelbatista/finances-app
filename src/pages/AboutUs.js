@@ -38,8 +38,8 @@ export default function AboutUs() {
         handleWillRemovePrefixToRemove,
         prefixTithe,
         handleSetPrefixTithe,
-        startPage,
-        handleStartPage,
+        isEnableTotalHistoryCard,
+        handleSwitchViewTotalHistoryCard,
     } = useSettings();
 
     const {
@@ -174,7 +174,6 @@ export default function AboutUs() {
                         </View>
                     </View>
                     <View style={{ height: 8 }} />
-
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
                         <Switch
                             trackColor={{ false: "#767577", true: "#767577" }}
@@ -188,16 +187,6 @@ export default function AboutUs() {
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
                         <Switch
                             trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={isEnableTitheCard ? "#9c44dc" : "#3e3e3e"}
-                            ios_backgroundColor="#3e3e3e"
-                            onValueChange={handleSwitchViewTitheCard}
-                            value={isEnableTitheCard}
-                        />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar card de Dízimo</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
-                        <Switch
-                            trackColor={{ false: "#767577", true: "#767577" }}
                             thumbColor={willAddFuelToTransactionList ? "#9c44dc" : "#3e3e3e"}
                             ios_backgroundColor="#3e3e3e"
                             onValueChange={handleToggleWillAddFuel}
@@ -205,7 +194,26 @@ export default function AboutUs() {
                         />
                         <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar adicionar abastecimento automaticamente em finanças</Text>
                     </View>
-
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                        <Switch
+                            trackColor={{ false: "#767577", true: "#767577" }}
+                            thumbColor={isEnableTotalHistoryCard ? "#9c44dc" : "#3e3e3e"}
+                            ios_backgroundColor="#3e3e3e"
+                            onValueChange={handleSwitchViewTotalHistoryCard}
+                            value={isEnableTotalHistoryCard}
+                        />
+                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar card de Saldo</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                        <Switch
+                            trackColor={{ false: "#767577", true: "#767577" }}
+                            thumbColor={isEnableTitheCard ? "#9c44dc" : "#3e3e3e"}
+                            ios_backgroundColor="#3e3e3e"
+                            onValueChange={handleSwitchViewTitheCard}
+                            value={isEnableTitheCard}
+                        />
+                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar card de Dízimo</Text>
+                    </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
                         <Switch
                             trackColor={{ false: "#767577", true: "#767577" }}

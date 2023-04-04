@@ -18,12 +18,17 @@ export function PaymentsContextProvider(props) {
   const { willUsePrefixToRemoveTihteSum, prefixTithe } = useSettings();
 
   const filterLabels = [
-    'Próximo mês',
     'Este mês',
+    'Próximo mês',
+    'Próxima semana',
+    'Em duas semanas',
+    'Em três semanas',
+    'Em quatro semanas',
     'Esta semana',
     'Semana passada',
     'Duas semanas atrás',
     'Três semanas atrás',
+    'Quatro semanas atrás',
     'Mês passado',
     'Todos'
   ]
@@ -60,6 +65,26 @@ export function PaymentsContextProvider(props) {
           const endOfNextMonth = dayjs().add(2, 'month').startOf('month').subtract(1, 'day');
           return itemDate.isSameOrAfter(startOfNextMonth) && itemDate.isSameOrBefore(endOfNextMonth);
         }
+        if (selectedPeriod === 'Próxima semana') {
+          const startOfLastWeek = dayjs().add(1, 'week').startOf('week');
+          const endOfLastWeek = dayjs().add(1, 'week').endOf('week');
+          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
+        }
+        if (selectedPeriod === 'Em duas semanas') {
+          const startOfLastWeek = dayjs().add(2, 'week').startOf('week');
+          const endOfLastWeek = dayjs().add(2, 'week').endOf('week');
+          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
+        }
+        if (selectedPeriod === 'Em três semanas') {
+          const startOfLastWeek = dayjs().add(3, 'week').startOf('week');
+          const endOfLastWeek = dayjs().add(3, 'week').endOf('week');
+          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
+        }
+        if (selectedPeriod === 'Em quatro semanas') {
+          const startOfLastWeek = dayjs().add(4, 'week').startOf('week');
+          const endOfLastWeek = dayjs().add(4, 'week').endOf('week');
+          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
+        }
         if (selectedPeriod === 'Este mês') {
           const firstDayOfMonth = dayjs().startOf('month');
           const lastDayOfMonth = dayjs().endOf('month');
@@ -83,6 +108,11 @@ export function PaymentsContextProvider(props) {
         if (selectedPeriod === 'Três semanas atrás') {
           const startOfLastWeek = dayjs().subtract(3, 'week').startOf('week');
           const endOfLastWeek = dayjs().subtract(3, 'week').endOf('week');
+          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
+        }
+        if (selectedPeriod === 'Quatro semanas atrás') {
+          const startOfLastWeek = dayjs().subtract(4, 'week').startOf('week');
+          const endOfLastWeek = dayjs().subtract(4, 'week').endOf('week');
           return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
         }
         if (selectedPeriod === 'Mês passado') {

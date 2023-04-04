@@ -6,6 +6,7 @@ export const SettingsContext = createContext({});
 export function SettingsContextProvider(props) {
 
   const [isEnableTitheCard, setIsEnableTitheCard] = useState(false)
+  const [isEnableTotalHistoryCard, setIsEnableTotalHistoryCard] = useState(false)
   const [willAddFuelToTransactionList, setWillAddFuelToTransactionList] = useState(false)
   const [willUsePrefixToRemoveTihteSum, setWillUsePrefixToRemoveTihteSum] = useState(false)
   const [prefixTithe, setPrefixTithe] = useState('')
@@ -25,6 +26,11 @@ export function SettingsContextProvider(props) {
     await updateStorageContext()
   }
 
+  const handleSwitchViewTotalHistoryCard = async (value) => {
+    setIsEnableTotalHistoryCard(value)
+    await updateStorageContext()
+  }
+
   const handleSwitchViewTitheCard = async (value) => {
     setIsEnableTitheCard(value)
     await updateStorageContext()
@@ -33,6 +39,7 @@ export function SettingsContextProvider(props) {
   const updateStorageContext = async () => {
     const defaultSettings = {
       isEnableTitheCard,
+      isEnableTotalHistoryCard,
       willAddFuelToTransactionList,
       willUsePrefixToRemoveTihteSum,
       prefixTithe,
@@ -46,12 +53,14 @@ export function SettingsContextProvider(props) {
       if (value !== null) {
         const currentSettings = JSON.parse(value)
         setIsEnableTitheCard(currentSettings.isEnableTitheCard)
+        setIsEnableTotalHistoryCard(currentSettings.isEnableTotalHistoryCard)
         setWillAddFuelToTransactionList(currentSettings.willAddFuelToTransactionList)
         setWillUsePrefixToRemoveTihteSum(currentSettings.willUsePrefixToRemoveTihteSum)
         setPrefixTithe(currentSettings.setPrefixTithe)
       } else {
         const defaultSettings = {
           isEnableTitheCard,
+          isEnableTotalHistoryCard,
           willAddFuelToTransactionList,
           willUsePrefixToRemoveTihteSum,
           setPrefixTithe,
@@ -80,6 +89,8 @@ export function SettingsContextProvider(props) {
         handleWillRemovePrefixToRemove,
         prefixTithe,
         handleSetPrefixTithe,
+        isEnableTotalHistoryCard,
+        handleSwitchViewTotalHistoryCard,
       }}
     >
       {props.children}
