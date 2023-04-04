@@ -1,15 +1,10 @@
-import React, { useEffect } from 'react';
-
-import { Dimensions, KeyboardAvoidingView, StyleSheet, View, BackHandler } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
-
 import { Feather } from '@expo/vector-icons';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { useTheme } from '../hooks/useTheme';
-
 import { useFocusEffect } from '@react-navigation/native';
-
-
+import React from 'react';
+import { BackHandler, Dimensions, KeyboardAvoidingView, StyleSheet, View } from 'react-native';
+import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { useTheme } from '../hooks/useTheme';
 
 export default function Modal({ open, onClose, children }) {
   const height = useHeaderHeight()
