@@ -13,6 +13,7 @@ import logo from './src/assets/icon.png';
 import { RunsContextProvider } from './src/context/RunsContext';
 import { SettingsContextProvider } from './src/context/SettingsContext';
 import { ThemeContextProvider } from './src/context/ThemeContext';
+import { MarketContextProvider } from './src/context/MarketContext';
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -52,7 +53,9 @@ export default function App() {
         <SettingsContextProvider>
           <PaymentsContextProvider>
             <RunsContextProvider>
-              <Routes />
+              <MarketContextProvider>
+                <Routes />
+              </MarketContextProvider>
             </RunsContextProvider>
           </PaymentsContextProvider>
         </SettingsContextProvider>

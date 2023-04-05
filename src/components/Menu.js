@@ -32,6 +32,10 @@ export default function Menu({ children }) {
             <Feather name="droplet" size={26} color={route.name === "Combustível" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />
             <Text style={{ ...styles.title, color: route.name === "Combustível" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21') }}>Combustível</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Mercado')} style={{ ...styles.button, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
+            <Feather name="shopping-cart" size={26} color={route.name === "Mercado" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />
+            <Text style={{ ...styles.title, color: route.name === "Mercado" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21') }}>Mercado</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Sobre')} style={{ ...styles.button, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
             <Feather name="settings" size={26} color={route.name === "Sobre" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />
             <Text style={{ ...styles.title, color: route.name === "Sobre" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21') }}>Sobre o app</Text>
@@ -53,7 +57,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   button: {
-    width: Dimensions.get('window').width / 3,
+    width: Dimensions.get('window').width / 4,
     gap: 4,
     height: '100%',
     backgroundColor: "#FFF",

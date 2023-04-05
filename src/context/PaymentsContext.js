@@ -20,11 +20,11 @@ export function PaymentsContextProvider(props) {
   const filterLabels = [
     'Este mês',
     'Próximo mês',
+    'Esta semana',
     'Próxima semana',
     'Em duas semanas',
     'Em três semanas',
     'Em quatro semanas',
-    'Esta semana',
     'Semana passada',
     'Duas semanas atrás',
     'Três semanas atrás',

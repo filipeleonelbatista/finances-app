@@ -1,18 +1,16 @@
-import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
 
+import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
-import { StyleSheet } from "react-native";
 import AboutUs from "./pages/AboutUs";
 import Finances from "./pages/Finances";
+import Market from "./pages/Market";
 import Runs from "./pages/Runs";
-import { useSettings } from "./hooks/useSettings";
 
 const Stack = createStackNavigator();
 
 export default function Routes() {
-  const { startPage } = useSettings();
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -30,6 +28,10 @@ export default function Routes() {
           component={Runs}
         />
         <Stack.Screen
+          name="Mercado"
+          component={Market}
+        />
+        <Stack.Screen
           name="Sobre"
           component={AboutUs}
         />
@@ -37,25 +39,3 @@ export default function Routes() {
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  shadow: {
-    shadowColor: "#7F5DF0",
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-    elevation: 5,
-  },
-  container: {
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
-  },
-  title: {
-    fontSize: 14,
-    fontFamily: "Poppins_400Regular",
-  },
-});
