@@ -10,7 +10,7 @@ export const RunsContext = createContext({});
 export function RunsContextProvider(props) {
   const { addTrasaction: addPaymentTransaction, deleteTransaction: deletePayentTransaction } = usePayments();
   const { willAddFuelToTransactionList } = useSettings()
-  const [FuelList, setFuelList] = useState('');
+  const [FuelList, setFuelList] = useState([]);
   const [autonomy, setAutonomy] = useState(0);
 
   const setAutonomyValue = async (value) => {
@@ -34,7 +34,7 @@ export function RunsContextProvider(props) {
 
             const newTransactionList = FuelList.filter(item => item.id !== currentTransaction.id);
 
-            await AsyncStorage.setItem('fuel', JSON.stringify(newTransactionList));
+            await AsyncStorage.setItem('runs', JSON.stringify(newTransactionList));
 
             loadTransactions()
 
@@ -46,19 +46,16 @@ export function RunsContextProvider(props) {
 
 
   async function addTrasaction(newTransaction) {
-    const current_id = v4();
-
     const newTransactionList = [
       ...FuelList,
       {
-        id: current_id,
+        id: v4(),
         ...newTransaction
       }
     ]
 
     if (willAddFuelToTransactionList) {
       const newPaymentTransaction = {
-        id_fuel: current_id,
         description: `Abastecimento - ${newTransaction.location}`,
         amount: newTransaction.amount * newTransaction.volume,
         date: newTransaction.date,
@@ -68,15 +65,17 @@ export function RunsContextProvider(props) {
       await addPaymentTransaction(newPaymentTransaction)
     }
 
-    await AsyncStorage.setItem('fuel', JSON.stringify(newTransactionList));
+    console.log('Olha a transação entrando', newTransactionList)
+
+    await AsyncStorage.setItem('runs', JSON.stringify(newTransactionList));
 
     loadTransactions()
 
     ToastAndroid.show('Abastecimento Adicionado', ToastAndroid.SHORT);
+
   }
 
   const loadTransactions = useCallback(async () => {
-    // await AsyncStorage.clear();
     try {
       const autonomyValue = await AsyncStorage.getItem('autonomy');
       if (autonomyValue !== null) {
@@ -86,14 +85,13 @@ export function RunsContextProvider(props) {
         await AsyncStorage.setItem('autonomy', JSON.stringify(0));
       }
 
-      const value = await AsyncStorage.getItem('fuel');
-      const valueArray = JSON.parse(value ?? '[]')
+      const value = await AsyncStorage.getItem('runs');
       if (value !== null) {
+        const valueArray = JSON.parse(value)
         setFuelList(valueArray)
       } else {
-        await AsyncStorage.setItem('fuel', JSON.stringify([]));
+        await AsyncStorage.setItem('runs', JSON.stringify([]));
       }
-
 
     } catch (e) {
       console.log(e)
