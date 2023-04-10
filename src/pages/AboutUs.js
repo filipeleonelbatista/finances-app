@@ -40,6 +40,7 @@ export default function AboutUs() {
         handleSetPrefixTithe,
         isEnableTotalHistoryCard,
         handleSwitchViewTotalHistoryCard,
+        handleCleanAsyncStorage
     } = useSettings();
 
     const {
@@ -252,6 +253,12 @@ export default function AboutUs() {
                         <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
                             Importar finanças
+                        </Text>
+                    </RectButton>
+                    <RectButton onPress={handleCleanAsyncStorage} style={styles.button}>
+                        <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Apagar tabelas
                         </Text>
                     </RectButton>
 

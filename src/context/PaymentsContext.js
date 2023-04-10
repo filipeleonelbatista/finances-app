@@ -38,7 +38,6 @@ export function PaymentsContextProvider(props) {
   const [selectedtypeofpayment, setselectedtypeofpayment] = useState('0');
   const [selectedPeriod, setSelectedPeriod] = useState('Este mês');
 
-
   const filteredList = useMemo(() => {
     if (transactionsList) {
       const filteredType = transactionsList.filter(item => {

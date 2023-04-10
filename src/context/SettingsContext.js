@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useEffect, useState } from "react";
+import { Alert, DevSettings, ToastAndroid } from "react-native";
 
 export const SettingsContext = createContext({});
 
@@ -10,6 +11,27 @@ export function SettingsContextProvider(props) {
   const [willAddFuelToTransactionList, setWillAddFuelToTransactionList] = useState(false)
   const [willUsePrefixToRemoveTihteSum, setWillUsePrefixToRemoveTihteSum] = useState(false)
   const [prefixTithe, setPrefixTithe] = useState('')
+
+  const handleCleanAsyncStorage = async () => {
+    Alert.alert(
+      "Deseja realmente Eliminar todos os registros?",
+      "Esta ação é irreversível! Deseja continuar?",
+      [
+        {
+          text: 'Não',
+          style: 'cancel',
+          onPress: () => console.log('Não pressed'),
+        },
+        {
+          text: 'Sim',
+          onPress: async () => {
+            await AsyncStorage.clear();
+            ToastAndroid.show('Transação Removida', ToastAndroid.SHORT);
+            DevSettings.reload()
+          },
+        },
+      ])
+  }
 
   const handleSetPrefixTithe = async (value) => {
     setPrefixTithe(value)
@@ -56,14 +78,14 @@ export function SettingsContextProvider(props) {
         setIsEnableTotalHistoryCard(currentSettings.isEnableTotalHistoryCard)
         setWillAddFuelToTransactionList(currentSettings.willAddFuelToTransactionList)
         setWillUsePrefixToRemoveTihteSum(currentSettings.willUsePrefixToRemoveTihteSum)
-        setPrefixTithe(currentSettings.setPrefixTithe)
+        setPrefixTithe(currentSettings.prefixTithe)
       } else {
         const defaultSettings = {
           isEnableTitheCard,
           isEnableTotalHistoryCard,
           willAddFuelToTransactionList,
           willUsePrefixToRemoveTihteSum,
-          setPrefixTithe,
+          prefixTithe,
         }
 
         await AsyncStorage.setItem('Settings', JSON.stringify(defaultSettings))
@@ -91,6 +113,7 @@ export function SettingsContextProvider(props) {
         handleSetPrefixTithe,
         isEnableTotalHistoryCard,
         handleSwitchViewTotalHistoryCard,
+        handleCleanAsyncStorage
       }}
     >
       {props.children}
