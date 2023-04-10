@@ -9,6 +9,7 @@ import * as Sharing from 'expo-sharing';
 import XLSX from 'xlsx';
 
 import * as DocumentPicker from 'expo-document-picker';
+import { Asset } from 'expo-asset';
 
 import userImg from '../assets/icon.png';
 import bgImg from '../assets/images/background.png';
@@ -96,16 +97,17 @@ export default function AboutUs() {
 
     async function handleImportFile() {
         try {
-            // let result = await DocumentPicker.getDocumentAsync({
-            //     type: 'text/csv',
-            //     copyToCacheDirectory: true,
-            //     multiple: false,
-            // });
+            let result = await DocumentPicker.getDocumentAsync({
+                type: 'text/comma-separated-values',
+                copyToCacheDirectory: true,
+                multiple: false,
+            });
+            console.log("Olha", result);
 
-            // if (result.type === 'success') {
-            //     let fileContent = await FileSystem.readAsStringAsync(result.uri);
-            //     console.log(fileContent);
-            // }
+            if (result.type === 'success') {
+                let fileContent = await FileSystem.readAsStringAsync(result.uri, { encoding: 'utf8' });
+                console.log("Olha", fileContent);
+            }
 
         } catch (error) {
             console.log(error)

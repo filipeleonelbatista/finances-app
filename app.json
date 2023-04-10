@@ -18,6 +18,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.finances",
       "buildNumber": "1.21.0",
+      "usesIcloudStorage": true,
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Permitir que $(PRODUCT_NAME) acesse suas fotos.",
         "NSPhotoLibraryAddUsageDescription": "Permitir que $(PRODUCT_NAME) salve fotos."
@@ -45,6 +46,12 @@
           "photosPermission": "Permitir que $(PRODUCT_NAME) acesse suas fotos.",
           "savePhotosPermission": "Permitir que $(PRODUCT_NAME) salve fotos.",
           "isAccessMediaLocationEnabled": true
+        }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
         }
       ]
     ],
