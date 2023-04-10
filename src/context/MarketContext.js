@@ -9,9 +9,16 @@ export const MarketContext = createContext({});
 export function MarketContextProvider(props) {
   const { addTrasaction: addPaymentTransaction } = usePayments();
   const [MarketList, setMarketList] = useState([]);
+  const [estimative, setEstimative] = useState(0);
 
   const [selectedTransaction, setSelectedTransaction] = useState();
   const [selectedCategory, setSelectedCategory] = useState('Todos os itens');
+
+  const setEstimativeValue = async (value) => {
+    setEstimative(value)
+    await AsyncStorage.setItem('estimative', JSON.stringify(value))
+  }
+
 
   const filteredList = useMemo(() => {
     const filteredCategory = MarketList.filter(item => {
@@ -109,6 +116,15 @@ export function MarketContextProvider(props) {
       } else {
         await AsyncStorage.setItem('fuel', JSON.stringify([]));
       }
+
+      const estimative = await AsyncStorage.getItem('estimative');
+      if (estimative !== null) {
+        const estimativeParsed = JSON.parse(estimative ?? '0')
+        setEstimative(estimativeParsed)
+      } else {
+        await AsyncStorage.setItem('estimative', JSON.stringify(0));
+      }
+
     } catch (e) {
       console.log(e)
     }
@@ -132,7 +148,9 @@ export function MarketContextProvider(props) {
         selectedTransaction,
         setSelectedTransaction,
         updateTransaction,
-        handleAddFinances
+        handleAddFinances,
+        estimative,
+        setEstimativeValue
       }}
     >
       {props.children}

@@ -255,6 +255,11 @@ export default function AboutUs() {
                             Importar finanças
                         </Text>
                     </RectButton>
+
+                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv</Text> para importar dados com as colunas Descrição, Despesa/Ganho, Data da transação, Valor.
+                    </Text>
+
                     <RectButton onPress={handleCleanAsyncStorage} style={styles.button}>
                         <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
@@ -263,7 +268,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv</Text> para importar dados com as colunas Descrição, Despesa/Ganho, Data da transação, Valor.
+                        Essa opção apagará todos os registros do app.
                     </Text>
 
                     <RectButton onPress={() => { Linking.openURL("https://filipeleonelbatista.vercel.app/") }} style={styles.button}>

@@ -18,6 +18,7 @@ import { useMarket } from '../hooks/useMarket';
 import { useTheme } from '../hooks/useTheme';
 import AddShoppingCartItem from '../components/AddShoppingCartItem';
 import EditShoppingCartItem from '../components/EditShoppingCartItem';
+import EstimativeForm from '../components/EstimativeForm';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -35,13 +36,18 @@ export default function Market() {
     setSelectedCategory,
     selectedTransaction,
     setSelectedTransaction,
+    estimative,
   } = useMarket();
 
   const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
   const [openModalSeeTransaction, setOpenModalSeeTransaction] = useState(false);
+  const [openModalSetEstimative, setOpenModalSetEstimative] = useState(false);
 
   return (
     <Menu>
+      <Modal open={openModalSetEstimative} onClose={() => setOpenModalSetEstimative(false)}>
+        <EstimativeForm onClose={() => setOpenModalSetEstimative(false)} />
+      </Modal>
       <Modal open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
         <EditShoppingCartItem onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
       </Modal>
@@ -77,12 +83,29 @@ export default function Market() {
           }}
           style={styles.ScrollViewContainer}
         >
-          <View style={styles.cardGreen}>
+          <RectButton onPress={() => setOpenModalSetEstimative(true)} style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
             <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardTextGreen}>Total</Text>
-              <Feather name="dollar-sign" size={48} color="#FFF" />
+              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Estimativa</Text>
+              <Feather name="arrow-up-circle" size={48} color="#12a454" />
             </View>
-            <Text style={styles.cardValueGreen}>
+            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+              {
+                estimative.toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                  useGrouping: true,
+                })
+              }
+            </Text>
+          </RectButton>
+          <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
+            <View style={styles.cardTitleOrientation}>
+              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Subtotal</Text>
+              <Feather name="arrow-down-circle" size={48} color="#e83e5a" />
+            </View>
+            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
               {
                 listTotal.toLocaleString('pt-BR', {
                   style: 'currency',
@@ -94,12 +117,23 @@ export default function Market() {
               }
             </Text>
           </View>
-          <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
+
+          <View style={styles.cardGreen}>
             <View style={styles.cardTitleOrientation}>
-              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Qtd Itens</Text>
-              <Feather name="arrow-up-circle" size={48} color="#12a454" />
+              <Text style={styles.cardTextGreen}>Total</Text>
+              <Feather name="dollar-sign" size={48} color="#FFF" />
             </View>
-            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{filteredList.length}</Text>
+            <Text style={styles.cardValueGreen}>
+              {
+                (estimative - listTotal).toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                  useGrouping: true,
+                })
+              }
+            </Text>
           </View>
         </ScrollView>
 
