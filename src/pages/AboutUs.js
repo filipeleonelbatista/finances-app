@@ -101,30 +101,41 @@ export default function AboutUs() {
     const fileReaded = useMemo(async () => {
         if (documentObject) {
             if (documentObject.type === 'success') {
-                let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
-                const newFinancesArray = []
-                for (const item of fileContent.split("\r\n")) {
-                    const currentItemArray = item.split(";")
-                    if (currentItemArray.length === 4) {
-                        const currentItemDate = currentItemArray[2].split("/")
-                        const itemObject = {
-                            id: v4(),
-                            description: currentItemArray[0],
-                            amount: parseFloat(currentItemArray[3].replace("-", "")),
-                            date: new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000,
-                            isEnabled: currentItemArray[1] === 'Despesa',
+                try {
+                    console.log("OLHA EU ALI", documentObject.uri)
+                    let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
+                    const newFinancesArray = []
+                    for (const item of fileContent.split("\r\n")) {
+                        const currentItemArray = item.split(";")
+                        if (currentItemArray.length === 4) {
+                            const currentItemDate = currentItemArray[2].split("/")
+                            const itemObject = {
+                                id: v4(),
+                                description: currentItemArray[0],
+                                amount: parseFloat(currentItemArray[3].replace("-", "")),
+                                date: new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000,
+                                isEnabled: currentItemArray[1] === 'Despesa',
+                            }
+                            newFinancesArray.push(itemObject)
                         }
-                        newFinancesArray.push(itemObject)
                     }
-                }
 
-                await importTransactions(newFinancesArray);
+                    await importTransactions(newFinancesArray);
+                } catch (error) {
+
+                    ToastAndroid.show('Importação não foi realizada', ToastAndroid.SHORT);
+                    console.log(error)
+                }
             }
         } else {
             return null
         }
 
     }, [documentObject])
+
+    // Sansung j6 Android 10 [Error: Unsupported scheme for location 'content://com.android.providers.downloads.documents/document/456'.]
+    // MOTO ONE ACTION Android 11 [Error: Unsupported scheme for location 'content://com.android.providers.media.documents/document/document%3A1000016238'.]
+    //NO EMULADOR PASSA Android 12 content://com.android.externalstorage.documents/document/primary%3ADownload%2Ffinancas_new.CSV
 
     async function handleImportFile() {
         try {
