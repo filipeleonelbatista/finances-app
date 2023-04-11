@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { BackHandler, Dimensions, Image, ImageBackground, KeyboardAvoidingView, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
@@ -9,16 +9,16 @@ import * as Sharing from 'expo-sharing';
 import XLSX from 'xlsx';
 
 import * as DocumentPicker from 'expo-document-picker';
-import { Asset } from 'expo-asset';
 
+import { useHeaderHeight } from '@react-navigation/elements';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import userImg from '../assets/icon.png';
 import bgImg from '../assets/images/background.png';
 import Menu from '../components/Menu';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
-import { useHeaderHeight } from '@react-navigation/elements';
 import { useTheme } from '../hooks/useTheme';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { v4 } from 'uuid';
 
 export default function AboutUs() {
     const navigation = useNavigation();
@@ -27,7 +27,8 @@ export default function AboutUs() {
 
     const {
         transactionsList,
-        Tithe
+        Tithe,
+        importTransactions,
     } = usePayments();
 
     const {
@@ -95,20 +96,44 @@ export default function AboutUs() {
 
     }
 
+    const [documentObject, setDocumentObject] = useState();
+
+    const fileReaded = useMemo(async () => {
+        if (documentObject) {
+            if (documentObject.type === 'success') {
+                let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
+                const newFinancesArray = []
+                for (const item of fileContent.split("\r\n")) {
+                    const currentItemArray = item.split(";")
+                    if (currentItemArray.length === 4) {
+                        const currentItemDate = currentItemArray[2].split("/")
+                        const itemObject = {
+                            id: v4(),
+                            description: currentItemArray[0],
+                            amount: parseFloat(currentItemArray[3].replace("-", "")),
+                            date: new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000,
+                            isEnabled: currentItemArray[1] === 'Despesa',
+                        }
+                        newFinancesArray.push(itemObject)
+                    }
+                }
+
+                await importTransactions(newFinancesArray);
+            }
+        } else {
+            return null
+        }
+
+    }, [documentObject])
+
     async function handleImportFile() {
         try {
             let result = await DocumentPicker.getDocumentAsync({
                 type: 'text/comma-separated-values',
-                copyToCacheDirectory: true,
+                copyToCacheDirectory: false,
                 multiple: false,
             });
-            console.log("Olha", result);
-
-            if (result.type === 'success') {
-                let fileContent = await FileSystem.readAsStringAsync(result.uri, { encoding: 'utf8' });
-                console.log("Olha", fileContent);
-            }
-
+            setDocumentObject(result)
         } catch (error) {
             console.log(error)
         }

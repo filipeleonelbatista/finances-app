@@ -257,6 +257,18 @@ export function PaymentsContextProvider(props) {
         },
       ])
   }
+  async function importTransactions(importedList) {
+    const newTransactionList = [
+      ...transactionsList,
+      ...importedList
+    ]
+
+    await AsyncStorage.setItem('transactions', JSON.stringify(newTransactionList));
+
+    loadTransactions()
+
+    ToastAndroid.show('Importação feita com sucesso', ToastAndroid.SHORT);
+  }
 
   async function addTrasaction(newTransaction) {
 
@@ -314,7 +326,8 @@ export function PaymentsContextProvider(props) {
         listTotal,
         selectedtypeofpayment, setselectedtypeofpayment,
         selectedPeriod, setSelectedPeriod,
-        filterLabels
+        filterLabels,
+        importTransactions,
       }}
     >
       {props.children}
