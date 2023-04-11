@@ -180,13 +180,13 @@ export default function Market() {
                 style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}
               >
                 <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', width: '100%' }}>
-                  <Feather name="shopping-bag" size={28} color="#FFF" />
+                  <Feather name="shopping-bag" size={28} color={currentTheme === 'dark' ? '#FFF' : '#1c1e21'} />
                   <View style={{
                     flexDirection: 'column', alignItems: 'flex-start', width: '40%',
                   }}>
-                    <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >Item</Text>
+                    <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.description}</Text>
                     <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      Categoria
+                      {item.category}
                     </Text>
                     <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', width: '100%' }}>
                       <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
