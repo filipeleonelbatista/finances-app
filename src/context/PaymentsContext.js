@@ -188,7 +188,7 @@ export function PaymentsContextProvider(props) {
 
   const Total = useMemo(() => {
     let soma = 0.0
-    for (const item of transactionsList) {
+    for (const item of filteredList) {
       if (item.isEnabled) {
         soma = soma - parseFloat(item.amount);
       } else {
@@ -196,7 +196,7 @@ export function PaymentsContextProvider(props) {
       }
     }
     return soma;
-  }, [transactionsList])
+  }, [filteredList])
 
   const Tithe = useMemo(() => {
     let soma = 0.0

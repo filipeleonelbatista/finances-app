@@ -99,28 +99,45 @@ export default function AboutUs() {
     const [documentObject, setDocumentObject] = useState();
 
     const fileReaded = useMemo(async () => {
+        const executeTheMission = async () => {
+            console.log("OLHA EU ALI", documentObject.uri)
+            let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
+            const newFinancesArray = []
+            for (const item of fileContent.split("\r\n")) {
+                const currentItemArray = item.split(";")
+                if (currentItemArray.length === 4) {
+                    const currentItemDate = currentItemArray[2].split("/")
+                    const itemObject = {
+                        id: v4(),
+                        description: currentItemArray[0],
+                        amount: parseFloat(currentItemArray[3].replace("-", "")),
+                        date: new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000,
+                        isEnabled: currentItemArray[1] === 'Despesa',
+                    }
+                    newFinancesArray.push(itemObject)
+                }
+            }
+
+            await importTransactions(newFinancesArray);
+        }
+
         if (documentObject) {
             if (documentObject.type === 'success') {
                 try {
-                    console.log("OLHA EU ALI", documentObject.uri)
-                    let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
-                    const newFinancesArray = []
-                    for (const item of fileContent.split("\r\n")) {
-                        const currentItemArray = item.split(";")
-                        if (currentItemArray.length === 4) {
-                            const currentItemDate = currentItemArray[2].split("/")
-                            const itemObject = {
-                                id: v4(),
-                                description: currentItemArray[0],
-                                amount: parseFloat(currentItemArray[3].replace("-", "")),
-                                date: new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000,
-                                isEnabled: currentItemArray[1] === 'Despesa',
-                            }
-                            newFinancesArray.push(itemObject)
+
+                    let perm = await MediaLibrary.getPermissionsAsync();
+
+                    if (perm.status != 'granted') {
+                        let currentPerm = await MediaLibrary.requestPermissionsAsync();
+                        if ('granted' === currentPerm.status) {
+                            executeTheMission()
+                        } else {
+                            ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
                         }
+                    } else {
+                        executeTheMission()
                     }
 
-                    await importTransactions(newFinancesArray);
                 } catch (error) {
 
                     ToastAndroid.show('Importação não foi realizada', ToastAndroid.SHORT);
