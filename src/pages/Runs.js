@@ -86,6 +86,11 @@ export default function Runs() {
     return TotalList
   }, [filteredList])
 
+  const currentEstimative = useMemo(() => {
+    const result = filteredList[0] ? ((autonomy * filteredList[0]?.volume) + filteredList[0]?.currentDistance) : 0
+    return result.toFixed(0);
+  }, [filteredList, autonomy])
+
   return (
     <Menu>
       <Modal open={openModalSetAutonomy} onClose={() => setOpenModalSetAutonomy(false)}>
@@ -128,7 +133,7 @@ export default function Runs() {
               <Text style={styles.cardTextGreen}>Km Estimado</Text>
               <Feather name="dollar-sign" size={48} color="#FFF" />
             </View>
-            <Text style={styles.cardValueGreen}>{filteredList[0] ? ((autonomy * filteredList[0]?.volume) + filteredList[0]?.currentDistance) : 0}</Text>
+            <Text style={styles.cardValueGreen}>{currentEstimative}</Text>
           </View>
           <RectButton onPress={() => setOpenModalSetAutonomy(true)} style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
             <View style={styles.cardTitleOrientation}>

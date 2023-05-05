@@ -16,6 +16,13 @@ export const PaymentsContext = createContext({});
 export function PaymentsContextProvider(props) {
   const [transactionsList, setTransactionsList] = useState('');
   const { willUsePrefixToRemoveTihteSum, prefixTithe } = useSettings();
+  const [selectedPaymentStatus, setSelectedPaymentStatus] = useState('Todos');
+
+  const pamentStatusLabel = [
+    'Todos',
+    'Pago',
+    'Não Pago',
+  ]
 
   const filterLabels = [
     'Este mês',
@@ -121,7 +128,19 @@ export function PaymentsContextProvider(props) {
         }
       })
 
-      const sortedByDateArray = filteredByPeriod.sort((a, b) => {
+      const filteredByPaymentStatus = filteredByPeriod.filter(item => {
+        if (selectedPaymentStatus === "Todos") {
+          return true
+        }
+        if (selectedPaymentStatus === "Pago") {
+          return item.paymentStatus
+        }
+        if (selectedPaymentStatus === "Não Pago") {
+          return !item.paymentStatus
+        }
+      })
+
+      const sortedByDateArray = filteredByPaymentStatus.sort((a, b) => {
         const dateA = dayjs(a.date);
         const dateB = dayjs(b.date);
 
@@ -139,7 +158,7 @@ export function PaymentsContextProvider(props) {
       return sortedByDateArray;
     }
     return [];
-  }, [transactionsList, selectedPeriod, selectedtypeofpayment])
+  }, [transactionsList, selectedPeriod, selectedtypeofpayment, selectedPaymentStatus])
 
   const listTotal = useMemo(() => {
     let TotalList = 0.0;
@@ -205,7 +224,7 @@ export function PaymentsContextProvider(props) {
         soma = soma + item.amount
       }
       if (item.isEnabled && willUsePrefixToRemoveTihteSum) {
-        if (item.description.includes(prefixTithe)) {
+        if (prefixTithe != "" && item.description.includes(prefixTithe)) {
           soma = soma - item.amount
         }
       }
@@ -328,6 +347,8 @@ export function PaymentsContextProvider(props) {
         selectedPeriod, setSelectedPeriod,
         filterLabels,
         importTransactions,
+        pamentStatusLabel,
+        selectedPaymentStatus, setSelectedPaymentStatus,
       }}
     >
       {props.children}

@@ -9,9 +9,11 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as Yup from 'yup';
 import { usePayments } from '../hooks/usePayments';
 import { useTheme } from '../hooks/useTheme';
+import { useSettings } from '../hooks/useSettings';
 
 export default function AddItemForm({ onClose }) {
     const { addTrasaction } = usePayments();
+    const { simpleFinancesItem } = useSettings();
 
     const {
         currentTheme
@@ -21,7 +23,9 @@ export default function AddItemForm({ onClose }) {
         return Yup.object().shape({
             description: Yup.string().required("O campo Descrição é obrigatório"),
             amount: Yup.string().required("O campo Valor é obrigatório"),
-            date: Yup.string().required("O campo Data é obrigatório"),
+            date: Yup.string(),
+            paymentDate: Yup.string(),
+            paymentStatus: Yup.boolean(),
             isEnabled: Yup.boolean(),
         })
     }, [])
@@ -31,6 +35,8 @@ export default function AddItemForm({ onClose }) {
             description: '',
             amount: '',
             date: '',
+            paymentDate: '',
+            paymentStatus: false,
             isEnabled: false
         },
         validationSchema: formSchema,
@@ -40,11 +46,14 @@ export default function AddItemForm({ onClose }) {
     });
 
     async function handleSubmitForm(formValues) {
-        const submittedDate = formValues.date.split('/')
+        const submittedDate = formValues.date !== '' && formValues.date.split('/')
+        const submittedPaymentDate = formValues.paymentDate !== '' ? formValues.paymentDate.split('/') : ''
         const data = {
             amount: parseFloat(formValues.amount.replaceAll('.', '').replace(',', '.')),
-            date: new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000,
+            date: formValues.date !== '' ? new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000 : '',
+            paymentDate: formValues.paymentDate !== '' ? new Date(`${submittedPaymentDate[2]}-${submittedPaymentDate[1]}-${submittedPaymentDate[0]}`).getTime() + 43200000 : '',
             description: formValues.description,
+            paymentStatus: formValues.paymentStatus,
             isEnabled: formValues.isEnabled,
         }
         addTrasaction(data)
@@ -59,10 +68,16 @@ export default function AddItemForm({ onClose }) {
         return value;
     }
     const toggleSwitch = () => formik.setFieldValue('isEnabled', !formik.values.isEnabled)
+    const toggleSwitchPaymentStatus = () => formik.setFieldValue('paymentStatus', !formik.values.paymentStatus)
 
     const onChange = (event, selectedDate) => {
         const currentDate = selectedDate;
         formik.setFieldValue('date', `${currentDate.getDate() < 10 ? '0' + currentDate.getDate() : currentDate.getDate()}/${(currentDate.getMonth() + 1) < 10 ? '0' + (currentDate.getMonth() + 1) : (currentDate.getMonth() + 1)}/${currentDate.getFullYear()}`);
+    };
+
+    const onChangePaymentDate = (event, selectedDate) => {
+        const currentDate = selectedDate;
+        formik.setFieldValue('paymentDate', `${currentDate.getDate() < 10 ? '0' + currentDate.getDate() : currentDate.getDate()}/${(currentDate.getMonth() + 1) < 10 ? '0' + (currentDate.getMonth() + 1) : (currentDate.getMonth() + 1)}/${currentDate.getFullYear()}`);
     };
 
     return (
@@ -106,7 +121,7 @@ export default function AddItemForm({ onClose }) {
                 <Text style={styles.helperText}>{formik.errors.amount}</Text>
             )}
             <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data</Text>
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data de vencimento</Text>
                 <View style={styles.inputGroup}>
                     <Pressable
                         onPress={() => {
@@ -162,6 +177,63 @@ export default function AddItemForm({ onClose }) {
                 )}
             </View>
 
+            {
+                !simpleFinancesItem && (
+                    <View>
+                        <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data do pagamento</Text>
+                        <View style={styles.inputGroup}>
+                            <Pressable
+                                onPress={() => {
+                                    DateTimePickerAndroid.open({
+                                        themeVariant: currentTheme,
+                                        value: new Date(Date.now()),
+                                        onChange: onChangePaymentDate,
+                                        mode: 'date',
+                                        is24Hour: false,
+                                    });
+                                }}
+                                style={{
+                                    width: '82%',
+                                }}
+                            >
+                                <View
+                                    style={{
+                                        width: '100%',
+                                    }}
+                                    pointerEvents='none'
+                                >
+                                    <TextInput
+                                        placeholder="dd/mm/aaaa"
+                                        keyboardType="decimal-pad"
+                                        maxLength={10}
+                                        value={formik.values.paymentDate}
+
+                                        placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                                        style={{
+                                            ...styles.inputInputGroup,
+                                            width: '100%',
+                                            backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                                            color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                                        }}
+                                    />
+                                </View>
+                            </Pressable>
+                            <TouchableOpacity onPress={() => {
+                                DateTimePickerAndroid.open({
+                                    themeVariant: currentTheme,
+                                    value: new Date(Date.now()),
+                                    onChange: onChangePaymentDate,
+                                    mode: 'date',
+                                    is24Hour: false,
+                                });
+                            }} style={styles.buttonInputGroup}>
+                                <Feather name="calendar" size={24} color="#FFF" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                )
+            }
+
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Switch
                     trackColor={{ false: "#767577", true: "#767577" }}
@@ -174,6 +246,20 @@ export default function AddItemForm({ onClose }) {
             </View>
             <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Deixe marcado caso esteja adicionando uma saída (Despesa).</Text>
 
+            {
+                !simpleFinancesItem && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Switch
+                            trackColor={{ false: "#767577", true: "#767577" }}
+                            thumbColor={formik.values.paymentStatus ? "#9c44dc" : "#3e3e3e"}
+                            ios_backgroundColor="#3e3e3e"
+                            onValueChange={toggleSwitchPaymentStatus}
+                            value={formik.values.paymentStatus}
+                        />
+                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Foi Pago?</Text>
+                    </View>
+                )
+            }
             <TouchableOpacity onPress={formik.submitForm} style={styles.buttonSave}>
                 <Text style={styles.buttonText}>Adicionar</Text>
             </TouchableOpacity>

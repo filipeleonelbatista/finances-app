@@ -10,6 +10,7 @@ export function SettingsContextProvider(props) {
   const [isEnableTotalHistoryCard, setIsEnableTotalHistoryCard] = useState(false)
   const [willAddFuelToTransactionList, setWillAddFuelToTransactionList] = useState(false)
   const [willUsePrefixToRemoveTihteSum, setWillUsePrefixToRemoveTihteSum] = useState(false)
+  const [simpleFinancesItem, setSimpleFinancesItem] = useState(false)
   const [prefixTithe, setPrefixTithe] = useState('')
 
   const handleCleanAsyncStorage = async () => {
@@ -31,6 +32,11 @@ export function SettingsContextProvider(props) {
           },
         },
       ])
+  }
+
+  const handleSetSimpleFinancesItem = async (value) => {
+    setSimpleFinancesItem(value)
+    await updateStorageContext()
   }
 
   const handleSetPrefixTithe = async (value) => {
@@ -65,6 +71,7 @@ export function SettingsContextProvider(props) {
       willAddFuelToTransactionList,
       willUsePrefixToRemoveTihteSum,
       prefixTithe,
+      simpleFinancesItem
     }
     await AsyncStorage.setItem('Settings', JSON.stringify(defaultSettings))
   }
@@ -79,6 +86,7 @@ export function SettingsContextProvider(props) {
         setWillAddFuelToTransactionList(currentSettings.willAddFuelToTransactionList)
         setWillUsePrefixToRemoveTihteSum(currentSettings.willUsePrefixToRemoveTihteSum)
         setPrefixTithe(currentSettings.prefixTithe)
+        setSimpleFinancesItem(currentSettings.simpleFinancesItem)
       } else {
         const defaultSettings = {
           isEnableTitheCard,
@@ -86,6 +94,7 @@ export function SettingsContextProvider(props) {
           willAddFuelToTransactionList,
           willUsePrefixToRemoveTihteSum,
           prefixTithe,
+          simpleFinancesItem
         }
 
         await AsyncStorage.setItem('Settings', JSON.stringify(defaultSettings))
@@ -113,7 +122,10 @@ export function SettingsContextProvider(props) {
         handleSetPrefixTithe,
         isEnableTotalHistoryCard,
         handleSwitchViewTotalHistoryCard,
-        handleCleanAsyncStorage
+        handleCleanAsyncStorage,
+        simpleFinancesItem,
+        setSimpleFinancesItem,
+        handleSetSimpleFinancesItem
       }}
     >
       {props.children}

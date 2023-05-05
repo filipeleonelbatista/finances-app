@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Dimensions, FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
@@ -10,7 +10,6 @@ import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import bgImg from '../assets/images/background.png';
-import logo from '../assets/images/logo.png';
 import AddItemForm from '../components/AddItemForm';
 import EditItemForm from '../components/EditItemForm';
 import Menu from '../components/Menu';
@@ -34,12 +33,15 @@ export default function Finances() {
     listTotal,
     selectedtypeofpayment, setselectedtypeofpayment,
     selectedPeriod, setSelectedPeriod,
-    filterLabels
+    filterLabels,
+    pamentStatusLabel,
+    selectedPaymentStatus, setSelectedPaymentStatus,
   } = usePayments();
 
   const {
     isEnableTitheCard,
-    isEnableTotalHistoryCard
+    isEnableTotalHistoryCard,
+    simpleFinancesItem
   } = useSettings();
 
   const {
@@ -202,6 +204,46 @@ export default function Finances() {
             />
           </View>
 
+          {
+            !simpleFinancesItem && (
+              <>
+                <View style={styles.listRow}>
+                  <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Filtrar por Status de pagamento</Text>
+                </View>
+                <View style={styles.listRow}>
+                  <FlatList
+                    showsHorizontalScrollIndicator={false}
+                    horizontal
+                    ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                    data={pamentStatusLabel}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          borderWidth: 1,
+                          borderRadius: 16,
+                          backgroundColor: 'transparent',
+                          borderColor: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                        }}
+                        onPress={() => setSelectedPaymentStatus(item)}
+                      >
+                        <Text style={{
+                          color: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                        }}>
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
+              </>
+            )
+          }
+
           <View style={styles.listRow}>
             <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Clique no item para ver os detalhes</Text>
           </View>
@@ -225,8 +267,53 @@ export default function Finances() {
                   <View style={{
                     flexDirection: 'column', alignItems: 'flex-start', width: '50%',
                   }}>
-                    <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.description}</Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{new Date(item.date).toLocaleDateString('pt-BR')}</Text>
+                    <View style={{
+                      flexDirection: 'row', alignItems: 'flex-start', gap: 4,
+                    }}>
+                      <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                        {item.description}
+                      </Text>
+                      {
+                        !simpleFinancesItem && item.isEnabled && (
+                          <View
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingHorizontal: 8,
+                              paddingVertical: 2,
+                              borderWidth: 1,
+                              borderRadius: 16,
+                              backgroundColor: 'transparent',
+                              borderColor: item.paymentStatus ? '#12a454' : '#e83e5a',
+                            }}
+                          >
+                            <Text style={{
+                              color: item.paymentStatus ? '#12a454' : '#e83e5a',
+                            }}>
+                              {item.paymentStatus ? 'Pago' : 'Não Pago'}
+                            </Text>
+                          </View>
+                        )
+                      }
+                    </View>
+                    {
+                      item.date !== '' && (
+                        <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                          {
+                            item.isEnabled ? 'Dt. Venc.: ' : "Dt. Receb.: "
+                          }
+                          {new Date(item.date).toLocaleDateString('pt-BR')}
+                        </Text>
+                      )
+                    }
+                    {
+                      !simpleFinancesItem && item.paymentDate !== '' && item.isEnabled && (
+                        <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                          Dt. Pgto.: {new Date(item.paymentDate).toLocaleDateString('pt-BR')}
+                        </Text>
+                      )
+                    }
                   </View>
                   <View style={{
                     alignItems: 'flex-end', width: '34%'

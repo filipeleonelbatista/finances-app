@@ -12,13 +12,13 @@ import * as DocumentPicker from 'expo-document-picker';
 
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { v4 } from 'uuid';
 import userImg from '../assets/icon.png';
 import bgImg from '../assets/images/background.png';
 import Menu from '../components/Menu';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
 import { useTheme } from '../hooks/useTheme';
-import { v4 } from 'uuid';
 
 export default function AboutUs() {
     const navigation = useNavigation();
@@ -42,7 +42,9 @@ export default function AboutUs() {
         handleSetPrefixTithe,
         isEnableTotalHistoryCard,
         handleSwitchViewTotalHistoryCard,
-        handleCleanAsyncStorage
+        handleCleanAsyncStorage,
+        simpleFinancesItem,
+        handleSetSimpleFinancesItem
     } = useSettings();
 
     const {
@@ -55,7 +57,7 @@ export default function AboutUs() {
     }
 
     async function exportDataToExcel() {
-        const dataCsv = transactionsList.map(item => [item.id, item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), `${item.isEnabled ? '-' : ''}${item.amount}`])
+        const dataCsv = transactionsList.map(item => [item.id, item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), formatDate(item.paymentDate), item.paymentStatus ? 'Pago' : 'Não Pago', `${item.isEnabled ? '-' : ''}${item.amount}`])
 
         let TotalList = 0.0;
 
@@ -71,7 +73,7 @@ export default function AboutUs() {
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet([
             ['Minhas finanças'],
-            ['Identificador', 'Descrição', 'Tipo', 'Data', 'Valor'],
+            ['Identificador', 'Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Valor'],
             ...dataCsv,
             ['', '', '', 'Total:', `${TotalList}`],
             ['', '', '', 'Dizimo:', `${Tithe}`],
@@ -79,21 +81,7 @@ export default function AboutUs() {
         XLSX.utils.book_append_sheet(wb, ws, "Financas");
         const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' })
 
-        let fileUri = FileSystem.documentDirectory + "financas.xlsx";
-
-        try {
-            FileSystem.writeAsStringAsync(fileUri, wbout, { encoding: FileSystem.EncodingType.Base64 })
-                .then(() => {
-                    ToastAndroid.show('Exportado com sucesso', ToastAndroid.SHORT);
-                    Sharing.shareAsync(fileUri)
-                })
-
-
-        } catch (error) {
-            console.log(error)
-        }
-
-
+        return wbout;
     }
 
     const [documentObject, setDocumentObject] = useState();
@@ -106,13 +94,16 @@ export default function AboutUs() {
             for (const item of fileContent.split("\r\n")) {
                 const currentItemArray = item.split(";")
                 if (currentItemArray.length === 4) {
-                    const currentItemDate = currentItemArray[2].split("/")
+                    const currentItemDate = currentItemArray[3] !== '' ? currentItemArray[3].split("/") : ''
+                    const currentItemPaymentDate = currentItemArray[4] !== '' ? currentItemArray[4].split("/") : ''
                     const itemObject = {
                         id: v4(),
-                        description: currentItemArray[0],
-                        amount: parseFloat(currentItemArray[3].replace("-", "")),
-                        date: new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000,
-                        isEnabled: currentItemArray[1] === 'Despesa',
+                        description: currentItemArray[1],
+                        isEnabled: currentItemArray[2] === 'Despesa',
+                        date: currentItemArray[3] !== '' ? new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000 : '',
+                        paymentDate: currentItemArray[4] !== '' ? new Date(`${currentItemPaymentDate[2]}-${currentItemPaymentDate[1]}-${currentItemPaymentDate[0]}`).getTime() + 43200000 : '',
+                        paymentStatus: currentItemArray[5] === 'Pago',
+                        amount: parseFloat(currentItemArray[6].replace("-", "")),
                     }
                     newFinancesArray.push(itemObject)
                 }
@@ -150,10 +141,6 @@ export default function AboutUs() {
 
     }, [documentObject])
 
-    // Sansung j6 Android 10 [Error: Unsupported scheme for location 'content://com.android.providers.downloads.documents/document/456'.]
-    // MOTO ONE ACTION Android 11 [Error: Unsupported scheme for location 'content://com.android.providers.media.documents/document/document%3A1000016238'.]
-    //NO EMULADOR PASSA Android 12 content://com.android.externalstorage.documents/document/primary%3ADownload%2Ffinancas_new.CSV
-
     async function handleImportFile() {
         try {
             let result = await DocumentPicker.getDocumentAsync({
@@ -176,19 +163,92 @@ export default function AboutUs() {
             if (perm.status != 'granted') {
                 let currentPerm = await MediaLibrary.requestPermissionsAsync();
                 if ('granted' === currentPerm.status) {
-                    exportDataToExcel()
+                    const result = exportDataToExcel()
+
+                    let fileUri = FileSystem.documentDirectory + "financas.xlsx";
+
+                    try {
+                        FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
+                            .then(() => {
+                                ToastAndroid.show('Exportado com sucesso', ToastAndroid.SHORT);
+                                Sharing.shareAsync(fileUri)
+                            })
+
+
+                    } catch (error) {
+                        console.log(error)
+                    }
                 } else {
                     ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
                 }
             }
             else {
-                exportDataToExcel()
+                const result = exportDataToExcel()
+
+                let fileUri = FileSystem.documentDirectory + "financas.xlsx";
+
+                try {
+                    FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
+                        .then(() => {
+                            ToastAndroid.show('Exportado com sucesso', ToastAndroid.SHORT);
+                            Sharing.shareAsync(fileUri)
+                        })
+
+
+                } catch (error) {
+                    console.log(error)
+                }
             }
         } catch (error) {
             ToastAndroid.show('Houve um problema', ToastAndroid.SHORT);
             console.log("Error while check permissions")
             console.log(error)
             return
+        }
+    }
+
+
+    async function handleSaveFile() {
+        try {
+            const appDirectoryUrl = FileSystem.documentDirectory + 'documentos-app-financas';
+
+            const { exists } = await FileSystem.getInfoAsync(appDirectoryUrl);
+            console.log("Existe?", exists, appDirectoryUrl);
+
+            if (!exists) {
+                const result = await FileSystem.makeDirectoryAsync(appDirectoryUrl);
+                console.log("Criar pasta", result, appDirectoryUrl);
+            }
+
+            const csvStream = await exportDataToExcel();
+
+            const fileName = `/export-financas-${Date.now()}.xlsx`;
+
+            await FileSystem.writeAsStringAsync(appDirectoryUrl + fileName, csvStream, { encoding: FileSystem.EncodingType.Base64 });
+            const fileCreated = await FileSystem.getInfoAsync(appDirectoryUrl + fileName);
+
+            console.log("Criar arquivo", fileCreated);
+
+            const result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: false });
+
+            console.log("Pasta selecionada para salvar", result)
+
+            if (result.type === 'success') {
+                const fileUri = result.uri;
+
+                await FileSystem.copyAsync({
+                    from: appDirectoryUrl + fileName,
+                    to: fileUri
+                });
+
+                ToastAndroid.show('Arquivo criado com sucesso!', ToastAndroid.SHORT);
+            } else {
+                ToastAndroid.show('Arquivo não foi criado', ToastAndroid.SHORT);
+            }
+
+        } catch (error) {
+            ToastAndroid.show('Erro na geração do arquivo', ToastAndroid.SHORT);
+            console.error(error);
         }
     }
 
@@ -238,17 +298,29 @@ export default function AboutUs() {
                             onValueChange={handleToggleTheme}
                             value={currentTheme === 'dark'}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar Tema Escuro</Text>
+                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                            Habilitar Tema Escuro
+                        </Text>
+                    </View>
+                    <View style={{ width: '100%', alignItems: 'center' }}>
+                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                            Finanças
+                        </Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
                         <Switch
                             trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={willAddFuelToTransactionList ? "#9c44dc" : "#3e3e3e"}
+                            thumbColor={simpleFinancesItem ? "#9c44dc" : "#3e3e3e"}
                             ios_backgroundColor="#3e3e3e"
-                            onValueChange={handleToggleWillAddFuel}
-                            value={willAddFuelToTransactionList}
+                            onValueChange={handleSetSimpleFinancesItem}
+                            value={simpleFinancesItem}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar adicionar abastecimento automaticamente em finanças</Text>
+                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                            Usar formulário simplificado de itens
+                        </Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
                         <Switch
@@ -298,6 +370,7 @@ export default function AboutUs() {
                         />
                         <Text style={{ ...styles.helperText, color: currentTheme === 'dark' ? "#CCC" : "#666" }}>Se o título da transação tiver este prefixo não será contado na soma do dízimo</Text>
                     </View>
+
                     <RectButton onPress={handleOpenCSV} style={styles.button}>
                         <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
@@ -314,6 +387,43 @@ export default function AboutUs() {
                     <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
                         Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv</Text> para importar dados com as colunas Descrição, Despesa/Ganho, Data da transação, Valor.
                     </Text>
+                    <View style={{ width: '100%', alignItems: 'center' }}>
+                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                            Combustível
+                        </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                        <Switch
+                            trackColor={{ false: "#767577", true: "#767577" }}
+                            thumbColor={willAddFuelToTransactionList ? "#9c44dc" : "#3e3e3e"}
+                            ios_backgroundColor="#3e3e3e"
+                            onValueChange={handleToggleWillAddFuel}
+                            value={willAddFuelToTransactionList}
+                        />
+                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                            Habilitar adicionar abastecimento automaticamente em finanças
+                        </Text>
+                    </View>
+                    <View style={{ width: '100%', alignItems: 'center' }}>
+                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                            Geral
+                        </Text>
+                    </View>
+                    {/* 
+                    <RectButton onPress={handleSaveFile} style={styles.button}>
+                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Teste
+                        </Text>
+                    </RectButton> 
+                    */}
+
 
                     <RectButton onPress={handleCleanAsyncStorage} style={styles.button}>
                         <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
@@ -326,6 +436,10 @@ export default function AboutUs() {
                         Essa opção apagará todos os registros do app.
                     </Text>
 
+                    <View style={{ width: '100%', alignItems: 'center' }}>
+                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
+                    </View>
+
                     <RectButton onPress={() => { Linking.openURL("https://filipeleonelbatista.vercel.app/") }} style={styles.button}>
                         <Feather name="globe" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
@@ -333,6 +447,9 @@ export default function AboutUs() {
                         </Text>
                     </RectButton>
 
+                    <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+                        Versão 1.1.2
+                    </Text>
                     <View style={{ height: 32 }} />
                 </ScrollView>
             </KeyboardAvoidingView>
