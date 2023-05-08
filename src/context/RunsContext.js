@@ -44,7 +44,6 @@ export function RunsContextProvider(props) {
       ])
   }
 
-
   async function addTrasaction(newTransaction) {
     const newTransactionList = [
       ...FuelList,
@@ -57,8 +56,10 @@ export function RunsContextProvider(props) {
     if (willAddFuelToTransactionList) {
       const newPaymentTransaction = {
         description: `Abastecimento - ${newTransaction.location}`,
-        amount: newTransaction.amount * newTransaction.volume,
+        amount: newTransaction.amount,
         date: newTransaction.date,
+        paymentDate: newTransaction.date,
+        paymentStatus: true,
         isEnabled: true
       }
 

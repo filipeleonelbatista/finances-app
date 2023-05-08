@@ -21,8 +21,8 @@ export default function AddFuelForm({ onClose }) {
     const formSchema = useMemo(() => {
         return Yup.object().shape({
             currentDistance: Yup.string().required("O campo Km Atual é obrigatório"),
-            volume: Yup.string().required("O campo Quantidade em litros é obrigatório"),
-            amount: Yup.string().required("O campo Valor é obrigatório"),
+            unityAmount: Yup.string().required("O campo Valor do litro é obrigatório"),
+            amount: Yup.string().required("O campo Valor Pago é obrigatório"),
             type: Yup.string().required("O campo Tipo do combustível é obrigatório"),
             date: Yup.string().required("O campo Data é obrigatório"),
             location: Yup.string().required("O campo Local é obrigatório"),
@@ -32,7 +32,7 @@ export default function AddFuelForm({ onClose }) {
     const formik = useFormik({
         initialValues: {
             currentDistance: '',
-            volume: '',
+            unityAmount: '',
             amount: '',
             type: 'Comun',
             date: '',
@@ -48,8 +48,8 @@ export default function AddFuelForm({ onClose }) {
         const submittedDate = formValues.date.split('/')
         const data = {
             currentDistance: parseFloat(formValues.currentDistance.replaceAll('.', '').replace(',', '.')),
-            volume: parseFloat(formValues.volume.replaceAll('.', '').replace(',', '.')),
             type: formValues.type,
+            unityAmount: parseFloat(formValues.unityAmount.replaceAll('.', '').replace(',', '.')),
             amount: parseFloat(formValues.amount.replaceAll('.', '').replace(',', '.')),
             date: new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000,
             location: formValues.location,
@@ -112,7 +112,7 @@ export default function AddFuelForm({ onClose }) {
                 )}
             </View>
             <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Quantidade em litros abastecidos</Text>
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor do litro</Text>
                 <TextInput
                     placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
                     style={{
@@ -122,15 +122,15 @@ export default function AddFuelForm({ onClose }) {
                     }}
                     keyboardType="decimal-pad"
                     placeholder="Quantidade em litros abastecidos"
-                    onChangeText={(text) => formik.setFieldValue('volume', moeda(text))}
-                    value={formik.values.volume}
+                    onChangeText={(text) => formik.setFieldValue('unityAmount', moeda(text))}
+                    value={formik.values.unityAmount}
                 />
-                {formik.errors.volume && (
-                    <Text style={styles.helperText}>{formik.errors.volume}</Text>
+                {formik.errors.unityAmount && (
+                    <Text style={styles.helperText}>{formik.errors.unityAmount}</Text>
                 )}
             </View>
             <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor do litro</Text>
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor pago</Text>
                 <TextInput
                     placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
                     style={{

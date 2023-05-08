@@ -81,13 +81,13 @@ export default function Runs() {
     let TotalList = 0.0;
 
     for (const item of filteredList) {
-      TotalList = TotalList + (item.amount * item.volume)
+      TotalList = TotalList + item.amount
     }
     return TotalList
   }, [filteredList])
 
   const currentEstimative = useMemo(() => {
-    const result = filteredList[0] ? ((autonomy * filteredList[0]?.volume) + filteredList[0]?.currentDistance) : 0
+    const result = filteredList[0] ? ((autonomy * (filteredList[0]?.amount / filteredList[0]?.unityAmount)) + filteredList[0]?.currentDistance) : 0
     return result.toFixed(0);
   }, [filteredList, autonomy])
 
@@ -203,24 +203,26 @@ export default function Runs() {
                   }}>
                     <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.location}</Text>
                     <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                      Km no Abast.: {item.currentDistance}
+                    </Text>
+                    <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
                       {new Date(item.date).toLocaleDateString('pt-BR')}
                     </Text>
                     <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      {item.amount.toLocaleString('pt-BR', {
+                      {item.unityAmount.toLocaleString('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                         useGrouping: true,
-                      })} - {item.volume} Litros
+                      })} - {(item.amount / item.unityAmount).toFixed(2)} Litros
                     </Text>
                   </View>
                   <View style={{
                     alignItems: 'flex-end', width: '34%'
                   }}>
                     <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      {item.isEnabled ? "-" : ""}
-                      {(item.amount * item.volume).toLocaleString('pt-BR', {
+                      {item.amount.toLocaleString('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
                         minimumFractionDigits: 2,
