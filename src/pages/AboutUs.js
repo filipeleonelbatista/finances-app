@@ -88,27 +88,25 @@ export default function AboutUs() {
 
     const fileReaded = useMemo(async () => {
         const executeTheMission = async () => {
-            console.log("OLHA EU ALI", documentObject.uri)
             let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
             const newFinancesArray = []
             for (const item of fileContent.split("\r\n")) {
                 const currentItemArray = item.split(";")
-                if (currentItemArray.length === 4) {
-                    const currentItemDate = currentItemArray[3] !== '' ? currentItemArray[3].split("/") : ''
-                    const currentItemPaymentDate = currentItemArray[4] !== '' ? currentItemArray[4].split("/") : ''
+                if (currentItemArray.length === 6) {
+                    const currentItemDate = currentItemArray[2] !== '' || currentItemArray[3] !== undefined ? currentItemArray[2].split("/") : ''
+                    const currentItemPaymentDate = currentItemArray[3] !== '' || currentItemArray[4] !== undefined ? currentItemArray[3].split("/") : ''
                     const itemObject = {
                         id: v4(),
-                        description: currentItemArray[1],
-                        isEnabled: currentItemArray[2] === 'Despesa',
-                        date: currentItemArray[3] !== '' ? new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000 : '',
-                        paymentDate: currentItemArray[4] !== '' ? new Date(`${currentItemPaymentDate[2]}-${currentItemPaymentDate[1]}-${currentItemPaymentDate[0]}`).getTime() + 43200000 : '',
-                        paymentStatus: currentItemArray[5] === 'Pago',
-                        amount: parseFloat(currentItemArray[6].replace("-", "")),
+                        description: currentItemArray[0],
+                        isEnabled: currentItemArray[1] === 'Despesa',
+                        date: currentItemArray[2] !== '' ? new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000 : '',
+                        paymentDate: currentItemArray[3] !== '' ? new Date(`${currentItemPaymentDate[2]}-${currentItemPaymentDate[1]}-${currentItemPaymentDate[0]}`).getTime() + 43200000 : '',
+                        paymentStatus: currentItemArray[4] === 'Pago',
+                        amount: parseFloat(currentItemArray[5].replace("-", "")),
                     }
                     newFinancesArray.push(itemObject)
                 }
             }
-
             await importTransactions(newFinancesArray);
         }
 
@@ -385,7 +383,8 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv</Text> para importar dados com as colunas Descrição, Despesa/Ganho, Data da transação, Valor.
+                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv</Text>
+                        para importar dados com as colunas Descrição, Despesa/Ganho, Data de vencimento, Data de pagamento, Pago/Não Pago, Valor.
                     </Text>
                     <View style={{ width: '100%', alignItems: 'center' }}>
                         <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
@@ -448,7 +447,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Versão 1.1.2
+                        Versão 1.1.5
                     </Text>
                     <View style={{ height: 32 }} />
                 </ScrollView>
