@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
-import { BackHandler, Dimensions, Image, ImageBackground, KeyboardAvoidingView, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
+import { Alert, BackHandler, Dimensions, Image, ImageBackground, KeyboardAvoidingView, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import * as FileSystem from 'expo-file-system';
@@ -19,6 +19,8 @@ import Menu from '../components/Menu';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
 import { useTheme } from '../hooks/useTheme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRuns } from '../hooks/useRuns';
 
 export default function AboutUs() {
     const navigation = useNavigation();
@@ -29,7 +31,10 @@ export default function AboutUs() {
         transactionsList,
         Tithe,
         importTransactions,
+        setTransactionsList,
     } = usePayments();
+
+    const { setFuelList } = useRuns();
 
     const {
         isEnableTitheCard,
@@ -57,7 +62,8 @@ export default function AboutUs() {
     }
 
     async function exportDataToExcel() {
-        const dataCsv = transactionsList.map(item => [item.id, item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), formatDate(item.paymentDate), item.paymentStatus ? 'Pago' : 'Não Pago', `${item.isEnabled ? '-' : ''}${item.amount}`])
+        // const dataCsv = transactionsList.map(item => [item.id, item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), formatDate(item.paymentDate), item.paymentStatus ? 'Pago' : 'Não Pago', `${item.isEnabled ? '-' : ''}${item.amount}`])
+        const dataCsv = transactionsList.map(item => [item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), formatDate(item.paymentDate), item.paymentStatus ? 'Pago' : 'Não Pago', item.amount])
 
         let TotalList = 0.0;
 
@@ -72,11 +78,12 @@ export default function AboutUs() {
 
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet([
-            ['Minhas finanças'],
-            ['Identificador', 'Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Valor'],
+            // ['Minhas finanças'],
+            // ['Identificador', 'Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Valor'],
+            ['Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Valor'],
             ...dataCsv,
-            ['', '', '', 'Total:', `${TotalList}`],
-            ['', '', '', 'Dizimo:', `${Tithe}`],
+            // ['', '', '', 'Total:', `${TotalList}`],
+            // ['', '', '', 'Dizimo:', `${Tithe}`],
         ]);
         XLSX.utils.book_append_sheet(wb, ws, "Financas");
         const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' })
@@ -157,13 +164,12 @@ export default function AboutUs() {
         try {
 
             let perm = await MediaLibrary.getPermissionsAsync();
-
             if (perm.status != 'granted') {
                 let currentPerm = await MediaLibrary.requestPermissionsAsync();
                 if ('granted' === currentPerm.status) {
-                    const result = exportDataToExcel()
+                    const result = await exportDataToExcel()
 
-                    let fileUri = FileSystem.documentDirectory + "financas.xlsx";
+                    let fileUri = FileSystem.documentDirectory + "financas" + Date.now() + ".xlsx";
 
                     try {
                         FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
@@ -181,9 +187,8 @@ export default function AboutUs() {
                 }
             }
             else {
-                const result = exportDataToExcel()
-
-                let fileUri = FileSystem.documentDirectory + "financas.xlsx";
+                const result = await exportDataToExcel()
+                let fileUri = FileSystem.documentDirectory + "financas" + Date.now() + ".xlsx";
 
                 try {
                     FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
@@ -248,6 +253,50 @@ export default function AboutUs() {
             ToastAndroid.show('Erro na geração do arquivo', ToastAndroid.SHORT);
             console.error(error);
         }
+    }
+
+    async function handleClearFinances() {
+        Alert.alert(
+            "Deseja realmente deletar esses registros?",
+            "Esta ação é irreversível! Deseja continuar?",
+            [
+                {
+                    text: 'Não',
+                    style: 'cancel',
+                    onPress: () => console.log('Não pressed'),
+                },
+                {
+                    text: 'Sim',
+                    onPress: async () => {
+                        await AsyncStorage.setItem('transactions', JSON.stringify([]));
+                        setTransactionsList([])
+
+                        ToastAndroid.show('Finanças removidas com sucesso!', ToastAndroid.SHORT);
+                    },
+                },
+            ])
+    }
+
+    async function handleClearRuns() {
+        Alert.alert(
+            "Deseja realmente deletar esses registros?",
+            "Esta ação é irreversível! Deseja continuar?",
+            [
+                {
+                    text: 'Não',
+                    style: 'cancel',
+                    onPress: () => console.log('Não pressed'),
+                },
+                {
+                    text: 'Sim',
+                    onPress: async () => {
+                        await AsyncStorage.setItem('runs', JSON.stringify([]));
+                        setFuelList([])
+
+                        ToastAndroid.show('Finanças removidas com sucesso!', ToastAndroid.SHORT);
+                    },
+                },
+            ])
     }
 
     useFocusEffect(() => {
@@ -386,6 +435,13 @@ export default function AboutUs() {
                         Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv</Text>
                         para importar dados com as colunas Descrição, Despesa/Ganho, Data de vencimento, Data de pagamento, Pago/Não Pago, Valor.
                     </Text>
+                    <RectButton onPress={handleClearFinances} style={styles.button}>
+                        <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Apagar Finanças
+                        </Text>
+                    </RectButton>
+
                     <View style={{ width: '100%', alignItems: 'center' }}>
                         <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
                     </View>
@@ -406,6 +462,12 @@ export default function AboutUs() {
                             Habilitar adicionar abastecimento automaticamente em finanças
                         </Text>
                     </View>
+                    <RectButton onPress={handleClearRuns} style={styles.button}>
+                        <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Apagar Combustível
+                        </Text>
+                    </RectButton>
                     <View style={{ width: '100%', alignItems: 'center' }}>
                         <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
                     </View>

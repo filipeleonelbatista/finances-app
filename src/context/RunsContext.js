@@ -108,6 +108,7 @@ export function RunsContextProvider(props) {
     <RunsContext.Provider
       value={{
         FuelList,
+        setFuelList,
         autonomy,
         setAutonomyValue,
         addTrasaction,

@@ -356,6 +356,7 @@ export function PaymentsContextProvider(props) {
     <PaymentsContext.Provider
       value={{
         transactionsList,
+        setTransactionsList,
         Incomings,
         Expenses,
         Total,
