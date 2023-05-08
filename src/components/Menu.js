@@ -16,11 +16,12 @@ export default function Menu({ children }) {
   return (
     <View style={{
       width: Dimensions.get('window').width,
-      height: Dimensions.get('screen').height - (Dimensions.get('screen').height - Dimensions.get('window').height + (StatusBar.currentHeight < 50 ? StatusBar.currentHeight : 0)),
+      height: Dimensions.get('window').height - (StatusBar.currentHeight > 23.9 ? StatusBar.currentHeight : 0),
       position: 'relative',
-      backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#f0f2f5'
+      backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#f0f2f5',
     }}>
       {children}
+      {/* <Text> currentHeight: {StatusBar.currentHeight}</Text> */}
       <View style={{ height: 70 }} />
       <View style={{ ...styles.menu, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#f0f2f5' }}>
         <ScrollView horizontal contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>

@@ -8,11 +8,16 @@ import Finances from "./pages/Finances";
 import Market from "./pages/Market";
 import Runs from "./pages/Runs";
 
+import { useTheme } from "./hooks/useTheme";
+
 const Stack = createStackNavigator();
 
 export default function Routes() {
+
+  const { currentTheme } = useTheme()
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={{ colors: { background: currentTheme === 'dark' ? '#1c1e21' : '#f0f2f5', } }}>
       <Stack.Navigator
         initialRouteName={"Finanças"}
         screenOptions={{
