@@ -66,8 +66,6 @@ export function RunsContextProvider(props) {
       await addPaymentTransaction(newPaymentTransaction)
     }
 
-    console.log('Olha a transação entrando', newTransactionList)
-
     await AsyncStorage.setItem('runs', JSON.stringify(newTransactionList));
 
     loadTransactions()
