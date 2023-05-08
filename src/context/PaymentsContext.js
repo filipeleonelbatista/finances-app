@@ -17,11 +17,17 @@ export function PaymentsContextProvider(props) {
   const [transactionsList, setTransactionsList] = useState('');
   const { willUsePrefixToRemoveTihteSum, prefixTithe } = useSettings();
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState('Todos');
+  const [selectedDateOrderFilter, setSelectedDateOrderFilter] = useState('Vencimento');
 
   const pamentStatusLabel = [
     'Todos',
     'Pago',
     'Não Pago',
+  ]
+
+  const dateOrderOptions = [
+    'Vencimento',
+    'Pagamento',
   ]
 
   const filterLabels = [
@@ -141,24 +147,42 @@ export function PaymentsContextProvider(props) {
       })
 
       const sortedByDateArray = filteredByPaymentStatus.sort((a, b) => {
-        const dateA = dayjs(a.date);
-        const dateB = dayjs(b.date);
+        if (selectedDateOrderFilter === 'Vencimento') {
+          const dateA = dayjs(a.date);
+          const dateB = dayjs(b.date);
 
-        if (dateA.isBefore(dateB)) {
-          return 1;
+          if (dateA.isBefore(dateB)) {
+            return 1;
+          }
+
+          if (dateA.isAfter(dateB)) {
+            return -1;
+          }
+
+          return 0;
         }
+        if (selectedDateOrderFilter === 'Pagamento') {
+          const dateA = dayjs(a.paymentDate);
+          const dateB = dayjs(b.paymentDate);
 
-        if (dateA.isAfter(dateB)) {
-          return -1;
+          if (dateA.isBefore(dateB)) {
+            return 1;
+          }
+
+          if (dateA.isAfter(dateB)) {
+            return -1;
+          }
+
+          return 0;
         }
-
         return 0;
+
       })
 
       return sortedByDateArray;
     }
     return [];
-  }, [transactionsList, selectedPeriod, selectedtypeofpayment, selectedPaymentStatus])
+  }, [transactionsList, selectedPeriod, selectedtypeofpayment, selectedPaymentStatus, selectedDateOrderFilter])
 
   const listTotal = useMemo(() => {
     let TotalList = 0.0;
@@ -349,6 +373,8 @@ export function PaymentsContextProvider(props) {
         importTransactions,
         pamentStatusLabel,
         selectedPaymentStatus, setSelectedPaymentStatus,
+        selectedDateOrderFilter, setSelectedDateOrderFilter,
+        dateOrderOptions
       }}
     >
       {props.children}
