@@ -46,6 +46,8 @@ export function MarketContextProvider(props) {
       description: `Compras`,
       amount: listTotal,
       date: Date.now(),
+      paymentDate: '',
+      paymentStatus: false,
       isEnabled: true
     }
     addPaymentTransaction(data)
