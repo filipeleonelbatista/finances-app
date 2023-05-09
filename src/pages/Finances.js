@@ -367,7 +367,7 @@ export default function Finances() {
                 }}
                 style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF', position: 'relative' }}
               >
-                <View style={{ display: 'flex', flexDirection: 'row', gap: 16, alignItems: 'center', position: 'absolute', top: 6, right: 8 }}>
+                <View style={{ display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center', position: 'absolute', top: 6, right: 8 }}>
 
                   {
                     !simpleFinancesItem && item.isEnabled && (
@@ -438,7 +438,7 @@ export default function Finances() {
                   <View style={{
                     alignItems: 'flex-end', width: '34%'
                   }}>
-                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', marginTop: 20, fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
                       {item.isEnabled ? "-" : ""}
                       {item.amount.toLocaleString('pt-BR', {
                         style: 'currency',

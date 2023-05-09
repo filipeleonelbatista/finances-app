@@ -290,7 +290,7 @@ export function PaymentsContextProvider(props) {
 
       loadTransactions()
 
-      ToastAndroid.show((!currentTransaction.isFavorited ? 'Removido' : 'Adicionado') + 'aos favoritos', ToastAndroid.SHORT);
+      ToastAndroid.show((!currentTransaction.isFavorited ? 'Removido' : 'Adicionado') + ' aos favoritos', ToastAndroid.SHORT);
     }
   }
 
