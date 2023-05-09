@@ -110,6 +110,7 @@ export default function AboutUs() {
                         paymentDate: currentItemArray[3] !== '' ? new Date(`${currentItemPaymentDate[2]}-${currentItemPaymentDate[1]}-${currentItemPaymentDate[0]}`).getTime() + 43200000 : '',
                         paymentStatus: currentItemArray[4] === 'Pago',
                         amount: parseFloat(currentItemArray[5].replace("-", "")),
+                        isFavorited: false
                     }
                     newFinancesArray.push(itemObject)
                 }
@@ -272,6 +273,44 @@ export default function AboutUs() {
                         setTransactionsList([])
 
                         ToastAndroid.show('Finanças removidas com sucesso!', ToastAndroid.SHORT);
+                    },
+                },
+            ])
+    }
+
+    async function handleResetSettings() {
+        Alert.alert(
+            "Deseja realmente redefinir as configurações?",
+            "",
+            [
+                {
+                    text: 'Não',
+                    style: 'cancel',
+                    onPress: () => console.log('Não pressed'),
+                },
+                {
+                    text: 'Sim',
+                    onPress: async () => {
+
+                        const defaultSettings = {
+                            isEnableTitheCard: false,
+                            isEnableTotalHistoryCard: false,
+                            willAddFuelToTransactionList: false,
+                            willUsePrefixToRemoveTihteSum: false,
+                            prefixTithe: '',
+                            simpleFinancesItem: false
+                        }
+
+                        await AsyncStorage.setItem('Settings', JSON.stringify(defaultSettings))
+
+                        handleSwitchViewTitheCard(false)
+                        handleSwitchViewTotalHistoryCard(false)
+                        handleToggleWillAddFuel(false)
+                        handleWillRemovePrefixToRemove(false)
+                        handleSetPrefixTithe('')
+                        handleSetSimpleFinancesItem(false)
+
+                        ToastAndroid.show('Configs. redefinidas com sucesso!', ToastAndroid.SHORT);
                     },
                 },
             ])
@@ -485,6 +524,12 @@ export default function AboutUs() {
                     </RectButton> 
                     */}
 
+                    <RectButton onPress={handleResetSettings} style={styles.button}>
+                        <Feather name="settings" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Redefinir configurações
+                        </Text>
+                    </RectButton>
 
                     <RectButton onPress={handleCleanAsyncStorage} style={styles.button}>
                         <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
@@ -509,7 +554,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Versão 1.1.5
+                        Versão 1.1.8
                     </Text>
                     <View style={{ height: 32 }} />
                 </ScrollView>

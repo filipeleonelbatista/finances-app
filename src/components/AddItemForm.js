@@ -55,6 +55,7 @@ export default function AddItemForm({ onClose }) {
             description: formValues.description,
             paymentStatus: formValues.paymentStatus,
             isEnabled: formValues.isEnabled,
+            isFavorited: false,
         }
         addTrasaction(data)
         onClose()

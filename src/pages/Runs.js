@@ -175,7 +175,7 @@ export default function Runs() {
             >
               <Picker.Item label="Mês anterior" value="Mês anterior" />
               <Picker.Item label="Este mês" value="Este mês" />
-              <Picker.Item label="Todas" value="Todas" />
+              <Picker.Item label="Todos" value="Todos" />
             </Picker>
           </View>
 

@@ -18,6 +18,13 @@ export function PaymentsContextProvider(props) {
   const { willUsePrefixToRemoveTihteSum, prefixTithe } = useSettings();
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState('Todos');
   const [selectedDateOrderFilter, setSelectedDateOrderFilter] = useState('Vencimento');
+  const [selectedFavoritedFilter, setSelectedFavoritedFilter] = useState('Todos');
+
+  const favoritedFilterLabel = [
+    'Todos',
+    'Favoritos',
+    'Não favoritados',
+  ]
 
   const pamentStatusLabel = [
     'Todos',
@@ -146,7 +153,19 @@ export function PaymentsContextProvider(props) {
         }
       })
 
-      const sortedByDateArray = filteredByPaymentStatus.sort((a, b) => {
+      const filteredByFavoritedStatus = filteredByPaymentStatus.filter(item => {
+        if (selectedFavoritedFilter === "Todos") {
+          return true
+        }
+        if (selectedFavoritedFilter === "Favoritos") {
+          return item.isFavorited
+        }
+        if (selectedFavoritedFilter === "Não favoritados") {
+          return !item.isFavorited
+        }
+      })
+
+      const sortedByDateArray = filteredByFavoritedStatus.sort((a, b) => {
         if (selectedDateOrderFilter === 'Vencimento') {
           const dateA = dayjs(a.date);
           const dateB = dayjs(b.date);
@@ -182,7 +201,7 @@ export function PaymentsContextProvider(props) {
       return sortedByDateArray;
     }
     return [];
-  }, [transactionsList, selectedPeriod, selectedtypeofpayment, selectedPaymentStatus, selectedDateOrderFilter])
+  }, [transactionsList, selectedPeriod, selectedtypeofpayment, selectedPaymentStatus, selectedDateOrderFilter, selectedFavoritedFilter])
 
   const listTotal = useMemo(() => {
     let TotalList = 0.0;
@@ -260,6 +279,20 @@ export function PaymentsContextProvider(props) {
 
     return (soma * 10) / 100;
   }, [selectedPeriod, prefixTithe, willUsePrefixToRemoveTihteSum, filteredList])
+
+  async function handleFavorite(currentTransaction) {
+    const index = transactionsList.findIndex(item => item.id === currentTransaction.id)
+    if (index !== -1) {
+      const newTransactionList = transactionsList;
+      newTransactionList[index].isFavorited = !currentTransaction.isFavorited;
+
+      await AsyncStorage.setItem('transactions', JSON.stringify(newTransactionList));
+
+      loadTransactions()
+
+      ToastAndroid.show((!currentTransaction.isFavorited ? 'Removido' : 'Adicionado') + 'aos favoritos', ToastAndroid.SHORT);
+    }
+  }
 
   async function updateTransaction(currentTransaction) {
     const index = transactionsList.findIndex(item => item.id === currentTransaction.id)
@@ -375,7 +408,10 @@ export function PaymentsContextProvider(props) {
         pamentStatusLabel,
         selectedPaymentStatus, setSelectedPaymentStatus,
         selectedDateOrderFilter, setSelectedDateOrderFilter,
-        dateOrderOptions
+        dateOrderOptions,
+        handleFavorite,
+        selectedFavoritedFilter, setSelectedFavoritedFilter,
+        favoritedFilterLabel,
       }}
     >
       {props.children}

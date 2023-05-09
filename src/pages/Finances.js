@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Dimensions, FlatList, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
-import { Feather } from '@expo/vector-icons';
+import { Feather, FontAwesome } from '@expo/vector-icons';
 
 import { Picker } from '@react-native-picker/picker';
 import dayjs from "dayjs";
@@ -37,7 +37,9 @@ export default function Finances() {
     pamentStatusLabel,
     selectedPaymentStatus, setSelectedPaymentStatus,
     selectedDateOrderFilter, setSelectedDateOrderFilter,
-    dateOrderOptions
+    dateOrderOptions, handleFavorite,
+    selectedFavoritedFilter, setSelectedFavoritedFilter,
+    favoritedFilterLabel,
   } = usePayments();
 
   const {
@@ -307,11 +309,46 @@ export default function Finances() {
                     </>
                   )
                 }
+
+                <View style={styles.listRow}>
+                  <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                    Favoritos
+                  </Text>
+                </View>
+                <View style={styles.listRow}>
+                  <FlatList
+                    showsHorizontalScrollIndicator={false}
+                    horizontal
+                    ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                    data={favoritedFilterLabel}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          borderWidth: 1,
+                          borderRadius: 16,
+                          backgroundColor: 'transparent',
+                          borderColor: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                        }}
+                        onPress={() => setSelectedFavoritedFilter(item)}
+                      >
+                        <Text style={{
+                          color: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                        }}>
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
+
               </>
             )
           }
-
-
 
           <View style={styles.listRow}>
             <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Clique no item para ver os detalhes</Text>
@@ -325,9 +362,46 @@ export default function Finances() {
                   setSelectedTransaction(item)
                   setOpenModalSeeTransaction(true)
                 }}
-                style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}
+                onLongPress={() => {
+                  handleFavorite(item)
+                }}
+                style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF', position: 'relative' }}
               >
+                <View style={{ display: 'flex', flexDirection: 'row', gap: 16, alignItems: 'center', position: 'absolute', top: 6, right: 8 }}>
+
+                  {
+                    !simpleFinancesItem && item.isEnabled && (
+                      <View
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          paddingHorizontal: 8,
+                          paddingVertical: 2,
+                          borderWidth: 1,
+                          borderRadius: 16,
+                          backgroundColor: 'transparent',
+                          borderColor: item.paymentStatus ? '#12a454' : '#e83e5a',
+                        }}
+                      >
+                        <Text style={{
+                          fontSize: 12,
+                          color: item.paymentStatus ? '#12a454' : '#e83e5a',
+                        }}>
+                          {item.paymentStatus ? 'Pago' : 'Não Pago'}
+                        </Text>
+                      </View>
+                    )
+                  }
+                  <FontAwesome
+                    name={item.isFavorited ? "star" : "star-o"}
+                    size={18}
+                    color={item.isFavorited ? "#ffe234" : currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                  />
+                </View>
+
                 <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
+
                   <Feather
                     name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
                     size={28}
@@ -342,29 +416,6 @@ export default function Finances() {
                       <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
                         {item.description}
                       </Text>
-                      {
-                        !simpleFinancesItem && item.isEnabled && (
-                          <View
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              paddingHorizontal: 8,
-                              paddingVertical: 2,
-                              borderWidth: 1,
-                              borderRadius: 16,
-                              backgroundColor: 'transparent',
-                              borderColor: item.paymentStatus ? '#12a454' : '#e83e5a',
-                            }}
-                          >
-                            <Text style={{
-                              color: item.paymentStatus ? '#12a454' : '#e83e5a',
-                            }}>
-                              {item.paymentStatus ? 'Pago' : 'Não Pago'}
-                            </Text>
-                          </View>
-                        )
-                      }
                     </View>
                     {
                       item.date !== '' && (
@@ -402,7 +453,6 @@ export default function Finances() {
               </RectButton>
             ))
           }
-
 
           <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
             <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
