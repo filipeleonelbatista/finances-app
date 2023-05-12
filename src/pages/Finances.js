@@ -17,6 +17,7 @@ import Modal from '../components/Modal';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
 import { useTheme } from '../hooks/useTheme';
+import EmptyMessage from '../components/EmptyMessage';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -351,9 +352,14 @@ export default function Finances() {
           }
 
           <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Clique no item para ver os detalhes</Text>
+            <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+              Toque no item para visualizar e depois editar ou excluir.{'\n'}Segure para adicionar/remover dos favoritos
+            </Text>
           </View>
 
+          {
+            filteredList.length === 0 && <EmptyMessage />
+          }
           {
             filteredList.map(item => (
               <RectButton

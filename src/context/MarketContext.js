@@ -67,6 +67,19 @@ export function MarketContextProvider(props) {
     }
   }
 
+  async function importMarket(importedList) {
+    const newTransactionList = [
+      ...MarketList,
+      ...importedList
+    ]
+
+    await AsyncStorage.setItem('market', JSON.stringify(newTransactionList));
+
+    loadTransactions()
+
+    ToastAndroid.show('Importação feita com sucesso', ToastAndroid.SHORT);
+  }
+
   async function deleteTransaction(currentTransaction) {
     Alert.alert(
       "Deseja realmente deletar esse registro?",
@@ -152,7 +165,8 @@ export function MarketContextProvider(props) {
         updateTransaction,
         handleAddFinances,
         estimative,
-        setEstimativeValue
+        setEstimativeValue,
+        importMarket
       }}
     >
       {props.children}

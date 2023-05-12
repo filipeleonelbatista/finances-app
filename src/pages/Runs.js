@@ -16,6 +16,7 @@ import Menu from '../components/Menu';
 import Modal from '../components/Modal';
 import { useRuns } from '../hooks/useRuns';
 import { useTheme } from '../hooks/useTheme';
+import EmptyMessage from '../components/EmptyMessage';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -183,6 +184,9 @@ export default function Runs() {
             <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Clique no item para excluir</Text>
           </View>
 
+          {
+            filteredList.length === 0 && <EmptyMessage />
+          }
           {
             filteredList.map(item => (
               <RectButton

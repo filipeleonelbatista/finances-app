@@ -21,6 +21,7 @@ import { useSettings } from '../hooks/useSettings';
 import { useTheme } from '../hooks/useTheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRuns } from '../hooks/useRuns';
+import { useMarket } from '../hooks/useMarket';
 
 export default function AboutUs() {
     const navigation = useNavigation();
@@ -34,7 +35,9 @@ export default function AboutUs() {
         setTransactionsList,
     } = usePayments();
 
-    const { setFuelList } = useRuns();
+    const { setMarketList, MarketList, importMarket } = useMarket();
+
+    const { setFuelList, FuelList, importRuns } = useRuns();
 
     const {
         isEnableTitheCard,
@@ -52,6 +55,8 @@ export default function AboutUs() {
         handleSetSimpleFinancesItem
     } = useSettings();
 
+    const { handleAddFinances } = useMarket();
+
     const {
         currentTheme,
         handleToggleTheme
@@ -61,19 +66,61 @@ export default function AboutUs() {
         return new Date(value).toLocaleDateString('pt-BR')
     }
 
+    async function exportMarket() {
+        const dataCsv = MarketList.map(item =>
+            [
+                item.description,
+                item.category,
+                item.quantity,
+                item.amount,
+            ])
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([
+            ['Produto', 'Categoria.', 'Qtd.', 'Valor'],
+            ...dataCsv,
+        ]);
+        XLSX.utils.book_append_sheet(wb, ws, "Compras");
+        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'csv' })
+
+        return wbout;
+    }
+
+    async function exportRuns() {
+        const dataCsv = FuelList.map(item =>
+            [
+                item.location,
+                item.date,
+                item.type,
+                item.unityAmount,
+                item.amount,
+                item.currentDistance,
+            ])
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([
+            ['Local', 'Data abast.', 'Tipo', 'Valor Litro', 'Valor pago', 'Km Atual'],
+            ...dataCsv,
+        ]);
+        XLSX.utils.book_append_sheet(wb, ws, "Corridas");
+        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'csv' })
+
+        return wbout;
+    }
+
     async function exportDataToExcel() {
         // const dataCsv = transactionsList.map(item => [item.id, item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), formatDate(item.paymentDate), item.paymentStatus ? 'Pago' : 'Não Pago', `${item.isEnabled ? '-' : ''}${item.amount}`])
         const dataCsv = transactionsList.map(item => [item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), formatDate(item.paymentDate), item.paymentStatus ? 'Pago' : 'Não Pago', item.amount])
 
-        let TotalList = 0.0;
+        // let TotalList = 0.0;
 
-        for (const item of transactionsList) {
-            if (item.isEnabled) {
-                TotalList = TotalList - item.amount
-            } else {
-                TotalList = TotalList + item.amount
-            }
-        }
+        // for (const item of transactionsList) {
+        //     if (item.isEnabled) {
+        //         TotalList = TotalList - item.amount
+        //     } else {
+        //         TotalList = TotalList + item.amount
+        //     }
+        // }
 
 
         const wb = XLSX.utils.book_new();
@@ -86,12 +133,14 @@ export default function AboutUs() {
             // ['', '', '', 'Dizimo:', `${Tithe}`],
         ]);
         XLSX.utils.book_append_sheet(wb, ws, "Financas");
-        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' })
+        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'csv' })
 
         return wbout;
     }
 
     const [documentObject, setDocumentObject] = useState();
+    const [documentObjectRuns, setDocumentObjectRuns] = useState();
+    const [documentObjectMarket, setDocumentObjectMarket] = useState();
 
     const fileReaded = useMemo(async () => {
         const executeTheMission = async () => {
@@ -100,8 +149,8 @@ export default function AboutUs() {
             for (const item of fileContent.split("\r\n")) {
                 const currentItemArray = item.split(";")
                 if (currentItemArray.length === 6) {
-                    const currentItemDate = currentItemArray[2] !== '' || currentItemArray[3] !== undefined ? currentItemArray[2].split("/") : ''
-                    const currentItemPaymentDate = currentItemArray[3] !== '' || currentItemArray[4] !== undefined ? currentItemArray[3].split("/") : ''
+                    const currentItemDate = currentItemArray[2] !== '' || currentItemArray[2] !== undefined ? currentItemArray[2].split("/") : ''
+                    const currentItemPaymentDate = currentItemArray[3] !== '' || currentItemArray[3] !== undefined ? currentItemArray[3].split("/") : ''
                     const itemObject = {
                         id: v4(),
                         description: currentItemArray[0],
@@ -147,6 +196,132 @@ export default function AboutUs() {
 
     }, [documentObject])
 
+    const fileReadedMarket = useMemo(async () => {
+        const importMarketInside = async () => {
+            let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
+            const newFinancesArray = []
+            for (const item of fileContent.split("\r\n")) {
+                const currentItemArray = item.split(";")
+                if (currentItemArray.length === 4) {
+                    const itemObject = {
+                        id: v4(),
+                        description: currentItemArray[0],
+                        category: currentItemArray[1],
+                        quantity: parseInt(currentItemArray[2]),
+                        amount: parseFloat(currentItemArray[3].replace("-", "")),
+                    }
+                    newFinancesArray.push(itemObject)
+                }
+            }
+            await importMarket(newFinancesArray);
+        }
+
+        if (documentObject) {
+            if (documentObject.type === 'success') {
+                try {
+
+                    let perm = await MediaLibrary.getPermissionsAsync();
+
+                    if (perm.status != 'granted') {
+                        let currentPerm = await MediaLibrary.requestPermissionsAsync();
+                        if ('granted' === currentPerm.status) {
+                            importMarketInside()
+                        } else {
+                            ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
+                        }
+                    } else {
+                        importMarketInside()
+                    }
+
+                } catch (error) {
+
+                    ToastAndroid.show('Importação não foi realizada', ToastAndroid.SHORT);
+                    console.log(error)
+                }
+            }
+        } else {
+            return null
+        }
+
+    }, [documentObjectMarket])
+
+    async function handleImportMarket() {
+        try {
+            let result = await DocumentPicker.getDocumentAsync({
+                type: 'text/comma-separated-values',
+                copyToCacheDirectory: false,
+                multiple: false,
+            });
+            setDocumentObjectMarket(result)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const fileReadedRuns = useMemo(async () => {
+        const importRunsInside = async () => {
+            let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
+            const newFinancesArray = []
+            for (const item of fileContent.split("\r\n")) {
+                const currentItemArray = item.split(";")
+                if (currentItemArray.length === 5) {
+                    const currentItemDate = currentItemArray[1] !== '' || currentItemArray[1] !== undefined ? currentItemArray[1].split("/") : ''
+                    const itemObject = {
+                        id: v4(),
+                        location: currentItemArray[0],
+                        date: currentItemArray[1] !== '' ? new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000 : '',
+                        type: currentItemArray[2],
+                        unityAmount: parseFloat(currentItemArray[3].replace("-", "")),
+                        amount: parseFloat(currentItemArray[4].replace("-", "")),
+                    }
+                    newFinancesArray.push(itemObject)
+                }
+            }
+            await importRuns(newFinancesArray);
+        }
+
+        if (documentObject) {
+            if (documentObject.type === 'success') {
+                try {
+
+                    let perm = await MediaLibrary.getPermissionsAsync();
+
+                    if (perm.status != 'granted') {
+                        let currentPerm = await MediaLibrary.requestPermissionsAsync();
+                        if ('granted' === currentPerm.status) {
+                            importRunsInside()
+                        } else {
+                            ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
+                        }
+                    } else {
+                        importRunsInside()
+                    }
+
+                } catch (error) {
+
+                    ToastAndroid.show('Importação não foi realizada', ToastAndroid.SHORT);
+                    console.log(error)
+                }
+            }
+        } else {
+            return null
+        }
+
+    }, [documentObjectRuns])
+
+    async function handleImportRuns() {
+        try {
+            let result = await DocumentPicker.getDocumentAsync({
+                type: 'text/comma-separated-values',
+                copyToCacheDirectory: false,
+                multiple: false,
+            });
+            setDocumentObjectRuns(result)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     async function handleImportFile() {
         try {
             let result = await DocumentPicker.getDocumentAsync({
@@ -158,7 +333,106 @@ export default function AboutUs() {
         } catch (error) {
             console.log(error)
         }
+    }
 
+    async function handleExportMarket() {
+        try {
+
+            let perm = await MediaLibrary.getPermissionsAsync();
+            if (perm.status != 'granted') {
+                let currentPerm = await MediaLibrary.requestPermissionsAsync();
+                if ('granted' === currentPerm.status) {
+                    const result = await exportMarket()
+
+                    let fileUri = FileSystem.documentDirectory + "compras" + Date.now() + ".csv";
+
+                    try {
+                        FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
+                            .then(() => {
+                                ToastAndroid.show('Lista de compras exportada com sucesso', ToastAndroid.SHORT);
+                                Sharing.shareAsync(fileUri)
+                            })
+
+
+                    } catch (error) {
+                        console.log(error)
+                    }
+                } else {
+                    ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
+                }
+            }
+            else {
+                const result = await exportMarket()
+                let fileUri = FileSystem.documentDirectory + "compras" + Date.now() + ".csv";
+
+                try {
+                    FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
+                        .then(() => {
+                            ToastAndroid.show('Lista de compras exportada com sucesso', ToastAndroid.SHORT);
+                            Sharing.shareAsync(fileUri)
+                        })
+
+
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+        } catch (error) {
+            ToastAndroid.show('Houve um problema', ToastAndroid.SHORT);
+            console.log("Error while check permissions")
+            console.log(error)
+            return
+        }
+    }
+
+    async function handleExportRuns() {
+        try {
+
+            let perm = await MediaLibrary.getPermissionsAsync();
+            if (perm.status != 'granted') {
+                let currentPerm = await MediaLibrary.requestPermissionsAsync();
+                if ('granted' === currentPerm.status) {
+                    const result = await exportRuns()
+
+                    let fileUri = FileSystem.documentDirectory + "corridas" + Date.now() + ".csv";
+
+                    try {
+                        FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
+                            .then(() => {
+                                ToastAndroid.show('Abastecimentos exportados com sucesso', ToastAndroid.SHORT);
+                                Sharing.shareAsync(fileUri)
+                            })
+
+
+                    } catch (error) {
+                        console.log(error)
+                    }
+                } else {
+                    ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
+                }
+            }
+            else {
+                const result = await exportRuns()
+                let fileUri = FileSystem.documentDirectory + "corridas" + Date.now() + ".csv";
+
+                try {
+                    FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
+                        .then(() => {
+                            ToastAndroid.show('Abastecimentos exportados com sucesso', ToastAndroid.SHORT);
+                            Sharing.shareAsync(fileUri)
+                        })
+
+
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+        } catch (error) {
+            ToastAndroid.show('Houve um problema', ToastAndroid.SHORT);
+            console.log("Error while check permissions")
+            console.log(error)
+            return
+        }
     }
 
     async function handleOpenCSV() {
@@ -170,7 +444,7 @@ export default function AboutUs() {
                 if ('granted' === currentPerm.status) {
                     const result = await exportDataToExcel()
 
-                    let fileUri = FileSystem.documentDirectory + "financas" + Date.now() + ".xlsx";
+                    let fileUri = FileSystem.documentDirectory + "financas" + Date.now() + ".csv";
 
                     try {
                         FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
@@ -189,7 +463,7 @@ export default function AboutUs() {
             }
             else {
                 const result = await exportDataToExcel()
-                let fileUri = FileSystem.documentDirectory + "financas" + Date.now() + ".xlsx";
+                let fileUri = FileSystem.documentDirectory + "financas" + Date.now() + ".csv";
 
                 try {
                     FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
@@ -254,6 +528,28 @@ export default function AboutUs() {
             ToastAndroid.show('Erro na geração do arquivo', ToastAndroid.SHORT);
             console.error(error);
         }
+    }
+
+    async function handleClearMarket() {
+        Alert.alert(
+            "Deseja realmente deletar esses registros?",
+            "Esta ação é irreversível! Deseja continuar?",
+            [
+                {
+                    text: 'Não',
+                    style: 'cancel',
+                    onPress: () => console.log('Não pressed'),
+                },
+                {
+                    text: 'Sim',
+                    onPress: async () => {
+                        await AsyncStorage.setItem('market', JSON.stringify([]));
+                        setMarketList([])
+
+                        ToastAndroid.show('Compras removidas com sucesso!', ToastAndroid.SHORT);
+                    },
+                },
+            ])
     }
 
     async function handleClearFinances() {
@@ -471,7 +767,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv</Text>
+                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
                         para importar dados com as colunas Descrição, Despesa/Ganho, Data de vencimento, Data de pagamento, Pago/Não Pago, Valor.
                     </Text>
                     <RectButton onPress={handleClearFinances} style={styles.button}>
@@ -507,6 +803,66 @@ export default function AboutUs() {
                             Apagar Combustível
                         </Text>
                     </RectButton>
+
+                    <RectButton onPress={handleExportRuns} style={styles.button}>
+                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Exportar Abastecimentos
+                        </Text>
+                    </RectButton>
+                    <RectButton onPress={handleImportRuns} style={styles.button}>
+                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Importar Abastecimentos
+                        </Text>
+                    </RectButton>
+
+                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
+                        para importar dados com as colunas Local do abastecimento, Data do abasatecimento, Tipo, Valor Litro, Valor pago, Km Atual.
+                    </Text>
+                    <View style={{ width: '100%', alignItems: 'center' }}>
+                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                            Mercado
+                        </Text>
+                    </View>
+                    <RectButton onPress={handleClearMarket} style={styles.button}>
+                        <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Apagar Compras
+                        </Text>
+                    </RectButton>
+                    <RectButton onPress={handleAddFinances} style={styles.button}>
+                        <Feather name="dollar-sign" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Add Total em Finanças
+                        </Text>
+                    </RectButton>
+
+                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+                        Para remover basta clicar no item em Finanças e excluir.
+                    </Text>
+
+                    <RectButton onPress={handleExportMarket} style={styles.button}>
+                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Exportar compras
+                        </Text>
+                    </RectButton>
+                    <RectButton onPress={handleImportMarket} style={styles.button}>
+                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Importar compras
+                        </Text>
+                    </RectButton>
+
+                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
+                        para importar dados com as colunas Produto, Categoria, Quantidade, Valor.
+                    </Text>
                     <View style={{ width: '100%', alignItems: 'center' }}>
                         <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
                     </View>
@@ -554,7 +910,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Versão 1.1.8
+                        Versão 1.1.9
                     </Text>
                     <View style={{ height: 32 }} />
                 </ScrollView>

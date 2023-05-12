@@ -18,6 +18,19 @@ export function RunsContextProvider(props) {
     await AsyncStorage.setItem('autonomy', JSON.stringify(value))
   }
 
+  async function importRuns(importedList) {
+    const newTransactionList = [
+      ...FuelList,
+      ...importedList
+    ]
+
+    await AsyncStorage.setItem('runs', JSON.stringify(newTransactionList));
+
+    loadTransactions()
+
+    ToastAndroid.show('Importação feita com sucesso', ToastAndroid.SHORT);
+  }
+
   async function deleteTransaction(currentTransaction) {
     Alert.alert(
       "Deseja realmente deletar esse registro?",
@@ -112,7 +125,8 @@ export function RunsContextProvider(props) {
         autonomy,
         setAutonomyValue,
         addTrasaction,
-        deleteTransaction
+        deleteTransaction,
+        importRuns
       }}
     >
       {props.children}

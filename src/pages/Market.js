@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
-import { Dimensions, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
@@ -10,15 +10,14 @@ import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import bgImg from '../assets/images/background.png';
-import AddFuelForm from '../components/AddFuelForm';
-import AutonomyForm from '../components/AutonomyForm';
+import AddShoppingCartItem from '../components/AddShoppingCartItem';
+import EditShoppingCartItem from '../components/EditShoppingCartItem';
+import EstimativeForm from '../components/EstimativeForm';
 import Menu from '../components/Menu';
 import Modal from '../components/Modal';
 import { useMarket } from '../hooks/useMarket';
 import { useTheme } from '../hooks/useTheme';
-import AddShoppingCartItem from '../components/AddShoppingCartItem';
-import EditShoppingCartItem from '../components/EditShoppingCartItem';
-import EstimativeForm from '../components/EstimativeForm';
+import EmptyMessage from '../components/EmptyMessage';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -167,8 +166,13 @@ export default function Market() {
           </View>
 
           <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Mantenha o item pressionado para editar/excluir</Text>
+            <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+              Toque no item para editar ou excluir
+            </Text>
           </View>
+          {
+            filteredList.length === 0 && <EmptyMessage />
+          }
           {
             filteredList.map(item => (
               <RectButton
@@ -179,24 +183,26 @@ export default function Market() {
                 key={item.id}
                 style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}
               >
-                <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', width: '100%' }}>
-                  <Feather name="shopping-bag" size={28} color={currentTheme === 'dark' ? '#FFF' : '#1c1e21'} />
-                  <View style={{
-                    flexDirection: 'column', alignItems: 'flex-start', width: '40%',
-                  }}>
-                    <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.description}</Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      {item.category}
-                    </Text>
-                    <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', width: '100%' }}>
-                      <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                        Qtd.
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                  <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', width: '65%' }}>
+                    <Feather name="shopping-bag" size={28} color={currentTheme === 'dark' ? '#FFF' : '#1c1e21'} />
+                    <View style={{
+                      flexDirection: 'column', alignItems: 'flex-start', width: '90%',
+                    }}>
+                      <Text style={{ ...styles.cardTextListItem, lineHeight: 22, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.description}</Text>
+                      <Text style={{ ...styles.cardTextListItem, lineHeight: 14, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                        {item.category}
                       </Text>
-                      <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantity}</Text>
+                      <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', width: '100%' }}>
+                        <Text style={{ ...styles.cardTextListItem, lineHeight: 14, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                          Qtd.
+                        </Text>
+                        <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantity}</Text>
+                      </View>
                     </View>
                   </View>
                   <View style={{
-                    alignItems: 'flex-end', width: '42%'
+                    alignItems: 'flex-end', width: '35%'
                   }}>
                     <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
                       {(item.amount * item.quantity).toLocaleString('pt-BR', {
@@ -232,15 +238,8 @@ export default function Market() {
 
         <View style={{ height: 16 }} />
 
-        <RectButton onPress={handleAddFinances} style={styles.button}>
-          <Feather name="dollar-sign" size={24} style={{ marginRight: 6 }} color="#FFF" />
-          <Text style={styles.buttonText} >
-            Add Total em Finanças
-          </Text>
-        </RectButton>
-
-        <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-          Para remover basta clicar no item em Finanças e excluir.
+        <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 18, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+          Caso queira adicionar o total como um item em finanças vá em configurações e na sessão Mercado clique em Add Total em Finanças
         </Text>
 
         <View style={{ height: 80 }} />
