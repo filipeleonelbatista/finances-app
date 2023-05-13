@@ -910,7 +910,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Versão 1.1.9
+                        Versão 1.2.0
                     </Text>
                     <View style={{ height: 32 }} />
                 </ScrollView>
