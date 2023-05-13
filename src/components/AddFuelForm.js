@@ -34,7 +34,7 @@ export default function AddFuelForm({ onClose }) {
             currentDistance: '',
             unityAmount: '',
             amount: '',
-            type: 'Comun',
+            type: 'Gasolina Comum',
             date: '',
             location: '',
         },
@@ -163,8 +163,15 @@ export default function AddFuelForm({ onClose }) {
                         borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
                     }}
                 >
-                    <Picker.Item label="Comun" value="Comun" />
-                    <Picker.Item label="Aditivada" value="Aditivada" />
+                    <Picker.Item label="Gasolina Comun" value="Gasolina comun" />
+                    <Picker.Item label="Gasolina aditivada" value="Gasolina aditivada" />
+                    <Picker.Item label="Etanol" value="Etanol" />
+                    <Picker.Item label="Etanol aditivada" value="Etanol aditivada" />
+                    <Picker.Item label="Carga elétrica" value="Carga elétrica" />
+                    <Picker.Item label="GNV" value="GNV" />
+                    <Picker.Item label="Dísel" value="Dísel" />
+                    <Picker.Item label="Dísel-S10" value="Dísel-S10" />
+                    <Picker.Item label="Dísel aditivado" value="Dísel aditivado" />
                 </Picker>
                 {formik.errors.type && (
                     <Text style={styles.helperText}>{formik.errors.type}</Text>
