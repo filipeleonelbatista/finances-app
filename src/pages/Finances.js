@@ -124,6 +124,7 @@ export default function Finances() {
             </View>
             <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{formatCurrency(Incomings)}</Text>
           </View>
+
           <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
             <View style={styles.cardTitleOrientation}>
               <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Saídas</Text>
@@ -151,329 +152,329 @@ export default function Finances() {
           }
         </ScrollView>
 
-        <View style={styles.list}>
-          <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais apenas dos itens do período selecionado</Text>
-          </View>
+        {
+          filteredList.length === 0 ? <EmptyMessage /> : (
+            <View style={styles.list}>
+              <View style={styles.listRow}>
+                <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais apenas dos itens do período selecionado</Text>
+              </View>
 
-          <View style={styles.listRow}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Extrato</Text>
+              <View style={styles.listRow}>
+                <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Extrato</Text>
 
-            <TouchableOpacity
-              onPress={() => {
-                setOpenFilter(!openFilter)
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingHorizontal: 28,
-                paddingVertical: 6,
-                borderWidth: 1,
-                borderRadius: 20,
-                backgroundColor: 'transparent',
-                borderColor: '#9c44dc',
-              }}
-            >
-              <Text style={{ fontSize: 16, color: "#9c44dc" }}><Feather name="filter" size={18} color="#9c44dc" /> Filtros</Text>
-            </TouchableOpacity>
-          </View>
-          {
-            openFilter && (
-              <>
-                <View style={styles.listRow}>
-                  <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                    Entradas/Saídas
-                  </Text>
-                  <Picker
-                    selectedValue={selectedtypeofpayment}
-                    onValueChange={(itemValue, itemIndex) =>
-                      setselectedtypeofpayment(itemValue)
+                <TouchableOpacity
+                  onPress={() => {
+                    setOpenFilter(!openFilter)
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingHorizontal: 28,
+                    paddingVertical: 6,
+                    borderWidth: 1,
+                    borderRadius: 20,
+                    backgroundColor: 'transparent',
+                    borderColor: '#9c44dc',
+                  }}
+                >
+                  <Text style={{ fontSize: 16, color: "#9c44dc" }}><Feather name="filter" size={18} color="#9c44dc" /> Filtros</Text>
+                </TouchableOpacity>
+              </View>
+              {
+                openFilter && (
+                  <>
+                    <View style={styles.listRow}>
+                      <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        Entradas/Saídas
+                      </Text>
+                      <Picker
+                        selectedValue={selectedtypeofpayment}
+                        onValueChange={(itemValue, itemIndex) =>
+                          setselectedtypeofpayment(itemValue)
+                        }
+                        mode='dropdown'
+                        dropdownIconColor={'#9c44dc'}
+                        dropdownIconRippleColor={'#9c44dc'}
+                        enabled
+                        style={{
+                          width: '50%',
+                          borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                        }}
+                      >
+                        <Picker.Item label="Todas" value="0" />
+                        <Picker.Item label="Entradas" value="1" />
+                        <Picker.Item label="Saídas" value="2" />
+                      </Picker>
+                    </View>
+
+                    <View style={styles.listRow}>
+                      <FlatList
+                        showsHorizontalScrollIndicator={false}
+                        horizontal
+                        ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                        data={filterLabels}
+                        renderItem={({ item }) => (
+                          <TouchableOpacity
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingHorizontal: 8,
+                              paddingVertical: 4,
+                              borderWidth: 1,
+                              borderRadius: 16,
+                              backgroundColor: 'transparent',
+                              borderColor: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                            }}
+                            onPress={() => setSelectedPeriod(item)}
+                          >
+                            <Text style={{
+                              color: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                            }}>
+                              {item}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+                      />
+                    </View>
+
+                    {
+                      !simpleFinancesItem && (
+                        <>
+                          <View style={styles.listRow}>
+                            <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Filtrar por Status de pagamento</Text>
+                          </View>
+                          <View style={styles.listRow}>
+                            <FlatList
+                              showsHorizontalScrollIndicator={false}
+                              horizontal
+                              ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                              data={pamentStatusLabel}
+                              renderItem={({ item }) => (
+                                <TouchableOpacity
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    paddingHorizontal: 8,
+                                    paddingVertical: 4,
+                                    borderWidth: 1,
+                                    borderRadius: 16,
+                                    backgroundColor: 'transparent',
+                                    borderColor: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                                  }}
+                                  onPress={() => setSelectedPaymentStatus(item)}
+                                >
+                                  <Text style={{
+                                    color: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                                  }}>
+                                    {item}
+                                  </Text>
+                                </TouchableOpacity>
+                              )}
+                            />
+                          </View>
+                          <View style={styles.listRow}>
+                            <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                              Ordenar por data
+                            </Text>
+                          </View>
+                          <View style={styles.listRow}>
+                            <FlatList
+                              showsHorizontalScrollIndicator={false}
+                              horizontal
+                              ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                              data={dateOrderOptions}
+                              renderItem={({ item }) => (
+                                <TouchableOpacity
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    paddingHorizontal: 8,
+                                    paddingVertical: 4,
+                                    borderWidth: 1,
+                                    borderRadius: 16,
+                                    backgroundColor: 'transparent',
+                                    borderColor: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                                  }}
+                                  onPress={() => setSelectedDateOrderFilter(item)}
+                                >
+                                  <Text style={{
+                                    color: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                                  }}>
+                                    {item}
+                                  </Text>
+                                </TouchableOpacity>
+                              )}
+                            />
+                          </View>
+                        </>
+                      )
                     }
-                    mode='dropdown'
-                    dropdownIconColor={'#9c44dc'}
-                    dropdownIconRippleColor={'#9c44dc'}
-                    enabled
-                    style={{
-                      width: '50%',
-                      borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
-                    }}
-                  >
-                    <Picker.Item label="Todas" value="0" />
-                    <Picker.Item label="Entradas" value="1" />
-                    <Picker.Item label="Saídas" value="2" />
-                  </Picker>
-                </View>
 
-                <View style={styles.listRow}>
-                  <FlatList
-                    showsHorizontalScrollIndicator={false}
-                    horizontal
-                    ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                    data={filterLabels}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          borderWidth: 1,
-                          borderRadius: 16,
-                          backgroundColor: 'transparent',
-                          borderColor: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}
-                        onPress={() => setSelectedPeriod(item)}
-                      >
-                        <Text style={{
-                          color: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}>
-                          {item}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  />
-                </View>
-
-                {
-                  !simpleFinancesItem && (
-                    <>
-                      <View style={styles.listRow}>
-                        <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Filtrar por Status de pagamento</Text>
-                      </View>
-                      <View style={styles.listRow}>
-                        <FlatList
-                          showsHorizontalScrollIndicator={false}
-                          horizontal
-                          ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                          data={pamentStatusLabel}
-                          renderItem={({ item }) => (
-                            <TouchableOpacity
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingHorizontal: 8,
-                                paddingVertical: 4,
-                                borderWidth: 1,
-                                borderRadius: 16,
-                                backgroundColor: 'transparent',
-                                borderColor: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}
-                              onPress={() => setSelectedPaymentStatus(item)}
-                            >
-                              <Text style={{
-                                color: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}>
-                                {item}
-                              </Text>
-                            </TouchableOpacity>
-                          )}
-                        />
-                      </View>
-                      <View style={styles.listRow}>
-                        <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                          Ordenar por data
-                        </Text>
-                      </View>
-                      <View style={styles.listRow}>
-                        <FlatList
-                          showsHorizontalScrollIndicator={false}
-                          horizontal
-                          ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                          data={dateOrderOptions}
-                          renderItem={({ item }) => (
-                            <TouchableOpacity
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingHorizontal: 8,
-                                paddingVertical: 4,
-                                borderWidth: 1,
-                                borderRadius: 16,
-                                backgroundColor: 'transparent',
-                                borderColor: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}
-                              onPress={() => setSelectedDateOrderFilter(item)}
-                            >
-                              <Text style={{
-                                color: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}>
-                                {item}
-                              </Text>
-                            </TouchableOpacity>
-                          )}
-                        />
-                      </View>
-                    </>
-                  )
-                }
-
-                <View style={styles.listRow}>
-                  <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                    Favoritos
-                  </Text>
-                </View>
-                <View style={styles.listRow}>
-                  <FlatList
-                    showsHorizontalScrollIndicator={false}
-                    horizontal
-                    ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                    data={favoritedFilterLabel}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          borderWidth: 1,
-                          borderRadius: 16,
-                          backgroundColor: 'transparent',
-                          borderColor: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}
-                        onPress={() => setSelectedFavoritedFilter(item)}
-                      >
-                        <Text style={{
-                          color: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}>
-                          {item}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  />
-                </View>
-
-              </>
-            )
-          }
-
-          <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-              Toque no item para visualizar e depois editar ou excluir.{'\n'}Segure para adicionar/remover dos favoritos
-            </Text>
-          </View>
-
-          {
-            filteredList.length === 0 && <EmptyMessage />
-          }
-          {
-            filteredList.map(item => (
-              <RectButton
-                key={item.id}
-                onPress={() => {
-                  setSelectedTransaction(item)
-                  setOpenModalSeeTransaction(true)
-                }}
-                onLongPress={() => {
-                  handleFavorite(item)
-                }}
-                style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF', position: 'relative' }}
-              >
-                <View style={{ display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center', position: 'absolute', top: 6, right: 8 }}>
-
-                  {
-                    !simpleFinancesItem && item.isEnabled && (
-                      <View
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingHorizontal: 8,
-                          paddingVertical: 2,
-                          borderWidth: 1,
-                          borderRadius: 16,
-                          backgroundColor: 'transparent',
-                          borderColor: item.paymentStatus ? '#12a454' : '#e83e5a',
-                        }}
-                      >
-                        <Text style={{
-                          fontSize: 12,
-                          color: item.paymentStatus ? '#12a454' : '#e83e5a',
-                        }}>
-                          {item.paymentStatus ? 'Pago' : 'Não Pago'}
-                        </Text>
-                      </View>
-                    )
-                  }
-                  <FontAwesome
-                    name={item.isFavorited ? "star" : "star-o"}
-                    size={18}
-                    color={item.isFavorited ? "#ffe234" : currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                  />
-                </View>
-
-                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
-
-                  <Feather
-                    name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
-                    size={28}
-                    color={item.isEnabled ? "#e83e5a" : "#12a454"}
-                  />
-                  <View style={{
-                    flexDirection: 'column', alignItems: 'flex-start', width: '50%',
-                  }}>
-                    <View style={{
-                      flexDirection: 'row', alignItems: 'flex-start', gap: 4,
-                    }}>
-                      <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                        {item.description}
+                    <View style={styles.listRow}>
+                      <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        Favoritos
                       </Text>
                     </View>
-                    {
-                      item.date !== '' && (
-                        <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                          {
-                            item.isEnabled ? 'Dt. Venc.: ' : "Dt. Receb.: "
-                          }
-                          {new Date(item.date).toLocaleDateString('pt-BR')}
-                        </Text>
-                      )
-                    }
-                    {
-                      !simpleFinancesItem && item.paymentDate !== '' && item.isEnabled && (
-                        <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                          Dt. Pgto.: {new Date(item.paymentDate).toLocaleDateString('pt-BR')}
-                        </Text>
-                      )
-                    }
-                  </View>
-                  <View style={{
-                    alignItems: 'flex-end', width: '34%'
-                  }}>
-                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', marginTop: 20, fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      {item.isEnabled ? "-" : ""}
-                      {item.amount.toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                        useGrouping: true,
-                      })}
-                    </Text>
-                  </View>
-                </View>
-              </RectButton>
-            ))
-          }
+                    <View style={styles.listRow}>
+                      <FlatList
+                        showsHorizontalScrollIndicator={false}
+                        horizontal
+                        ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                        data={favoritedFilterLabel}
+                        renderItem={({ item }) => (
+                          <TouchableOpacity
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingHorizontal: 8,
+                              paddingVertical: 4,
+                              borderWidth: 1,
+                              borderRadius: 16,
+                              backgroundColor: 'transparent',
+                              borderColor: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                            }}
+                            onPress={() => setSelectedFavoritedFilter(item)}
+                          >
+                            <Text style={{
+                              color: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                            }}>
+                              {item}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+                      />
+                    </View>
 
-          <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-              {listTotal.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true,
-              })}
-            </Text>
-          </View>
-        </View>
+                  </>
+                )
+              }
 
+              <View style={styles.listRow}>
+                <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                  Toque no item para visualizar e depois editar ou excluir.{'\n'}Segure para adicionar/remover dos favoritos
+                </Text>
+              </View>
+
+              {
+                filteredList.map(item => (
+                  <RectButton
+                    key={item.id}
+                    onPress={() => {
+                      setSelectedTransaction(item)
+                      setOpenModalSeeTransaction(true)
+                    }}
+                    onLongPress={() => {
+                      handleFavorite(item)
+                    }}
+                    style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF', position: 'relative' }}
+                  >
+                    <View style={{ display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center', position: 'absolute', top: 6, right: 8 }}>
+
+                      {
+                        !simpleFinancesItem && item.isEnabled && (
+                          <View
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingHorizontal: 8,
+                              paddingVertical: 2,
+                              borderWidth: 1,
+                              borderRadius: 16,
+                              backgroundColor: 'transparent',
+                              borderColor: item.paymentStatus ? '#12a454' : '#e83e5a',
+                            }}
+                          >
+                            <Text style={{
+                              fontSize: 12,
+                              color: item.paymentStatus ? '#12a454' : '#e83e5a',
+                            }}>
+                              {item.paymentStatus ? 'Pago' : 'Não Pago'}
+                            </Text>
+                          </View>
+                        )
+                      }
+                      <FontAwesome
+                        name={item.isFavorited ? "star" : "star-o"}
+                        size={18}
+                        color={item.isFavorited ? "#ffe234" : currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                      />
+                    </View>
+
+                    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
+
+                      <Feather
+                        name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
+                        size={28}
+                        color={item.isEnabled ? "#e83e5a" : "#12a454"}
+                      />
+                      <View style={{
+                        flexDirection: 'column', alignItems: 'flex-start', width: '50%',
+                      }}>
+                        <View style={{
+                          flexDirection: 'row', alignItems: 'flex-start', gap: 4,
+                        }}>
+                          <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                            {item.description}
+                          </Text>
+                        </View>
+                        {
+                          item.date !== '' && (
+                            <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                              {
+                                item.isEnabled ? 'Dt. Venc.: ' : "Dt. Receb.: "
+                              }
+                              {new Date(item.date).toLocaleDateString('pt-BR')}
+                            </Text>
+                          )
+                        }
+                        {
+                          !simpleFinancesItem && item.paymentDate !== '' && item.isEnabled && (
+                            <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                              Dt. Pgto.: {new Date(item.paymentDate).toLocaleDateString('pt-BR')}
+                            </Text>
+                          )
+                        }
+                      </View>
+                      <View style={{
+                        alignItems: 'flex-end', width: '34%'
+                      }}>
+                        <Text style={{ ...styles.cardTextListItem, textAlign: 'right', marginTop: 20, fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                          {item.isEnabled ? "-" : ""}
+                          {item.amount.toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                            useGrouping: true,
+                          })}
+                        </Text>
+                      </View>
+                    </View>
+                  </RectButton>
+                ))
+              }
+
+              <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
+                <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
+                <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                  {listTotal.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                    useGrouping: true,
+                  })}
+                </Text>
+              </View>
+            </View>
+          )
+        }
         <View style={{ height: 80 }} />
       </ScrollView>
     </Menu>

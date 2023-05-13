@@ -136,111 +136,127 @@ export default function Market() {
           </View>
         </ScrollView>
 
-        <View style={styles.list}>
+        {
+          filteredList.length === 0 ? <EmptyMessage /> : (
+            <>
+              <View style={styles.list}>
 
-          <View style={styles.listRow}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Lista de compras</Text>
+                <View style={styles.listRow}>
+                  <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Lista de compras</Text>
 
-            <Picker
-              selectedValue={selectedCategory}
-              onValueChange={(itemValue, itemIndex) =>
-                setSelectedCategory(itemValue)
-              }
-              mode='dropdown'
-              dropdownIconColor={'#9c44dc'}
-              dropdownIconRippleColor={'#9c44dc'}
-              enabled
-              style={{
-                width: '50%',
-                borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
-              }}
-            >
-              <Picker.Item label="Todos os itens" value="Todos os itens" />
-              <Picker.Item label="Carnes" value="Carnes" />
-              <Picker.Item label="Fruteira" value="Fruteira" />
-              <Picker.Item label="Higiêne" value="Higiêne" />
-              <Picker.Item label="Limpeza" value="Limpeza" />
-              <Picker.Item label="Mercearia" value="Mercearia" />
-              <Picker.Item label="Outros" value="Outros" />
-            </Picker>
-          </View>
-
-          <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-              Toque no item para editar ou excluir
-            </Text>
-          </View>
-          {
-            filteredList.length === 0 && <EmptyMessage />
-          }
-          {
-            filteredList.map(item => (
-              <RectButton
-                onPress={() => {
-                  setSelectedTransaction(item)
-                  setOpenModalSeeTransaction(true)
-                }}
-                key={item.id}
-                style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}
-              >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                  <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', width: '65%' }}>
-                    <Feather name="shopping-bag" size={28} color={currentTheme === 'dark' ? '#FFF' : '#1c1e21'} />
-                    <View style={{
-                      flexDirection: 'column', alignItems: 'flex-start', width: '90%',
-                    }}>
-                      <Text style={{ ...styles.cardTextListItem, lineHeight: 22, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.description}</Text>
-                      <Text style={{ ...styles.cardTextListItem, lineHeight: 14, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                        {item.category}
-                      </Text>
-                      <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', width: '100%' }}>
-                        <Text style={{ ...styles.cardTextListItem, lineHeight: 14, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                          Qtd.
-                        </Text>
-                        <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantity}</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <View style={{
-                    alignItems: 'flex-end', width: '35%'
-                  }}>
-                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      {(item.amount * item.quantity).toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                        useGrouping: true,
-                      })}
-                    </Text>
-                  </View>
+                  <Picker
+                    selectedValue={selectedCategory}
+                    onValueChange={(itemValue, itemIndex) =>
+                      setSelectedCategory(itemValue)
+                    }
+                    mode='dropdown'
+                    dropdownIconColor={'#9c44dc'}
+                    dropdownIconRippleColor={'#9c44dc'}
+                    enabled
+                    style={{
+                      width: '50%',
+                      borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                    }}
+                  >
+                    <Picker.Item label="Todos os itens" value="Todos os itens" />
+                    <Picker.Item label="Carnes" value="Carnes" />
+                    <Picker.Item label="Fruteira" value="Fruteira" />
+                    <Picker.Item label="Higiêne" value="Higiêne" />
+                    <Picker.Item label="Limpeza" value="Limpeza" />
+                    <Picker.Item label="Mercearia" value="Mercearia" />
+                    <Picker.Item label="Outros" value="Outros" />
+                  </Picker>
                 </View>
 
-              </RectButton>
-            ))
-          }
+                <View style={styles.listRow}>
+                  <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                    Toque no item para editar ou excluir
+                  </Text>
+                </View>
+                {
+                  filteredList.map(item => (
+                    <RectButton
+                      onPress={() => {
+                        setSelectedTransaction(item)
+                        setOpenModalSeeTransaction(true)
+                      }}
+                      key={item.id}
+                      style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}
+                    >
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', width: '65%' }}>
+                          <Feather name="shopping-bag" size={28} color={currentTheme === 'dark' ? '#FFF' : '#1c1e21'} />
+                          <View style={{
+                            flexDirection: 'column', alignItems: 'flex-start', width: '90%',
+                          }}>
+                            <Text style={{ ...styles.cardTextListItem, lineHeight: 22, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.description}</Text>
+                            <Text style={{ ...styles.cardTextListItem, lineHeight: 14, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                              {item.category}
+                            </Text>
+                            <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
+                              <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                                {
+                                  item.amount.toLocaleString('pt-BR', {
+                                    style: 'currency',
+                                    currency: 'BRL',
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                    useGrouping: true,
+                                  })}
+                              </Text>
+                              <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                                Qtd.
+                              </Text>
+                              <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantity}</Text>
 
 
-          <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-              {listTotal.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true,
-              })}
-            </Text>
-          </View>
+                            </View>
+                          </View>
+                        </View>
+                        <View style={{
+                          alignItems: 'flex-end', width: '35%'
+                        }}>
+                          <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                            {(item.amount * item.quantity).toLocaleString('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL',
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                              useGrouping: true,
+                            })}
+                          </Text>
+                        </View>
+                      </View>
 
-        </View>
+                    </RectButton>
+                  ))
+                }
 
-        <View style={{ height: 16 }} />
 
-        <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 18, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-          Caso queira adicionar o total como um item em finanças vá em configurações e na sessão Mercado clique em Add Total em Finanças
-        </Text>
+                <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
+                  <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
+                  <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                    {listTotal.toLocaleString('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                      useGrouping: true,
+                    })}
+                  </Text>
+                </View>
+
+              </View>
+
+              <View style={{ height: 16 }} />
+
+              <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 18, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+                Caso queira adicionar o total como um item em finanças vá em configurações e na sessão Mercado clique em Add Total em Finanças
+              </Text>
+            </>
+          )
+        }
+
 
         <View style={{ height: 80 }} />
       </ScrollView>

@@ -154,6 +154,7 @@ export function MarketContextProvider(props) {
     <MarketContext.Provider
       value={{
         MarketList,
+        setMarketList,
         filteredList,
         listTotal,
         selectedCategory,

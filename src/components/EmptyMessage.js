@@ -8,7 +8,7 @@ export default function EmptyMessage() {
   const { currentTheme } = useTheme()
 
   return (
-    <View style={{ width, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' }}>
+    <View style={{ width, marginTop: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' }}>
       <Image source={emptyImage} style={{ width: width * 0.6, height: width * 0.6 }} />
       <Text
         style={{

@@ -151,112 +151,110 @@ export default function Runs() {
             <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{filteredList[0]?.currentDistance ?? 0}</Text>
           </View>
         </ScrollView>
+        {
+          filteredList.length === 0 ? <EmptyMessage /> : (
+            <View style={styles.list}>
+              <View style={styles.listRow}>
+                <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais referentes ao ultimo abastecimento</Text>
+              </View>
 
-        <View style={styles.list}>
-          <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais referentes ao ultimo abastecimento</Text>
-          </View>
+              <View style={styles.listRow}>
+                <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Abastecimentos</Text>
 
-          <View style={styles.listRow}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Abastecimentos</Text>
+                <Picker
+                  selectedValue={selectedPeriod}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setSelectedPeriod(itemValue)
+                  }
+                  mode='dropdown'
+                  dropdownIconColor={'#9c44dc'}
+                  dropdownIconRippleColor={'#9c44dc'}
+                  enabled
+                  style={{
+                    width: '50%',
+                    borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                  }}
+                >
+                  <Picker.Item label="Mês anterior" value="Mês anterior" />
+                  <Picker.Item label="Este mês" value="Este mês" />
+                  <Picker.Item label="Todos" value="Todos" />
+                </Picker>
+              </View>
 
-            <Picker
-              selectedValue={selectedPeriod}
-              onValueChange={(itemValue, itemIndex) =>
-                setSelectedPeriod(itemValue)
+              <View style={styles.listRow}>
+                <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Clique no item para excluir</Text>
+              </View>
+              {
+                filteredList.map(item => (
+                  <RectButton
+                    key={item.id}
+                    onPress={() => {
+                      deleteTransaction(item)
+                    }}
+                    style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}
+                  >
+                    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
+                      <MaterialCommunityIcons
+                        name={"fuel"}
+                        size={28}
+                        color={"#12a454"}
+                      />
+                      <View style={{
+                        flexDirection: 'column', alignItems: 'flex-start', width: '50%',
+                      }}>
+                        <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.location}</Text>
+                        <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                          Km no Abast.: {item.currentDistance}
+                        </Text>
+                        <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                          {new Date(item.date).toLocaleDateString('pt-BR')}
+                        </Text>
+                        <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                          {item.unityAmount.toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                            useGrouping: true,
+                          })} - {(item.amount / item.unityAmount).toFixed(2)} Litros
+                        </Text>
+                      </View>
+                      <View style={{
+                        alignItems: 'flex-end', width: '34%'
+                      }}>
+                        <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                          {item.amount.toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                            useGrouping: true,
+                          })}
+                        </Text>
+                      </View>
+                    </View>
+
+                  </RectButton>
+                ))
               }
-              mode='dropdown'
-              dropdownIconColor={'#9c44dc'}
-              dropdownIconRippleColor={'#9c44dc'}
-              enabled
-              style={{
-                width: '50%',
-                borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
-              }}
-            >
-              <Picker.Item label="Mês anterior" value="Mês anterior" />
-              <Picker.Item label="Este mês" value="Este mês" />
-              <Picker.Item label="Todos" value="Todos" />
-            </Picker>
-          </View>
-
-          <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Clique no item para excluir</Text>
-          </View>
-
-          {
-            filteredList.length === 0 && <EmptyMessage />
-          }
-          {
-            filteredList.map(item => (
-              <RectButton
-                key={item.id}
-                onPress={() => {
-                  deleteTransaction(item)
-                }}
-                style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}
-              >
-                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
-                  <MaterialCommunityIcons
-                    name={"fuel"}
-                    size={28}
-                    color={"#12a454"}
-                  />
-                  <View style={{
-                    flexDirection: 'column', alignItems: 'flex-start', width: '50%',
-                  }}>
-                    <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.location}</Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      Km no Abast.: {item.currentDistance}
-                    </Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      {new Date(item.date).toLocaleDateString('pt-BR')}
-                    </Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      {item.unityAmount.toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                        useGrouping: true,
-                      })} - {(item.amount / item.unityAmount).toFixed(2)} Litros
-                    </Text>
-                  </View>
-                  <View style={{
-                    alignItems: 'flex-end', width: '34%'
-                  }}>
-                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      {item.amount.toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                        useGrouping: true,
-                      })}
-                    </Text>
-                  </View>
-                </View>
-
-              </RectButton>
-            ))
-          }
 
 
-          <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-              {listTotal.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true,
-              })}
-            </Text>
-          </View>
+              <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
+                <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
+                <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                  {listTotal.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                    useGrouping: true,
+                  })}
+                </Text>
+              </View>
 
-        </View>
-
+            </View>
+          )
+        }
         <View style={{ height: 80 }} />
       </ScrollView>
     </Menu>
