@@ -51,8 +51,6 @@ export default function Reports() {
   const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
   const [openModalSeeTransaction, setOpenModalSeeTransaction] = useState(false);
 
-  console.log("TO AQUI", goalsList)
-
   return (
     <Menu>
       <Modal open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
