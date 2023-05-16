@@ -9,6 +9,7 @@ import Market from "./pages/Market";
 import Runs from "./pages/Runs";
 
 import { useTheme } from "./hooks/useTheme";
+import Reports from "./pages/Reports";
 
 const Stack = createStackNavigator();
 
@@ -35,6 +36,10 @@ export default function Routes() {
         <Stack.Screen
           name="Mercado"
           component={Market}
+        />
+        <Stack.Screen
+          name="Relatórios"
+          component={Reports}
         />
         <Stack.Screen
           name="Sobre"

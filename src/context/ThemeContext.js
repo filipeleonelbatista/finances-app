@@ -25,7 +25,7 @@ export function ThemeContextProvider(props) {
       }
 
     } catch (error) {
-      console.log(e)
+      console.log(error)
     }
   }, [])
 

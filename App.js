@@ -14,6 +14,7 @@ import { RunsContextProvider } from './src/context/RunsContext';
 import { SettingsContextProvider } from './src/context/SettingsContext';
 import { ThemeContextProvider } from './src/context/ThemeContext';
 import { MarketContextProvider } from './src/context/MarketContext';
+import { GoalsContextProvider } from './src/context/GoalsContext';
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -54,7 +55,9 @@ export default function App() {
           <PaymentsContextProvider>
             <RunsContextProvider>
               <MarketContextProvider>
-                <Routes />
+                <GoalsContextProvider>
+                  <Routes />
+                </GoalsContextProvider>
               </MarketContextProvider>
             </RunsContextProvider>
           </PaymentsContextProvider>

@@ -41,6 +41,7 @@ export default function Finances() {
     dateOrderOptions, handleFavorite,
     selectedFavoritedFilter, setSelectedFavoritedFilter,
     favoritedFilterLabel,
+    categoriesList, selectedPaymentCategory, setSelectedPaymentCategory,
   } = usePayments();
 
   const {
@@ -68,6 +69,16 @@ export default function Finances() {
   const [openModalSeeTransaction, setOpenModalSeeTransaction] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
 
+  const categoryItemLib = {
+    'Outros': <Feather name="dollar-sign" size={28} color={"#e83e5a"} />,
+    'Moradia': <Feather name="home" size={28} color={"#e83e5a"} />,
+    'Mercado': <Feather name="shopping-cart" size={28} color={"#e83e5a"} />,
+    'TV/Internet/Telefone': <Feather name="at-sign" size={28} color={"#e83e5a"} />,
+    'Transporte': <FontAwesome name="car" size={28} color={"#e83e5a"} />,
+    'Saúde': <FontAwesome name="medikit" size={28} color={"#e83e5a"} />,
+    'Bares e Restaurantes': <Feather name="coffee" size={28} color={"#e83e5a"} />,
+    'Ganhos': <Feather name="dollar-sign" size={28} color={"#12a454"} />,
+  }
 
   return (
     <Menu>
@@ -243,6 +254,31 @@ export default function Finances() {
                       !simpleFinancesItem && (
                         <>
                           <View style={styles.listRow}>
+                            <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                              Categoria de gastos
+                            </Text>
+                            <Picker
+                              selectedValue={selectedPaymentCategory}
+                              onValueChange={(itemValue, itemIndex) =>
+                                setSelectedPaymentCategory(itemValue)
+                              }
+                              mode='dropdown'
+                              dropdownIconColor={'#9c44dc'}
+                              dropdownIconRippleColor={'#9c44dc'}
+                              enabled
+                              style={{
+                                width: '50%',
+                                borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                              }}
+                            >
+                              {
+                                categoriesList.map((cat, index) => (
+                                  <Picker.Item key={index} label={cat} value={cat} />
+                                ))
+                              }
+                            </Picker>
+                          </View>
+                          <View style={styles.listRow}>
                             <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Filtrar por Status de pagamento</Text>
                           </View>
                           <View style={styles.listRow}>
@@ -408,11 +444,15 @@ export default function Finances() {
 
                     <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
 
-                      <Feather
-                        name={item.isEnabled ? "arrow-down-circle" : "arrow-up-circle"}
-                        size={28}
-                        color={item.isEnabled ? "#e83e5a" : "#12a454"}
-                      />
+                      {
+                        item.isEnabled ? categoryItemLib[item.category] : (
+                          <Feather
+                            name={"arrow-up-circle"}
+                            size={28}
+                            color={"#12a454"}
+                          />
+                        )
+                      }
                       <View style={{
                         flexDirection: 'column', alignItems: 'flex-start', width: '50%',
                       }}>
@@ -437,6 +477,16 @@ export default function Finances() {
                           !simpleFinancesItem && item.paymentDate !== '' && item.isEnabled && (
                             <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
                               Dt. Pgto.: {new Date(item.paymentDate).toLocaleDateString('pt-BR')}
+                            </Text>
+                          )
+                        }
+                        {
+                          !simpleFinancesItem && (
+                            <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                              {'Cat.: '}
+                              {
+                                item.category
+                              }
                             </Text>
                           )
                         }

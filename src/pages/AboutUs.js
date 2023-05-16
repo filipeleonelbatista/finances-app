@@ -110,7 +110,14 @@ export default function AboutUs() {
 
     async function exportDataToExcel() {
         // const dataCsv = transactionsList.map(item => [item.id, item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), formatDate(item.paymentDate), item.paymentStatus ? 'Pago' : 'Não Pago', `${item.isEnabled ? '-' : ''}${item.amount}`])
-        const dataCsv = transactionsList.map(item => [item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), formatDate(item.paymentDate), item.paymentStatus ? 'Pago' : 'Não Pago', item.amount])
+        const dataCsv = transactionsList.map(item => [
+            item.description,
+            item.isEnabled ? 'Despesa' : 'Ganho',
+            formatDate(item.date),
+            formatDate(item.paymentDate),
+            item.paymentStatus ? 'Pago' : 'Não Pago',
+            item.category,
+            item.amount])
 
         // let TotalList = 0.0;
 
@@ -127,7 +134,7 @@ export default function AboutUs() {
         const ws = XLSX.utils.aoa_to_sheet([
             // ['Minhas finanças'],
             // ['Identificador', 'Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Valor'],
-            ['Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Valor'],
+            ['Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Categoria', 'Valor'],
             ...dataCsv,
             // ['', '', '', 'Total:', `${TotalList}`],
             // ['', '', '', 'Dizimo:', `${Tithe}`],
@@ -158,7 +165,8 @@ export default function AboutUs() {
                         date: currentItemArray[2] !== '' ? new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000 : '',
                         paymentDate: currentItemArray[3] !== '' ? new Date(`${currentItemPaymentDate[2]}-${currentItemPaymentDate[1]}-${currentItemPaymentDate[0]}`).getTime() + 43200000 : '',
                         paymentStatus: currentItemArray[4] === 'Pago',
-                        amount: parseFloat(currentItemArray[5].replace("-", "")),
+                        category: currentItemArray[5],
+                        amount: parseFloat(currentItemArray[6].replace("-", "")),
                         isFavorited: false
                     }
                     newFinancesArray.push(itemObject)
@@ -768,7 +776,7 @@ export default function AboutUs() {
 
                     <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
                         Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
-                        para importar dados com as colunas Descrição, Despesa/Ganho, Data de vencimento, Data de pagamento, Pago/Não Pago, Valor.
+                        para importar dados com as colunas Descrição, Despesa/Ganho, Data de vencimento, Data de pagamento, Pago/Não Pago, Categoria e Valor.
                     </Text>
                     <RectButton onPress={handleClearFinances} style={styles.button}>
                         <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
@@ -910,7 +918,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Versão 1.2.0
+                        Versão 1.2.1
                     </Text>
                     <View style={{ height: 32 }} />
                 </ScrollView>

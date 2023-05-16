@@ -43,9 +43,10 @@ export function MarketContextProvider(props) {
 
   async function handleAddFinances() {
     const data = {
-      description: `Compras`,
+      description: `Lista Compras`,
       amount: listTotal,
       date: Date.now(),
+      category: 'Mercado',
       paymentDate: '',
       paymentStatus: false,
       isEnabled: true

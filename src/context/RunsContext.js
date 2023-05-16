@@ -71,6 +71,7 @@ export function RunsContextProvider(props) {
         description: `Abastecimento - ${newTransaction.location}`,
         amount: newTransaction.amount,
         date: newTransaction.date,
+        category: 'Transporte',
         paymentDate: newTransaction.date,
         paymentStatus: true,
         isEnabled: true

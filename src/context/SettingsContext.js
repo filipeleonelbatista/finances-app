@@ -101,7 +101,7 @@ export function SettingsContextProvider(props) {
       }
 
     } catch (error) {
-      console.log(e)
+      console.log(error)
     }
   }, [])
 

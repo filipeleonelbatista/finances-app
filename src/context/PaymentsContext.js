@@ -53,10 +53,23 @@ export function PaymentsContextProvider(props) {
     'Todos'
   ]
 
+  const categoriesList = [
+    'Todos',
+    'Moradia',
+    'Mercado',
+    'TV/Internet/Telefone',
+    'Transporte',
+    'Saúde',
+    'Bares e Restaurantes',
+    'Ganhos',
+    'Outros',
+  ]
+
   const [selectedTransaction, setSelectedTransaction] = useState();
 
   const [selectedtypeofpayment, setselectedtypeofpayment] = useState('0');
   const [selectedPeriod, setSelectedPeriod] = useState('Este mês');
+  const [selectedPaymentCategory, setSelectedPaymentCategory] = useState('Todos');
 
   const filteredList = useMemo(() => {
     if (transactionsList) {
@@ -141,7 +154,15 @@ export function PaymentsContextProvider(props) {
         }
       })
 
-      const filteredByPaymentStatus = filteredByPeriod.filter(item => {
+      const filteredByPaymentCategory = filteredByPeriod.filter(item => {
+        if (selectedPaymentCategory === "Todos") {
+          return true
+        } else {
+          return item.category === selectedPaymentCategory;
+        }
+      })
+
+      const filteredByPaymentStatus = filteredByPaymentCategory.filter(item => {
         if (selectedPaymentStatus === "Todos") {
           return true
         }
@@ -201,7 +222,15 @@ export function PaymentsContextProvider(props) {
       return sortedByDateArray;
     }
     return [];
-  }, [transactionsList, selectedPeriod, selectedtypeofpayment, selectedPaymentStatus, selectedDateOrderFilter, selectedFavoritedFilter])
+  }, [
+    transactionsList,
+    selectedPeriod,
+    selectedtypeofpayment,
+    selectedPaymentStatus,
+    selectedDateOrderFilter,
+    selectedFavoritedFilter,
+    selectedPaymentCategory
+  ])
 
   const listTotal = useMemo(() => {
     let TotalList = 0.0;
@@ -412,6 +441,8 @@ export function PaymentsContextProvider(props) {
         handleFavorite,
         selectedFavoritedFilter, setSelectedFavoritedFilter,
         favoritedFilterLabel,
+        categoriesList,
+        selectedPaymentCategory, setSelectedPaymentCategory,
       }}
     >
       {props.children}

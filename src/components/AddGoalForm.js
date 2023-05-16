@@ -3,16 +3,15 @@ import React, { useMemo } from 'react';
 
 import { Feather } from '@expo/vector-icons';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
 import { useFormik } from 'formik';
 import { Dimensions, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as Yup from 'yup';
-import { useRuns } from '../hooks/useRuns';
+import { useGoals } from '../hooks/useGoals';
 import { useTheme } from '../hooks/useTheme';
 
-export default function AddFuelForm({ onClose }) {
-    const { addTrasaction } = useRuns();
+export default function AddGoalForm({ onClose }) {
+    const { addTrasaction } = useGoals();
 
     const {
         currentTheme
@@ -20,23 +19,19 @@ export default function AddFuelForm({ onClose }) {
 
     const formSchema = useMemo(() => {
         return Yup.object().shape({
-            currentDistance: Yup.string().required("O campo Km Atual é obrigatório"),
-            unityAmount: Yup.string().required("O campo Valor do litro é obrigatório"),
-            amount: Yup.string().required("O campo Valor Pago é obrigatório"),
-            type: Yup.string().required("O campo Tipo do combustível é obrigatório"),
-            date: Yup.string().required("O campo Data é obrigatório"),
-            location: Yup.string().required("O campo Local é obrigatório"),
+            description: Yup.string().required("O campo Descrição é obrigatório"),
+            amount: Yup.string().required("O campo Valor é obrigatório"),
+            currentAmount: Yup.string(),
+            date: Yup.string(),
         })
     }, [])
 
     const formik = useFormik({
         initialValues: {
-            currentDistance: '',
-            unityAmount: '',
+            description: '',
             amount: '',
-            type: 'Gasolina Comum',
+            currentAmount: '',
             date: '',
-            location: '',
         },
         validationSchema: formSchema,
         onSubmit: values => {
@@ -45,14 +40,12 @@ export default function AddFuelForm({ onClose }) {
     });
 
     async function handleSubmitForm(formValues) {
-        const submittedDate = formValues.date.split('/')
+        const submittedDate = formValues.date !== '' && formValues.date.split('/')
         const data = {
-            currentDistance: parseFloat(formValues.currentDistance.replaceAll('.', '').replace(',', '.')),
-            type: formValues.type,
-            unityAmount: parseFloat(formValues.unityAmount.replaceAll('.', '').replace(',', '.')),
+            currentAmount: parseFloat(formValues.currentAmount.replaceAll('.', '').replace(',', '.')),
             amount: parseFloat(formValues.amount.replaceAll('.', '').replace(',', '.')),
-            date: new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000,
-            location: formValues.location,
+            date: formValues.date !== '' ? new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000 : '',
+            description: formValues.description,
         }
         addTrasaction(data)
         onClose()
@@ -71,13 +64,18 @@ export default function AddFuelForm({ onClose }) {
         formik.setFieldValue('date', `${currentDate.getDate() < 10 ? '0' + currentDate.getDate() : currentDate.getDate()}/${(currentDate.getMonth() + 1) < 10 ? '0' + (currentDate.getMonth() + 1) : (currentDate.getMonth() + 1)}/${currentDate.getFullYear()}`);
     };
 
+
     return (
         <>
-            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Adicionar abastecimento</Text>
-            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Adicione informações sobre o abastecimento.</Text>
+            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                Adicionar Meta
+            </Text>
+            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                Adicione sua meta para acompanhar em suas finanças.
+            </Text>
 
             <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Local</Text>
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Descrição</Text>
                 <TextInput
                     placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
                     style={{
@@ -85,16 +83,16 @@ export default function AddFuelForm({ onClose }) {
                         backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
                         color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
                     }}
-                    placeholder="Local"
-                    onChangeText={(text) => formik.setFieldValue('location', text)}
-                    value={formik.values.location}
+                    placeholder="Descrição"
+                    onChangeText={(text) => formik.setFieldValue('description', text)}
+                    value={formik.values.description}
                 />
-                {formik.errors.location && (
-                    <Text style={styles.helperText}>{formik.errors.location}</Text>
+                {formik.errors.description && (
+                    <Text style={styles.helperText}>{formik.errors.description}</Text>
                 )}
             </View>
             <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Km Atual</Text>
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor da meta</Text>
                 <TextInput
                     placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
                     style={{
@@ -103,82 +101,31 @@ export default function AddFuelForm({ onClose }) {
                         color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
                     }}
                     keyboardType="decimal-pad"
-                    placeholder="Km Atual"
-                    onChangeText={(text) => formik.setFieldValue('currentDistance', text)}
-                    value={formik.values.currentDistance}
-                />
-                {formik.errors.currentDistance && (
-                    <Text style={styles.helperText}>{formik.errors.currentDistance}</Text>
-                )}
-            </View>
-            <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor do litro</Text>
-                <TextInput
-                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                    style={{
-                        ...styles.input,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                    }}
-                    keyboardType="decimal-pad"
-                    placeholder="Valor unitário do litro"
-                    onChangeText={(text) => formik.setFieldValue('unityAmount', moeda(text))}
-                    value={formik.values.unityAmount}
-                />
-                {formik.errors.unityAmount && (
-                    <Text style={styles.helperText}>{formik.errors.unityAmount}</Text>
-                )}
-            </View>
-            <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor pago</Text>
-                <TextInput
-                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                    style={{
-                        ...styles.input,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                    }}
-                    keyboardType="decimal-pad"
-                    placeholder="Valor do litro"
+                    placeholder="Valor da meta"
                     onChangeText={(text) => formik.setFieldValue('amount', moeda(text))}
                     value={formik.values.amount}
                 />
-                {formik.errors.amount && (
-                    <Text style={styles.helperText}>{formik.errors.amount}</Text>
-                )}
             </View>
+            {formik.errors.amount && (
+                <Text style={styles.helperText}>{formik.errors.amount}</Text>
+            )}
             <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Tipo do combustivel</Text>
-                <Picker
-                    selectedValue={formik.values.type ?? 'Comun'}
-                    onValueChange={(itemValue, itemIndex) =>
-                        formik.setFieldValue("type", itemValue)
-                    }
-                    mode='dropdown'
-                    dropdownIconColor={'#9c44dc'}
-                    dropdownIconRippleColor={'#9c44dc'}
-                    enabled
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor alcançado</Text>
+                <TextInput
+                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
                     style={{
-                        width: '100%',
-                        borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                        ...styles.input,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
                     }}
-                >
-                    <Picker.Item label="Gasolina Comun" value="Gasolina comun" />
-                    <Picker.Item label="Gasolina aditivada" value="Gasolina aditivada" />
-                    <Picker.Item label="Etanol" value="Etanol" />
-                    <Picker.Item label="Etanol aditivada" value="Etanol aditivada" />
-                    <Picker.Item label="Carga elétrica" value="Carga elétrica" />
-                    <Picker.Item label="GNV" value="GNV" />
-                    <Picker.Item label="Dísel" value="Dísel" />
-                    <Picker.Item label="Dísel-S10" value="Dísel-S10" />
-                    <Picker.Item label="Dísel aditivado" value="Dísel aditivado" />
-                </Picker>
-                {formik.errors.type && (
-                    <Text style={styles.helperText}>{formik.errors.type}</Text>
-                )}
+                    keyboardType="decimal-pad"
+                    placeholder="Valor alcançado"
+                    onChangeText={(text) => formik.setFieldValue('currentAmount', moeda(text))}
+                    value={formik.values.currentAmount}
+                />
             </View>
             <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data</Text>
+                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data da meta</Text>
                 <View style={styles.inputGroup}>
                     <Pressable
                         onPress={() => {
@@ -205,6 +152,7 @@ export default function AddFuelForm({ onClose }) {
                                 keyboardType="decimal-pad"
                                 maxLength={10}
                                 value={formik.values.date}
+
                                 placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
                                 style={{
                                     ...styles.inputInputGroup,
@@ -227,6 +175,7 @@ export default function AddFuelForm({ onClose }) {
                         <Feather name="calendar" size={24} color="#FFF" />
                     </TouchableOpacity>
                 </View>
+
                 {formik.errors.date && (
                     <Text style={styles.helperText}>{formik.errors.date}</Text>
                 )}

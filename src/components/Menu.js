@@ -13,6 +13,29 @@ export default function Menu({ children }) {
     currentTheme
   } = useTheme();
 
+  const menus = [
+    {
+      routeName: 'Finanças',
+      iconName: 'dollar-sign',
+    },
+    {
+      routeName: 'Combustível',
+      iconName: 'droplet',
+    },
+    {
+      routeName: 'Mercado',
+      iconName: 'shopping-cart',
+    },
+    {
+      routeName: 'Relatórios',
+      iconName: 'pie-chart',
+    },
+    {
+      routeName: 'Sobre',
+      iconName: 'settings',
+    },
+  ]
+
   return (
     <View style={{
       width: Dimensions.get('window').width,
@@ -25,22 +48,32 @@ export default function Menu({ children }) {
       <View style={{ height: 70 }} />
       <View style={{ ...styles.menu, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#f0f2f5' }}>
         <ScrollView horizontal contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
-          <TouchableOpacity onPress={() => navigation.navigate('Finanças')} style={{ ...styles.button, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
-            <Feather name={"dollar-sign"} size={26} color={route.name === "Finanças" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />
-            <Text style={{ ...styles.title, color: route.name === "Finanças" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21') }}>Finanças</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Combustível')} style={{ ...styles.button, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
-            <Feather name="droplet" size={26} color={route.name === "Combustível" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />
-            <Text style={{ ...styles.title, color: route.name === "Combustível" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21') }}>Combustível</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Mercado')} style={{ ...styles.button, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
-            <Feather name="shopping-cart" size={26} color={route.name === "Mercado" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />
-            <Text style={{ ...styles.title, color: route.name === "Mercado" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21') }}>Mercado</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Sobre')} style={{ ...styles.button, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
-            <Feather name="settings" size={26} color={route.name === "Sobre" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')} />
-            <Text style={{ ...styles.title, color: route.name === "Sobre" ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21') }}>Sobre o app</Text>
-          </TouchableOpacity>
+          {
+            menus.map((menu, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => navigation.navigate(menu.routeName)}
+                style={{
+                  ...styles.button,
+                  width: Dimensions.get('window').width / menus.length,
+                  backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF'
+                }}>
+                <Feather
+                  name={menu.iconName}
+                  size={26}
+                  color={route.name === menu.routeName ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')}
+                />
+                <Text
+                  style={{
+                    ...styles.title,
+                    color: route.name === menu.routeName ? "#9c44dc" : (currentTheme === 'dark' ? '#FFF' : '#1c1e21')
+                  }}
+                >
+                  {menu.routeName}
+                </Text>
+              </TouchableOpacity>
+            ))
+          }
         </ScrollView>
       </View>
     </View>
@@ -58,10 +91,8 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   button: {
-    width: Dimensions.get('window').width / 4,
     gap: 4,
     height: '100%',
-    backgroundColor: "#FFF",
     alignItems: 'center',
     justifyContent: 'center'
   },

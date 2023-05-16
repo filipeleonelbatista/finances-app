@@ -10,9 +10,10 @@ import * as Yup from 'yup';
 import { usePayments } from '../hooks/usePayments';
 import { useTheme } from '../hooks/useTheme';
 import { useSettings } from '../hooks/useSettings';
+import { Picker } from '@react-native-picker/picker';
 
 export default function AddItemForm({ onClose }) {
-    const { addTrasaction } = usePayments();
+    const { addTrasaction, categoriesList } = usePayments();
     const { simpleFinancesItem } = useSettings();
 
     const {
@@ -23,6 +24,7 @@ export default function AddItemForm({ onClose }) {
         return Yup.object().shape({
             description: Yup.string().required("O campo Descrição é obrigatório"),
             amount: Yup.string().required("O campo Valor é obrigatório"),
+            category: Yup.string(),
             date: Yup.string(),
             paymentDate: Yup.string(),
             paymentStatus: Yup.boolean(),
@@ -35,6 +37,7 @@ export default function AddItemForm({ onClose }) {
             description: '',
             amount: '',
             date: '',
+            category: '',
             paymentDate: '',
             paymentStatus: false,
             isEnabled: false
@@ -53,6 +56,7 @@ export default function AddItemForm({ onClose }) {
             date: formValues.date !== '' ? new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000 : '',
             paymentDate: formValues.paymentDate !== '' ? new Date(`${submittedPaymentDate[2]}-${submittedPaymentDate[1]}-${submittedPaymentDate[0]}`).getTime() + 43200000 : '',
             description: formValues.description,
+            category: formValues.category,
             paymentStatus: formValues.paymentStatus,
             isEnabled: formValues.isEnabled,
             isFavorited: false,
@@ -180,11 +184,70 @@ export default function AddItemForm({ onClose }) {
 
             {
                 !simpleFinancesItem && (
-                    <View>
-                        <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data do pagamento</Text>
-                        <View style={styles.inputGroup}>
-                            <Pressable
-                                onPress={() => {
+                    <>
+                        <View>
+                            <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Categoria</Text>
+                            <Picker
+                                selectedValue={formik.values.category ?? 'Outros'}
+                                onValueChange={(itemValue, itemIndex) =>
+                                    formik.setFieldValue("category", itemValue)
+                                }
+                                mode='dropdown'
+                                dropdownIconColor={'#9c44dc'}
+                                dropdownIconRippleColor={'#9c44dc'}
+                                enabled
+                                style={{
+                                    width: '100%',
+                                    borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                                }}
+                            >
+                                {
+                                    categoriesList.map((cat, index) => (
+                                        index === 0 ? null : <Picker.Item key={index} label={cat} value={cat} />
+                                    ))
+                                }
+                            </Picker>
+                        </View>
+                        <View>
+                            <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data do pagamento</Text>
+                            <View style={styles.inputGroup}>
+                                <Pressable
+                                    onPress={() => {
+                                        DateTimePickerAndroid.open({
+                                            themeVariant: currentTheme,
+                                            value: new Date(Date.now()),
+                                            onChange: onChangePaymentDate,
+                                            mode: 'date',
+                                            is24Hour: false,
+                                        });
+                                    }}
+                                    style={{
+                                        width: '82%',
+                                    }}
+                                >
+                                    <View
+                                        style={{
+                                            width: '100%',
+                                        }}
+                                        pointerEvents='none'
+                                    >
+                                        <TextInput
+                                            placeholder="dd/mm/aaaa"
+                                            keyboardType="decimal-pad"
+                                            maxLength={10}
+                                            value={formik.values.paymentDate}
+
+                                            placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                                            style={{
+                                                ...styles.inputInputGroup,
+                                                width: '100%',
+                                                backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                                                color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                                            }}
+                                        />
+                                    </View>
+                                </Pressable>
+                                <TouchableOpacity onPress={() => {
                                     DateTimePickerAndroid.open({
                                         themeVariant: currentTheme,
                                         value: new Date(Date.now()),
@@ -192,46 +255,12 @@ export default function AddItemForm({ onClose }) {
                                         mode: 'date',
                                         is24Hour: false,
                                     });
-                                }}
-                                style={{
-                                    width: '82%',
-                                }}
-                            >
-                                <View
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    pointerEvents='none'
-                                >
-                                    <TextInput
-                                        placeholder="dd/mm/aaaa"
-                                        keyboardType="decimal-pad"
-                                        maxLength={10}
-                                        value={formik.values.paymentDate}
-
-                                        placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                                        style={{
-                                            ...styles.inputInputGroup,
-                                            width: '100%',
-                                            backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                                            color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                                        }}
-                                    />
-                                </View>
-                            </Pressable>
-                            <TouchableOpacity onPress={() => {
-                                DateTimePickerAndroid.open({
-                                    themeVariant: currentTheme,
-                                    value: new Date(Date.now()),
-                                    onChange: onChangePaymentDate,
-                                    mode: 'date',
-                                    is24Hour: false,
-                                });
-                            }} style={styles.buttonInputGroup}>
-                                <Feather name="calendar" size={24} color="#FFF" />
-                            </TouchableOpacity>
+                                }} style={styles.buttonInputGroup}>
+                                    <Feather name="calendar" size={24} color="#FFF" />
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
+                    </>
                 )
             }
 
