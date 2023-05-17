@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { Dimensions, FlatList, ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
+import { differenceInCalendarDays } from 'date-fns';
+import { useWindowDimensions } from 'react-native';
+import { PieChart } from "react-native-chart-kit";
 import * as Progress from 'react-native-progress';
 import bgImg from '../assets/images/background.png';
+import AddGoalForm from '../components/AddGoalForm';
+import EditGoalForm from '../components/EditGoalForm';
 import EmptyMessage from '../components/EmptyMessage';
 import Menu from '../components/Menu';
-import { useTheme } from '../hooks/useTheme';
-import { usePayments } from '../hooks/usePayments';
-import { Picker } from '@react-native-picker/picker';
-import { useSettings } from '../hooks/useSettings';
-import { useGoals } from '../hooks/useGoals';
 import Modal from '../components/Modal';
-import AddGoalForm from '../components/AddGoalForm';
-import { useWindowDimensions } from 'react-native';
-import EditGoalForm from '../components/EditGoalForm';
+import { useGoals } from '../hooks/useGoals';
+import { usePayments } from '../hooks/usePayments';
+import { useSettings } from '../hooks/useSettings';
+import { useTheme } from '../hooks/useTheme';
 
 export default function Reports() {
   const { width } = useWindowDimensions();
@@ -29,6 +31,8 @@ export default function Reports() {
   } = useSettings();
 
   const {
+    Incomings,
+    Expenses,
     filteredList,
     selectedtypeofpayment, setselectedtypeofpayment,
     selectedPeriod, setSelectedPeriod,
@@ -50,6 +54,79 @@ export default function Reports() {
   const [openFilter, setOpenFilter] = useState(false);
   const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
   const [openModalSeeTransaction, setOpenModalSeeTransaction] = useState(false);
+
+  const formatCurrency = (value) => {
+    return value
+      .toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: true,
+      })
+  }
+
+  const expensesByCatData = useMemo(() => {
+    const getSum = (cat) => {
+      const filteredCategoryArray = filteredList.filter(item => item.category === cat)
+
+      let totalSelectedCat = 0.0
+
+      for (const item of filteredCategoryArray) {
+        totalSelectedCat = item.amount + totalSelectedCat
+      }
+
+      return totalSelectedCat
+    }
+
+    const data = [
+      {
+        name: "Moradia",
+        population: getSum("Moradia"),
+        color: "#5B1A89",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "Mercado",
+        population: getSum("Mercado"),
+        color: "#7D24BC",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "TV/Internet/Telefone",
+        population: getSum("TV/Internet/Telefone"),
+        color: "#9C44DC",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "Transporte",
+        population: getSum("Transporte"),
+        color: "#AA5DE0",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "Saúde",
+        population: getSum("Saúde"),
+        color: "#B878E5",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "Outros",
+        population: getSum("Outros"),
+        color: "#CDA1ED",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+    ]
+
+    return data;
+
+  }, [filteredList])
 
   return (
     <Menu>
@@ -81,7 +158,19 @@ export default function Reports() {
 
         <View paddingHorizontal={22} style={{ alignItems: 'center' }}>
 
-          <View style={{ ...styles.cardWite, width: '100%', marginTop: -50, marginBottom: 22, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
+          <View style={{
+            flexDirection: 'column',
+            borderRadius: 4,
+            marginHorizontal: 6,
+            backgroundColor: '#FFF',
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            elevation: 4,
+            width: '100%',
+            marginTop: -50,
+            marginBottom: 22,
+            backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF'
+          }}>
             {
               filteredList.length === 0 ? (
                 <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -93,22 +182,70 @@ export default function Reports() {
                   </Text>
                 </View>
               ) : (
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Feather name="arrow-up-circle" size={36} color={"#12a454"} />
-                    <View>
-                      <Text>Ganhos</Text>
-                      <Text>R$ 123,45</Text>
+                <>
+                  <View marginBottom={16}>
+                    <View style={styles.listRow}>
+                      <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        Saúde das finanças
+                      </Text>
                     </View>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <View>
-                      <Text>Despesas</Text>
-                      <Text>R$ 123,45</Text>
+
+                    <View marginBottom={8} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Feather name="arrow-up-circle" size={36} color={"#12a454"} />
+                        <View>
+                          <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                            Ganhos
+                          </Text>
+                          <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontWeight: 'bold', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                            {formatCurrency(Incomings)}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <View>
+                          <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                            Despesas
+                          </Text>
+                          <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontWeight: 'bold', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                            {formatCurrency(Expenses)}
+                          </Text>
+                        </View>
+                        <Feather name="arrow-down-circle" size={36} color={"#e83e5a"} />
+                      </View>
                     </View>
-                    <Feather name="arrow-down-circle" size={36} color={"#e83e5a"} />
+
+                    <Progress.Bar
+                      progress={
+                        (((Incomings * 100) / (Incomings + Expenses)) / 100) >= 1 ? 1 : ((Incomings * 100) / (Incomings + Expenses)) / 100
+                      }
+                      width={width * 0.81}
+                      height={14}
+                      borderRadius={16}
+                      color={"#12a454"}
+                      unfilledColor={"#e83e5a"}
+                      borderWidth={0}
+                    />
                   </View>
-                </View>
+                  <View position="relative">
+                    <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                      Gastos por categoria
+                    </Text>
+                    <PieChart
+                      width={width * 0.81}
+                      height={width * 0.6}
+                      data={expensesByCatData}
+                      strokeWidth={16}
+                      radius={32}
+                      chartConfig={{
+                        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                      }}
+                      accessor={"population"}
+                      backgroundColor={"transparent"}
+                      paddingLeft={"15"}
+                    />
+                  </View>
+                </>
               )
             }
           </View>
@@ -339,7 +476,7 @@ export default function Reports() {
             <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Minhas metas</Text>
           </View>
           <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+            <Text style={{ marginBottom: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
               Adicione e atualize suas metas financeiras.
             </Text>
           </View>
@@ -355,9 +492,9 @@ export default function Reports() {
                   setSelectedTransaction(goal)
                   setOpenModalSeeTransaction(true)
                 }}
-                style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF', position: 'relative' }}
+                style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF', marginBottom: 8, position: 'relative' }}
               >
-                <View style={{ flexDirection: 'column', gap: 2, alignItems: 'flex-start', width: '100%' }}>
+                <View style={{ flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%' }}>
                   <View style={{
                     flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", gap: 4, width: '100%',
                   }}>
@@ -370,30 +507,39 @@ export default function Reports() {
                     </Text>
                   </View>
                   <View style={{
-                    flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 4,
+                    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%',
                   }}>
-                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      {goal.amount.toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                        useGrouping: true,
-                      })}{" /"}
-                    </Text>
-                    <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontWeight: 'bold', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                      {goal.currentAmount.toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                        useGrouping: true,
-                      })}
-                    </Text>
+                    <View style={{
+                      flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 4,
+                    }}>
+                      <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                        {goal.amount.toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                          useGrouping: true,
+                        })}{" /"}
+                      </Text>
+                      <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontWeight: 'bold', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                        {goal.currentAmount.toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                          useGrouping: true,
+                        })}
+                      </Text>
+                    </View>
+                    {differenceInCalendarDays(goal.date, Date.now()) <= 30 && (
+                      <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontWeight: 'bold', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                        Restam {differenceInCalendarDays(goal.date, Date.now())} dias
+                      </Text>
+                    )}
                   </View>
                   <Progress.Bar
                     progress={(((goal.currentAmount * 100) / goal.amount) / 100) >= 1 ? 1 : ((goal.currentAmount * 100) / goal.amount) / 100}
-                    width={width * 0.8}
+                    width={width * 0.81}
                     height={14}
                     borderRadius={16}
                     color={(((goal.currentAmount * 100) / goal.amount) / 100) >= 1 ? "#12a454" : "#9c44dc"}

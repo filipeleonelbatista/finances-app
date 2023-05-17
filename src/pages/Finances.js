@@ -133,7 +133,9 @@ export default function Finances() {
               <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Entradas</Text>
               <Feather name="arrow-up-circle" size={48} color="#12a454" />
             </View>
-            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{formatCurrency(Incomings)}</Text>
+            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{
+              formatCurrency(Incomings)
+            }</Text>
           </View>
 
           <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>

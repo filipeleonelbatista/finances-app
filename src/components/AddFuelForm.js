@@ -34,7 +34,7 @@ export default function AddFuelForm({ onClose }) {
             currentDistance: '',
             unityAmount: '',
             amount: '',
-            type: 'Gasolina Comum',
+            type: 'Gasolina comum',
             date: '',
             location: '',
         },
@@ -150,7 +150,7 @@ export default function AddFuelForm({ onClose }) {
             <View>
                 <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Tipo do combustivel</Text>
                 <Picker
-                    selectedValue={formik.values.type ?? 'Comun'}
+                    selectedValue={formik.values.type ?? 'Gasolina comum'}
                     onValueChange={(itemValue, itemIndex) =>
                         formik.setFieldValue("type", itemValue)
                     }
@@ -163,7 +163,7 @@ export default function AddFuelForm({ onClose }) {
                         borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
                     }}
                 >
-                    <Picker.Item label="Gasolina Comun" value="Gasolina comun" />
+                    <Picker.Item label="Gasolina comum" value="Gasolina comum" />
                     <Picker.Item label="Gasolina aditivada" value="Gasolina aditivada" />
                     <Picker.Item label="Etanol" value="Etanol" />
                     <Picker.Item label="Etanol aditivada" value="Etanol aditivada" />

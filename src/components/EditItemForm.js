@@ -50,7 +50,7 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
             date: selectedTransaction.date !== '' ? new Date(selectedTransaction.date).toLocaleDateString('pt-BR') : '',
             paymentDate: selectedTransaction.paymentDate !== '' ? new Date(selectedTransaction.paymentDate).toLocaleDateString('pt-BR') : '',
             paymentStatus: selectedTransaction.paymentStatus,
-            category: selectedTransaction.category,
+            category: selectedTransaction.category ?? 'Outros',
             isEnabled: selectedTransaction.isEnabled
         },
         validationSchema: formSchema,
@@ -69,7 +69,7 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
             date: formValues.date !== '' ? new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000 : '',
             paymentDate: formValues.paymentDate !== '' ? new Date(`${submittedPaymentDate[2]}-${submittedPaymentDate[1]}-${submittedPaymentDate[0]}`).getTime() + 43200000 : '',
             description: formValues.description,
-            category: formValues.category,
+            category: formValues.isEnabled ? formValues.category : 'Ganhos',
             paymentStatus: formValues.paymentStatus,
             isEnabled: formValues.isEnabled,
         }
