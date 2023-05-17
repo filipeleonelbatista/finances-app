@@ -83,48 +83,95 @@ export default function Reports() {
       {
         name: "Moradia",
         population: getSum("Moradia"),
-        color: "#5B1A89",
+        color: "#391056",
         legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
         legendFontSize: 14
       },
       {
-        name: "Mercado",
-        population: getSum("Mercado"),
+        name: "Vestuário",
+        population: getSum("Vestuário"),
+        color: "#4F1778",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "Streaming",
+        population: getSum("Streaming"),
+        color: "#661D9A",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "Estudos",
+        population: getSum("Estudos"),
         color: "#7D24BC",
         legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
         legendFontSize: 14
       },
       {
-        name: "TV/Internet/Telefone",
-        population: getSum("TV/Internet/Telefone"),
+        name: "Beleza",
+        population: getSum("Beleza"),
+        color: "#9231D8",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "Emergência",
+        population: getSum("Emergência"),
         color: "#9C44DC",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-        legendFontSize: 14
-      },
-      {
-        name: "Transporte",
-        population: getSum("Transporte"),
-        color: "#AA5DE0",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-        legendFontSize: 14
-      },
-      {
-        name: "Saúde",
-        population: getSum("Saúde"),
-        color: "#B878E5",
         legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
         legendFontSize: 14
       },
       {
         name: "Outros",
         population: getSum("Outros"),
-        color: "#CDA1ED",
+        color: "#AA5DE0",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "Mercado",
+        population: getSum("Mercado"),
+        color: "#B16BE3",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "TV/Internet/Telefone",
+        population: getSum("TV/Internet/Telefone"),
+        color: "#C693EA",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "Transporte",
+        population: getSum("Transporte"),
+        color: "#D4AEF0",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
+        name: "Saúde",
+        population: getSum("Saúde"),
+        color: "#DBBCF2",
         legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
         legendFontSize: 14
       },
     ]
 
-    return data;
+    const filteredData = data.filter(item => item.population > 0)
+
+    const sortedData = filteredData.sort((a, b) => {
+      if (a.population < b.population) {
+        return 1;
+      } else if (a.population > b.population) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
+    return sortedData;
 
   }, [filteredList])
 

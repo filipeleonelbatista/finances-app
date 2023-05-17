@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Dimensions, FlatList, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
-import { Feather, FontAwesome } from '@expo/vector-icons';
+import { Feather, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { Picker } from '@react-native-picker/picker';
 import dayjs from "dayjs";
@@ -72,12 +72,18 @@ export default function Finances() {
   const categoryItemLib = {
     'Outros': <Feather name="dollar-sign" size={28} color={"#e83e5a"} />,
     'Moradia': <Feather name="home" size={28} color={"#e83e5a"} />,
+    'Vestuário': <Ionicons name="shirt-outline" size={28} color={"#e83e5a"} />,
+    'Streaming': <Fontisto name="netflix" size={28} color={"#e83e5a"} />,
+    'Estudos': <Ionicons name="school-outline" size={28} color={"#e83e5a"} />,
+    'Beleza': <MaterialCommunityIcons name="lipstick" size={28} color={"#e83e5a"} />,
+    'Emergência': <MaterialCommunityIcons name="alarm-liight-outline" size={28} color={"#e83e5a"} />,
     'Mercado': <Feather name="shopping-cart" size={28} color={"#e83e5a"} />,
     'TV/Internet/Telefone': <Feather name="at-sign" size={28} color={"#e83e5a"} />,
     'Transporte': <FontAwesome name="car" size={28} color={"#e83e5a"} />,
     'Saúde': <FontAwesome name="medkit" size={28} color={"#e83e5a"} />,
     'Bares e Restaurantes': <Feather name="coffee" size={28} color={"#e83e5a"} />,
     'Ganhos': <Feather name="dollar-sign" size={28} color={"#12a454"} />,
+    'Investimentos': <FontAwesome name="line-chart" size={28} color={"#12a454"} />,
   }
 
   return (
@@ -447,7 +453,15 @@ export default function Finances() {
                     <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
 
                       {
-                        item.isEnabled ? categoryItemLib[item.category] : (
+                        item.isEnabled ? (
+                          item.category ? categoryItemLib[item.category] : (
+                            <Feather
+                              name={"arrow-down-circle"}
+                              size={28}
+                              color={"#e83e5a"}
+                            />
+                          )
+                        ) : (
                           <Feather
                             name={"arrow-up-circle"}
                             size={28}

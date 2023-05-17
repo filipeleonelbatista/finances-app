@@ -55,13 +55,19 @@ export function PaymentsContextProvider(props) {
 
   const categoriesList = [
     'Todos',
+    'Vestuário',
+    'Streaming',
+    'Estudos',
     'Moradia',
+    'Beleza',
+    'Emergência',
     'Mercado',
     'TV/Internet/Telefone',
     'Transporte',
     'Saúde',
     'Bares e Restaurantes',
     'Ganhos',
+    'Investimentos',
     'Outros',
   ]
 
