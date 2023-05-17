@@ -10,6 +10,7 @@ import Runs from "./pages/Runs";
 
 import { useTheme } from "./hooks/useTheme";
 import Reports from "./pages/Reports";
+import Onboarding from "./pages/Onboarding";
 
 const Stack = createStackNavigator();
 
@@ -20,11 +21,15 @@ export default function Routes() {
   return (
     <NavigationContainer theme={{ colors: { background: currentTheme === 'dark' ? '#1c1e21' : '#f0f2f5', } }}>
       <Stack.Navigator
-        initialRouteName={"Finanças"}
+        initialRouteName={"Onboarding"}
         screenOptions={{
           headerShown: false,
         }}
       >
+        <Stack.Screen
+          name="Onboarding"
+          component={Onboarding}
+        />
         <Stack.Screen
           name="Finanças"
           component={Finances}
