@@ -261,7 +261,6 @@ export default function Reports() {
                         <Feather name="arrow-down-circle" size={36} color={"#e83e5a"} />
                       </View>
                     </View>
-
                     <Progress.Bar
                       progress={
                         (((Incomings * 100) / (Incomings + Expenses)) / 100) >= 1 ? 1 : ((Incomings * 100) / (Incomings + Expenses)) / 100

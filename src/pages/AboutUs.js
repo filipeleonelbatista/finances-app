@@ -155,7 +155,7 @@ export default function AboutUs() {
             const newFinancesArray = []
             for (const item of fileContent.split("\r\n")) {
                 const currentItemArray = item.split(";")
-                if (currentItemArray.length === 6) {
+                if (currentItemArray.length === 7) {
                     const currentItemDate = currentItemArray[2] !== '' || currentItemArray[2] !== undefined ? currentItemArray[2].split("/") : ''
                     const currentItemPaymentDate = currentItemArray[3] !== '' || currentItemArray[3] !== undefined ? currentItemArray[3].split("/") : ''
                     const itemObject = {
@@ -918,7 +918,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Versão 1.2.5
+                        Versão 1.2.6
                     </Text>
                     <View style={{ height: 32 }} />
                 </ScrollView>

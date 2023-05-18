@@ -66,6 +66,7 @@ export function PaymentsContextProvider(props) {
     'Transporte',
     'Saúde',
     'Bares e Restaurantes',
+    'Cartão',
     'Ganhos',
     'Investimentos',
     'Outros',

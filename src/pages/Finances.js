@@ -81,6 +81,7 @@ export default function Finances() {
     'TV/Internet/Telefone': <Feather name="at-sign" size={28} color={"#e83e5a"} />,
     'Transporte': <FontAwesome name="car" size={28} color={"#e83e5a"} />,
     'Saúde': <FontAwesome name="medkit" size={28} color={"#e83e5a"} />,
+    'Cartão': <Feather name="credit-card" size={28} color={"#e83e5a"} />,
     'Bares e Restaurantes': <Feather name="coffee" size={28} color={"#e83e5a"} />,
     'Ganhos': <Feather name="dollar-sign" size={28} color={"#12a454"} />,
     'Investimentos': <FontAwesome name="line-chart" size={28} color={"#12a454"} />,
