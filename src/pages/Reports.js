@@ -274,25 +274,30 @@ export default function Reports() {
                       borderWidth={0}
                     />
                   </View>
-                  <View position="relative">
-                    <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                      Gastos por categoria
-                    </Text>
-                    <PieChart
-                      width={width * 0.81}
-                      height={width * 0.6}
-                      data={expensesByCatData}
-                      strokeWidth={16}
-                      radius={32}
-                      chartConfig={{
-                        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                      }}
-                      accessor={"population"}
-                      backgroundColor={"transparent"}
-                      paddingLeft={"15"}
-                    />
-                  </View>
                 </>
+              )
+            }
+
+            {
+              expensesByCatData.length > 0 && (
+                <View position="relative">
+                  <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                    Gastos por categoria
+                  </Text>
+                  <PieChart
+                    width={width * 0.81}
+                    height={width * 0.6}
+                    data={expensesByCatData}
+                    strokeWidth={16}
+                    radius={32}
+                    chartConfig={{
+                      color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                    }}
+                    accessor={"population"}
+                    backgroundColor={"transparent"}
+                    paddingLeft={"15"}
+                  />
+                </View>
               )
             }
           </View>
@@ -599,8 +604,8 @@ export default function Reports() {
           }
         </View>
         <View style={{ height: 80 }} />
-      </ScrollView>
-    </Menu>
+      </ScrollView >
+    </Menu >
   );
 }
 

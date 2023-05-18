@@ -76,7 +76,7 @@ export default function Finances() {
     'Streaming': <Fontisto name="netflix" size={28} color={"#e83e5a"} />,
     'Estudos': <Ionicons name="school-outline" size={28} color={"#e83e5a"} />,
     'Beleza': <MaterialCommunityIcons name="lipstick" size={28} color={"#e83e5a"} />,
-    'Emergência': <MaterialCommunityIcons name="alarm-liight-outline" size={28} color={"#e83e5a"} />,
+    'Emergência': <MaterialCommunityIcons name="alarm-light-outline" size={28} color={"#e83e5a"} />,
     'Mercado': <Feather name="shopping-cart" size={28} color={"#e83e5a"} />,
     'TV/Internet/Telefone': <Feather name="at-sign" size={28} color={"#e83e5a"} />,
     'Transporte': <FontAwesome name="car" size={28} color={"#e83e5a"} />,
