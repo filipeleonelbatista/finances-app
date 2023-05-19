@@ -115,7 +115,7 @@ export default function AboutUs() {
             item.isEnabled ? 'Despesa' : 'Ganho',
             formatDate(item.date),
             formatDate(item.paymentDate),
-            item.paymentStatus ? 'Pago' : 'Não Pago',
+            item.paymentStatus ? 'Pago' : 'Nao Pago',
             item.category,
             item.amount])
 
@@ -129,12 +129,11 @@ export default function AboutUs() {
         //     }
         // }
 
-
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet([
             // ['Minhas finanças'],
             // ['Identificador', 'Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Valor'],
-            ['Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Categoria', 'Valor'],
+            // ['Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Categoria', 'Valor'],
             ...dataCsv,
             // ['', '', '', 'Total:', `${TotalList}`],
             // ['', '', '', 'Dizimo:', `${Tithe}`],
@@ -153,8 +152,8 @@ export default function AboutUs() {
         const executeTheMission = async () => {
             let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
             const newFinancesArray = []
-            for (const item of fileContent.split("\r\n")) {
-                const currentItemArray = item.split(";")
+            for (const item of fileContent.split("\n")) {
+                const currentItemArray = item.split(",")
                 if (currentItemArray.length === 7) {
                     const currentItemDate = currentItemArray[2] !== '' || currentItemArray[2] !== undefined ? currentItemArray[2].split("/") : ''
                     const currentItemPaymentDate = currentItemArray[3] !== '' || currentItemArray[3] !== undefined ? currentItemArray[3].split("/") : ''
@@ -208,8 +207,8 @@ export default function AboutUs() {
         const importMarketInside = async () => {
             let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
             const newFinancesArray = []
-            for (const item of fileContent.split("\r\n")) {
-                const currentItemArray = item.split(";")
+            for (const item of fileContent.split("\n")) {
+                const currentItemArray = item.split(",")
                 if (currentItemArray.length === 4) {
                     const itemObject = {
                         id: v4(),
@@ -270,8 +269,8 @@ export default function AboutUs() {
         const importRunsInside = async () => {
             let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
             const newFinancesArray = []
-            for (const item of fileContent.split("\r\n")) {
-                const currentItemArray = item.split(";")
+            for (const item of fileContent.split("\n")) {
+                const currentItemArray = item.split(",")
                 if (currentItemArray.length === 5) {
                     const currentItemDate = currentItemArray[1] !== '' || currentItemArray[1] !== undefined ? currentItemArray[1].split("/") : ''
                     const itemObject = {
@@ -918,7 +917,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Versão 1.2.6
+                        Versão 1.2.7
                     </Text>
                     <View style={{ height: 32 }} />
                 </ScrollView>
