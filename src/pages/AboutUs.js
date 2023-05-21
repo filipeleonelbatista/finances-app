@@ -10,18 +10,20 @@ import XLSX from 'xlsx';
 
 import * as DocumentPicker from 'expo-document-picker';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { PermissionsAndroid } from 'react-native';
 import { v4 } from 'uuid';
 import userImg from '../assets/icon.png';
 import bgImg from '../assets/images/background.png';
 import Menu from '../components/Menu';
+import { useMarket } from '../hooks/useMarket';
 import { usePayments } from '../hooks/usePayments';
+import { useRuns } from '../hooks/useRuns';
 import { useSettings } from '../hooks/useSettings';
 import { useTheme } from '../hooks/useTheme';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRuns } from '../hooks/useRuns';
-import { useMarket } from '../hooks/useMarket';
+import api from '../services/api';
 
 export default function AboutUs() {
     const navigation = useNavigation();
@@ -151,6 +153,7 @@ export default function AboutUs() {
     const fileReaded = useMemo(async () => {
         const executeTheMission = async () => {
             let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
+            console.log('Olha isso', fileContent)
             const newFinancesArray = []
             for (const item of fileContent.split("\n")) {
                 const currentItemArray = item.split(",")
@@ -492,51 +495,6 @@ export default function AboutUs() {
         }
     }
 
-
-    async function handleSaveFile() {
-        try {
-            const appDirectoryUrl = FileSystem.documentDirectory + 'documentos-app-financas';
-
-            const { exists } = await FileSystem.getInfoAsync(appDirectoryUrl);
-            console.log("Existe?", exists, appDirectoryUrl);
-
-            if (!exists) {
-                const result = await FileSystem.makeDirectoryAsync(appDirectoryUrl);
-                console.log("Criar pasta", result, appDirectoryUrl);
-            }
-
-            const csvStream = await exportDataToExcel();
-
-            const fileName = `/export-financas-${Date.now()}.xlsx`;
-
-            await FileSystem.writeAsStringAsync(appDirectoryUrl + fileName, csvStream, { encoding: FileSystem.EncodingType.Base64 });
-            const fileCreated = await FileSystem.getInfoAsync(appDirectoryUrl + fileName);
-
-            console.log("Criar arquivo", fileCreated);
-
-            const result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: false });
-
-            console.log("Pasta selecionada para salvar", result)
-
-            if (result.type === 'success') {
-                const fileUri = result.uri;
-
-                await FileSystem.copyAsync({
-                    from: appDirectoryUrl + fileName,
-                    to: fileUri
-                });
-
-                ToastAndroid.show('Arquivo criado com sucesso!', ToastAndroid.SHORT);
-            } else {
-                ToastAndroid.show('Arquivo não foi criado', ToastAndroid.SHORT);
-            }
-
-        } catch (error) {
-            ToastAndroid.show('Erro na geração do arquivo', ToastAndroid.SHORT);
-            console.error(error);
-        }
-    }
-
     async function handleClearMarket() {
         Alert.alert(
             "Deseja realmente deletar esses registros?",
@@ -639,6 +597,104 @@ export default function AboutUs() {
                     },
                 },
             ])
+    }
+
+
+    const checkPermissions = async () => {
+        try {
+            const result = await MediaLibrary.getPermissionsAsync()
+
+            if (!result) {
+                console.log("Vamo lá")
+                const granted = await MediaLibrary.requestPermissionsAsync();
+
+                console.log("checkPermissions", granted)
+
+                if (granted === MediaLibrary.PermissionStatus.GRANTED) {
+                    console.log('Você pode usar a camera');
+                    return true;
+                } else {
+                    Alert.alert('Error', "As permissões não foram concedidas");
+
+                    console.log('Camera permission denied');
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        } catch (err) {
+            console.warn(err);
+            return false;
+        }
+    };
+
+    async function handleApiGenerateCSV() {
+        try {
+            const response = await api.post('/financas', { financas: transactionsList })
+
+            if (response.data.url_file) {
+                Linking.openURL(response.data.url_file)
+
+                ToastAndroid.show('Finanças exportadas com sucesso!', ToastAndroid.SHORT);
+            } else {
+                ToastAndroid.show('Houve um problema ao exportar as finanças!', ToastAndroid.SHORT);
+            }
+        } catch (error) {
+            console.log(error)
+            ToastAndroid.show('Houve um problema ao exportar as finanças!', ToastAndroid.SHORT);
+        }
+    }
+
+    async function handleApiUploadCSV() {
+        try {
+            const result = await checkPermissions();
+            if (result) {
+                const result = await DocumentPicker.getDocumentAsync({
+                    copyToCacheDirectory: false,
+                    type: 'text/*',
+                });
+
+                if (result.type === 'success') {
+                    const data = new FormData();
+
+                    data.append('file', {
+                        uri: result.uri,
+                        name: result.name,
+                        type: result.mimeType,
+                    });
+
+                    const response = await api.post('/convert', data, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
+
+                    if (response.data.financas) {
+                        console.log("Vamo lá")
+                        const importedTransactions = response.data.financas.map(item => ({
+                            id: v4(),
+                            amount: Number(item.amount),
+                            date: item.date !== '' ? Number(item.date) : '',
+                            paymentDate: item.paymentDate !== '' ? Number(item.paymentDate) : '',
+                            description: item.description,
+                            category: item.category,
+                            paymentStatus: JSON.parse(item.paymentStatus),
+                            isEnabled: JSON.parse(item.isEnabled),
+                            isFavorited: JSON.parse(item.isFavorited),
+                        }))
+                        console.log("Vamo lá 2", importedTransactions)
+
+                        await importTransactions(importedTransactions);
+                    } else {
+                        ToastAndroid.show('Houve um problema ao exportar as finanças!', ToastAndroid.SHORT);
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.log(error)
+            ToastAndroid.show('Houve um problema ao importar as finanças!', ToastAndroid.SHORT);
+        }
     }
 
     useFocusEffect(() => {
@@ -760,6 +816,24 @@ export default function AboutUs() {
                         <Text style={{ ...styles.helperText, color: currentTheme === 'dark' ? "#CCC" : "#666" }}>Se o título da transação tiver este prefixo não será contado na soma do dízimo</Text>
                     </View>
 
+                    <RectButton onPress={handleApiGenerateCSV} style={styles.button}>
+                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Exportar finanças
+                        </Text>
+                    </RectButton>
+                    <RectButton onPress={handleApiUploadCSV} style={styles.button}>
+                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
+                        <Text style={styles.buttonText} >
+                            Importar finanças
+                        </Text>
+                    </RectButton>
+
+                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
+                        para importar dados com as colunas Descrição, Despesa/Ganho, Data de vencimento, Data de pagamento, Pago/Não Pago, Categoria e Valor.
+                    </Text>
+                    {/* 
                     <RectButton onPress={handleOpenCSV} style={styles.button}>
                         <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
@@ -771,12 +845,13 @@ export default function AboutUs() {
                         <Text style={styles.buttonText} >
                             Importar finanças
                         </Text>
-                    </RectButton>
+                    </RectButton> 
 
                     <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
                         Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
                         para importar dados com as colunas Descrição, Despesa/Ganho, Data de vencimento, Data de pagamento, Pago/Não Pago, Categoria e Valor.
                     </Text>
+                    */}
                     <RectButton onPress={handleClearFinances} style={styles.button}>
                         <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
@@ -811,7 +886,7 @@ export default function AboutUs() {
                         </Text>
                     </RectButton>
 
-                    <RectButton onPress={handleExportRuns} style={styles.button}>
+                    {/* <RectButton onPress={handleExportRuns} style={styles.button}>
                         <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
                             Exportar Abastecimentos
@@ -827,7 +902,7 @@ export default function AboutUs() {
                     <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
                         Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
                         para importar dados com as colunas Local do abastecimento, Data do abasatecimento, Tipo, Valor Litro, Valor pago, Km Atual.
-                    </Text>
+                    </Text> */}
                     <View style={{ width: '100%', alignItems: 'center' }}>
                         <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
                     </View>
@@ -853,7 +928,7 @@ export default function AboutUs() {
                         Para remover basta clicar no item em Finanças e excluir.
                     </Text>
 
-                    <RectButton onPress={handleExportMarket} style={styles.button}>
+                    {/* <RectButton onPress={handleExportMarket} style={styles.button}>
                         <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
                             Exportar compras
@@ -869,7 +944,7 @@ export default function AboutUs() {
                     <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
                         Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
                         para importar dados com as colunas Produto, Categoria, Quantidade, Valor.
-                    </Text>
+                    </Text> */}
                     <View style={{ width: '100%', alignItems: 'center' }}>
                         <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
                     </View>
@@ -917,7 +992,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Versão 1.2.7
+                        Versão 1.2.9
                     </Text>
                     <View style={{ height: 32 }} />
                 </ScrollView>

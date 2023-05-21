@@ -81,6 +81,13 @@ export default function Reports() {
 
     const data = [
       {
+        name: "Cartão",
+        population: getSum("Cartão"),
+        color: "#2D0D45",
+        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontSize: 14
+      },
+      {
         name: "Moradia",
         population: getSum("Moradia"),
         color: "#391056",
