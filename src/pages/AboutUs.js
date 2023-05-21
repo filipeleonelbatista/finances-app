@@ -669,18 +669,24 @@ export default function AboutUs() {
                     });
 
                     if (response.data.financas) {
-                        const importedTransactions = response.data.financas.map(item => ({
-                            id: v4(),
-                            amount: Number(item.amount),
-                            date: item.date !== '' ? Number(item.date) : '',
-                            paymentDate: item.paymentDate !== '' ? Number(item.paymentDate) : '',
-                            description: item.description,
-                            category: item.category,
-                            paymentStatus: JSON.parse(item.paymentStatus),
-                            isEnabled: JSON.parse(item.isEnabled),
-                            isFavorited: JSON.parse(item.isFavorited),
-                        }))
+                        const importedTransactions = response.data.financas.map(item => {
+                            const splittedDate = item.date !== '' ? item.date.split("/") : '';
+                            const splittedPaymentDate = item.paymentDate !== '' ? item.paymentDate.split("/") : '';
 
+                            const row = {
+                                id: v4(),
+                                amount: Number(item.amount),
+                                date: item.date !== '' ? new Date(`${splittedDate[2]}-${splittedDate[1]}-${splittedDate[0]}`).getTime() : '',
+                                paymentDate: item.paymentDate !== '' ? new Date(`${splittedPaymentDate[2]}-${splittedPaymentDate[1]}-${splittedPaymentDate[0]}`).getTime() : '',
+                                description: item.description,
+                                category: item.category,
+                                paymentStatus: item.paymentStatus === "Pago",
+                                isEnabled: item.isEnabled === "Despesa",
+                                isFavorited: item.isFavorited === "true",
+                            }
+
+                            return row
+                        })
                         await importTransactions(importedTransactions);
                     } else {
                         ToastAndroid.show('Houve um problema ao exportar as finanças!', ToastAndroid.SHORT);
