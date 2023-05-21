@@ -599,7 +599,6 @@ export default function AboutUs() {
             ])
     }
 
-
     const checkPermissions = async () => {
         try {
             const result = await MediaLibrary.getPermissionsAsync()
@@ -670,7 +669,6 @@ export default function AboutUs() {
                     });
 
                     if (response.data.financas) {
-                        console.log("Vamo lá")
                         const importedTransactions = response.data.financas.map(item => ({
                             id: v4(),
                             amount: Number(item.amount),
@@ -682,7 +680,6 @@ export default function AboutUs() {
                             isEnabled: JSON.parse(item.isEnabled),
                             isFavorited: JSON.parse(item.isFavorited),
                         }))
-                        console.log("Vamo lá 2", importedTransactions)
 
                         await importTransactions(importedTransactions);
                     } else {
