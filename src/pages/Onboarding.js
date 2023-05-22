@@ -1,9 +1,10 @@
 import { Feather } from '@expo/vector-icons';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, View, useWindowDimensions } from "react-native";
-import { FlatList, RectButton } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import * as FileSystem from 'expo-file-system';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Image, StyleSheet, Text, ToastAndroid, View, useWindowDimensions } from "react-native";
+import { FlatList, RectButton } from "react-native-gesture-handler";
 import logo from '../assets/icon.png';
 
 export default function Onboarding() {
@@ -43,6 +44,25 @@ export default function Onboarding() {
       show: true,
     },
   ]
+
+  async function preleavingOnboarding() {
+    Alert.alert(
+      "Antes de começar...",
+      `Precisamos definir um local onde vamos salvar as tabelas onde você pode acessar e compartilhar com seus amigos e familiares. confirme a solicitação a seguir e crie uma pasta para salvar se for necessário.`,
+      [
+        {
+          text: 'Ok',
+          onPress: async () => {
+            const requestedDirPerm = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
+            console.log("requestedDirPerm", requestedDirPerm.directoryUri)
+            await AsyncStorage.setItem('@selectedFolderToSave', requestedDirPerm.directoryUri);
+            ToastAndroid.show('Pasta selecionada!', ToastAndroid.SHORT);
+            await handleLeaveOnboarding();
+          },
+        },
+      ]
+    )
+  }
 
   async function handleLeaveOnboarding() {
     try {
@@ -145,7 +165,7 @@ export default function Onboarding() {
 
           {
             item.show && (
-              <RectButton onPress={handleLeaveOnboarding} style={styles.button}>
+              <RectButton onPress={preleavingOnboarding} style={styles.button}>
                 <Text style={styles.buttonText} >
                   Vamos comecar?!
                 </Text>

@@ -1,19 +1,17 @@
 import { Feather } from '@expo/vector-icons';
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { Alert, BackHandler, Dimensions, Image, ImageBackground, KeyboardAvoidingView, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
-import * as Sharing from 'expo-sharing';
-import XLSX from 'xlsx';
 
 import * as DocumentPicker from 'expo-document-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { PermissionsAndroid } from 'react-native';
+import { jsonToCSV, readString } from 'react-native-csv';
 import { v4 } from 'uuid';
 import userImg from '../assets/icon.png';
 import bgImg from '../assets/images/background.png';
@@ -23,7 +21,6 @@ import { usePayments } from '../hooks/usePayments';
 import { useRuns } from '../hooks/useRuns';
 import { useSettings } from '../hooks/useSettings';
 import { useTheme } from '../hooks/useTheme';
-import api from '../services/api';
 
 export default function AboutUs() {
     const navigation = useNavigation();
@@ -63,437 +60,6 @@ export default function AboutUs() {
         currentTheme,
         handleToggleTheme
     } = useTheme();
-
-    function formatDate(value) {
-        return new Date(value).toLocaleDateString('pt-BR')
-    }
-
-    async function exportMarket() {
-        const dataCsv = MarketList.map(item =>
-            [
-                item.description,
-                item.category,
-                item.quantity,
-                item.amount,
-            ])
-
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet([
-            ['Produto', 'Categoria.', 'Qtd.', 'Valor'],
-            ...dataCsv,
-        ]);
-        XLSX.utils.book_append_sheet(wb, ws, "Compras");
-        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'csv' })
-
-        return wbout;
-    }
-
-    async function exportRuns() {
-        const dataCsv = FuelList.map(item =>
-            [
-                item.location,
-                item.date,
-                item.type,
-                item.unityAmount,
-                item.amount,
-                item.currentDistance,
-            ])
-
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet([
-            ['Local', 'Data abast.', 'Tipo', 'Valor Litro', 'Valor pago', 'Km Atual'],
-            ...dataCsv,
-        ]);
-        XLSX.utils.book_append_sheet(wb, ws, "Corridas");
-        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'csv' })
-
-        return wbout;
-    }
-
-    async function exportDataToExcel() {
-        // const dataCsv = transactionsList.map(item => [item.id, item.description, item.isEnabled ? 'Despesa' : 'Ganho', formatDate(item.date), formatDate(item.paymentDate), item.paymentStatus ? 'Pago' : 'Não Pago', `${item.isEnabled ? '-' : ''}${item.amount}`])
-        const dataCsv = transactionsList.map(item => [
-            item.description,
-            item.isEnabled ? 'Despesa' : 'Ganho',
-            formatDate(item.date),
-            formatDate(item.paymentDate),
-            item.paymentStatus ? 'Pago' : 'Nao Pago',
-            item.category,
-            item.amount])
-
-        // let TotalList = 0.0;
-
-        // for (const item of transactionsList) {
-        //     if (item.isEnabled) {
-        //         TotalList = TotalList - item.amount
-        //     } else {
-        //         TotalList = TotalList + item.amount
-        //     }
-        // }
-
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet([
-            // ['Minhas finanças'],
-            // ['Identificador', 'Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Valor'],
-            // ['Descrição', 'Tipo', 'Data Venc', 'Data Pgto', 'Status Pgto', 'Categoria', 'Valor'],
-            ...dataCsv,
-            // ['', '', '', 'Total:', `${TotalList}`],
-            // ['', '', '', 'Dizimo:', `${Tithe}`],
-        ]);
-        XLSX.utils.book_append_sheet(wb, ws, "Financas");
-        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'csv' })
-
-        return wbout;
-    }
-
-    const [documentObject, setDocumentObject] = useState();
-    const [documentObjectRuns, setDocumentObjectRuns] = useState();
-    const [documentObjectMarket, setDocumentObjectMarket] = useState();
-
-    const fileReaded = useMemo(async () => {
-        const executeTheMission = async () => {
-            let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
-            console.log('Olha isso', fileContent)
-            const newFinancesArray = []
-            for (const item of fileContent.split("\n")) {
-                const currentItemArray = item.split(",")
-                if (currentItemArray.length === 7) {
-                    const currentItemDate = currentItemArray[2] !== '' || currentItemArray[2] !== undefined ? currentItemArray[2].split("/") : ''
-                    const currentItemPaymentDate = currentItemArray[3] !== '' || currentItemArray[3] !== undefined ? currentItemArray[3].split("/") : ''
-                    const itemObject = {
-                        id: v4(),
-                        description: currentItemArray[0],
-                        isEnabled: currentItemArray[1] === 'Despesa',
-                        date: currentItemArray[2] !== '' ? new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000 : '',
-                        paymentDate: currentItemArray[3] !== '' ? new Date(`${currentItemPaymentDate[2]}-${currentItemPaymentDate[1]}-${currentItemPaymentDate[0]}`).getTime() + 43200000 : '',
-                        paymentStatus: currentItemArray[4] === 'Pago',
-                        category: currentItemArray[5],
-                        amount: parseFloat(currentItemArray[6].replace("-", "")),
-                        isFavorited: false
-                    }
-                    newFinancesArray.push(itemObject)
-                }
-            }
-            await importTransactions(newFinancesArray);
-        }
-
-        if (documentObject) {
-            if (documentObject.type === 'success') {
-                try {
-
-                    let perm = await MediaLibrary.getPermissionsAsync();
-
-                    if (perm.status != 'granted') {
-                        let currentPerm = await MediaLibrary.requestPermissionsAsync();
-                        if ('granted' === currentPerm.status) {
-                            executeTheMission()
-                        } else {
-                            ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
-                        }
-                    } else {
-                        executeTheMission()
-                    }
-
-                } catch (error) {
-
-                    ToastAndroid.show('Importação não foi realizada', ToastAndroid.SHORT);
-                    console.log(error)
-                }
-            }
-        } else {
-            return null
-        }
-
-    }, [documentObject])
-
-    const fileReadedMarket = useMemo(async () => {
-        const importMarketInside = async () => {
-            let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
-            const newFinancesArray = []
-            for (const item of fileContent.split("\n")) {
-                const currentItemArray = item.split(",")
-                if (currentItemArray.length === 4) {
-                    const itemObject = {
-                        id: v4(),
-                        description: currentItemArray[0],
-                        category: currentItemArray[1],
-                        quantity: parseInt(currentItemArray[2]),
-                        amount: parseFloat(currentItemArray[3].replace("-", "")),
-                    }
-                    newFinancesArray.push(itemObject)
-                }
-            }
-            await importMarket(newFinancesArray);
-        }
-
-        if (documentObject) {
-            if (documentObject.type === 'success') {
-                try {
-
-                    let perm = await MediaLibrary.getPermissionsAsync();
-
-                    if (perm.status != 'granted') {
-                        let currentPerm = await MediaLibrary.requestPermissionsAsync();
-                        if ('granted' === currentPerm.status) {
-                            importMarketInside()
-                        } else {
-                            ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
-                        }
-                    } else {
-                        importMarketInside()
-                    }
-
-                } catch (error) {
-
-                    ToastAndroid.show('Importação não foi realizada', ToastAndroid.SHORT);
-                    console.log(error)
-                }
-            }
-        } else {
-            return null
-        }
-
-    }, [documentObjectMarket])
-
-    async function handleImportMarket() {
-        try {
-            let result = await DocumentPicker.getDocumentAsync({
-                type: 'text/comma-separated-values',
-                copyToCacheDirectory: false,
-                multiple: false,
-            });
-            setDocumentObjectMarket(result)
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    const fileReadedRuns = useMemo(async () => {
-        const importRunsInside = async () => {
-            let fileContent = await FileSystem.readAsStringAsync(documentObject.uri, { encoding: 'utf8' });
-            const newFinancesArray = []
-            for (const item of fileContent.split("\n")) {
-                const currentItemArray = item.split(",")
-                if (currentItemArray.length === 5) {
-                    const currentItemDate = currentItemArray[1] !== '' || currentItemArray[1] !== undefined ? currentItemArray[1].split("/") : ''
-                    const itemObject = {
-                        id: v4(),
-                        location: currentItemArray[0],
-                        date: currentItemArray[1] !== '' ? new Date(`${currentItemDate[2]}-${currentItemDate[1]}-${currentItemDate[0]}`).getTime() + 43200000 : '',
-                        type: currentItemArray[2],
-                        unityAmount: parseFloat(currentItemArray[3].replace("-", "")),
-                        amount: parseFloat(currentItemArray[4].replace("-", "")),
-                    }
-                    newFinancesArray.push(itemObject)
-                }
-            }
-            await importRuns(newFinancesArray);
-        }
-
-        if (documentObject) {
-            if (documentObject.type === 'success') {
-                try {
-
-                    let perm = await MediaLibrary.getPermissionsAsync();
-
-                    if (perm.status != 'granted') {
-                        let currentPerm = await MediaLibrary.requestPermissionsAsync();
-                        if ('granted' === currentPerm.status) {
-                            importRunsInside()
-                        } else {
-                            ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
-                        }
-                    } else {
-                        importRunsInside()
-                    }
-
-                } catch (error) {
-
-                    ToastAndroid.show('Importação não foi realizada', ToastAndroid.SHORT);
-                    console.log(error)
-                }
-            }
-        } else {
-            return null
-        }
-
-    }, [documentObjectRuns])
-
-    async function handleImportRuns() {
-        try {
-            let result = await DocumentPicker.getDocumentAsync({
-                type: 'text/comma-separated-values',
-                copyToCacheDirectory: false,
-                multiple: false,
-            });
-            setDocumentObjectRuns(result)
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    async function handleImportFile() {
-        try {
-            let result = await DocumentPicker.getDocumentAsync({
-                type: 'text/comma-separated-values',
-                copyToCacheDirectory: false,
-                multiple: false,
-            });
-            setDocumentObject(result)
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    async function handleExportMarket() {
-        try {
-
-            let perm = await MediaLibrary.getPermissionsAsync();
-            if (perm.status != 'granted') {
-                let currentPerm = await MediaLibrary.requestPermissionsAsync();
-                if ('granted' === currentPerm.status) {
-                    const result = await exportMarket()
-
-                    let fileUri = FileSystem.documentDirectory + "compras" + Date.now() + ".csv";
-
-                    try {
-                        FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
-                            .then(() => {
-                                ToastAndroid.show('Lista de compras exportada com sucesso', ToastAndroid.SHORT);
-                                Sharing.shareAsync(fileUri)
-                            })
-
-
-                    } catch (error) {
-                        console.log(error)
-                    }
-                } else {
-                    ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
-                }
-            }
-            else {
-                const result = await exportMarket()
-                let fileUri = FileSystem.documentDirectory + "compras" + Date.now() + ".csv";
-
-                try {
-                    FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
-                        .then(() => {
-                            ToastAndroid.show('Lista de compras exportada com sucesso', ToastAndroid.SHORT);
-                            Sharing.shareAsync(fileUri)
-                        })
-
-
-                } catch (error) {
-                    console.log(error)
-                }
-            }
-        } catch (error) {
-            ToastAndroid.show('Houve um problema', ToastAndroid.SHORT);
-            console.log("Error while check permissions")
-            console.log(error)
-            return
-        }
-    }
-
-    async function handleExportRuns() {
-        try {
-
-            let perm = await MediaLibrary.getPermissionsAsync();
-            if (perm.status != 'granted') {
-                let currentPerm = await MediaLibrary.requestPermissionsAsync();
-                if ('granted' === currentPerm.status) {
-                    const result = await exportRuns()
-
-                    let fileUri = FileSystem.documentDirectory + "corridas" + Date.now() + ".csv";
-
-                    try {
-                        FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
-                            .then(() => {
-                                ToastAndroid.show('Abastecimentos exportados com sucesso', ToastAndroid.SHORT);
-                                Sharing.shareAsync(fileUri)
-                            })
-
-
-                    } catch (error) {
-                        console.log(error)
-                    }
-                } else {
-                    ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
-                }
-            }
-            else {
-                const result = await exportRuns()
-                let fileUri = FileSystem.documentDirectory + "corridas" + Date.now() + ".csv";
-
-                try {
-                    FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
-                        .then(() => {
-                            ToastAndroid.show('Abastecimentos exportados com sucesso', ToastAndroid.SHORT);
-                            Sharing.shareAsync(fileUri)
-                        })
-
-
-                } catch (error) {
-                    console.log(error)
-                }
-            }
-        } catch (error) {
-            ToastAndroid.show('Houve um problema', ToastAndroid.SHORT);
-            console.log("Error while check permissions")
-            console.log(error)
-            return
-        }
-    }
-
-    async function handleOpenCSV() {
-        try {
-
-            let perm = await MediaLibrary.getPermissionsAsync();
-            if (perm.status != 'granted') {
-                let currentPerm = await MediaLibrary.requestPermissionsAsync();
-                if ('granted' === currentPerm.status) {
-                    const result = await exportDataToExcel()
-
-                    let fileUri = FileSystem.documentDirectory + "financas" + Date.now() + ".csv";
-
-                    try {
-                        FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
-                            .then(() => {
-                                ToastAndroid.show('Exportado com sucesso', ToastAndroid.SHORT);
-                                Sharing.shareAsync(fileUri)
-                            })
-
-
-                    } catch (error) {
-                        console.log(error)
-                    }
-                } else {
-                    ToastAndroid.show('Permissão Negada', ToastAndroid.SHORT);
-                }
-            }
-            else {
-                const result = await exportDataToExcel()
-                let fileUri = FileSystem.documentDirectory + "financas" + Date.now() + ".csv";
-
-                try {
-                    FileSystem.writeAsStringAsync(fileUri, result, { encoding: FileSystem.EncodingType.Base64 })
-                        .then(() => {
-                            ToastAndroid.show('Exportado com sucesso', ToastAndroid.SHORT);
-                            Sharing.shareAsync(fileUri)
-                        })
-
-
-                } catch (error) {
-                    console.log(error)
-                }
-            }
-        } catch (error) {
-            ToastAndroid.show('Houve um problema', ToastAndroid.SHORT);
-            console.log("Error while check permissions")
-            console.log(error)
-            return
-        }
-    }
 
     async function handleClearMarket() {
         Alert.alert(
@@ -627,24 +193,48 @@ export default function AboutUs() {
         }
     };
 
-    async function handleApiGenerateCSV() {
+    async function handleGenerateCSV() {
         try {
-            const response = await api.post('/financas', { financas: transactionsList })
+            const CSV = jsonToCSV(transactionsList)
+            const directoryUri = await AsyncStorage.getItem('@selectedFolderToSave');
+            const fileName = `financas-${Date.now()}.csv`;
+            const result = await checkPermissions();
+            if (result) {
+                const createdFile = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, fileName, 'text/*')
+                const writedFile = await FileSystem.StorageAccessFramework.writeAsStringAsync(createdFile, CSV, { encoding: 'utf8' })
+                console.log("writedFile", writedFile)
 
-            if (response.data.url_file) {
-                Linking.openURL(response.data.url_file)
+                ToastAndroid.show('Finanças exportadas com sucesso para a pasta selecionada', ToastAndroid.SHORT);
 
-                ToastAndroid.show('Finanças exportadas com sucesso!', ToastAndroid.SHORT);
             } else {
                 ToastAndroid.show('Houve um problema ao exportar as finanças!', ToastAndroid.SHORT);
             }
+
         } catch (error) {
             console.log(error)
             ToastAndroid.show('Houve um problema ao exportar as finanças!', ToastAndroid.SHORT);
         }
     }
 
-    async function handleApiUploadCSV() {
+    async function handleCSVtoArrayFormat(data) {
+        const [headers, ...rows] = data;
+        let newArray = []
+
+        for (const row of rows) {
+            let i = 0;
+            let newRowObject = {}
+            for (const header of headers) {
+                newRowObject[header] = row[i];
+                i = i + 1;
+            }
+            newArray.push(newRowObject)
+        }
+        newArray.pop()
+
+        return newArray;
+    }
+
+    async function handleImportCSV() {
         try {
             const result = await checkPermissions();
             if (result) {
@@ -654,34 +244,21 @@ export default function AboutUs() {
                 });
 
                 if (result.type === 'success') {
-                    const data = new FormData();
-
-                    data.append('file', {
-                        uri: result.uri,
-                        name: result.name,
-                        type: result.mimeType,
-                    });
-
-                    const response = await api.post('/convert', data, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                        },
-                    });
-
-                    if (response.data.financas) {
-                        const importedTransactions = response.data.financas.map(item => {
-                            const splittedDate = item.date !== '' ? item.date.split("/") : '';
-                            const splittedPaymentDate = item.paymentDate !== '' ? item.paymentDate.split("/") : '';
+                    let fileContent = await FileSystem.readAsStringAsync(result.uri, { encoding: 'utf8' });
+                    const dataFromCSV = readString(fileContent)
+                    const csvFormated = await handleCSVtoArrayFormat(dataFromCSV.data)
+                    if (csvFormated) {
+                        const importedTransactions = csvFormated.map(item => {
 
                             const row = {
                                 id: v4(),
                                 amount: Number(item.amount),
-                                date: item.date !== '' ? new Date(`${splittedDate[2]}-${splittedDate[1]}-${splittedDate[0]}`).getTime() : '',
-                                paymentDate: item.paymentDate !== '' ? new Date(`${splittedPaymentDate[2]}-${splittedPaymentDate[1]}-${splittedPaymentDate[0]}`).getTime() : '',
+                                date: item.date !== '' ? Number(item.date) : '',
+                                paymentDate: item.paymentDate !== '' ? Number(item.date) : '',
                                 description: item.description,
                                 category: item.category,
-                                paymentStatus: item.paymentStatus === "Pago",
-                                isEnabled: item.isEnabled === "Despesa",
+                                paymentStatus: item.paymentStatus === "true",
+                                isEnabled: item.isEnabled === "true",
                                 isFavorited: item.isFavorited === "true",
                             }
 
@@ -819,13 +396,13 @@ export default function AboutUs() {
                         <Text style={{ ...styles.helperText, color: currentTheme === 'dark' ? "#CCC" : "#666" }}>Se o título da transação tiver este prefixo não será contado na soma do dízimo</Text>
                     </View>
 
-                    <RectButton onPress={handleApiGenerateCSV} style={styles.button}>
+                    <RectButton onPress={handleGenerateCSV} style={styles.button}>
                         <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
                             Exportar finanças
                         </Text>
                     </RectButton>
-                    <RectButton onPress={handleApiUploadCSV} style={styles.button}>
+                    <RectButton onPress={handleImportCSV} style={styles.button}>
                         <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
                             Importar finanças
@@ -834,27 +411,9 @@ export default function AboutUs() {
 
                     <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
                         Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
-                        para importar dados com as colunas Descrição, Despesa/Ganho, Data de vencimento, Data de pagamento, Pago/Não Pago, Categoria e Valor.
+                        gerado pelo sistema para importar os dados de um amigo ou familiar.
                     </Text>
-                    {/* 
-                    <RectButton onPress={handleOpenCSV} style={styles.button}>
-                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Exportar finanças
-                        </Text>
-                    </RectButton>
-                    <RectButton onPress={handleImportFile} style={styles.button}>
-                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Importar finanças
-                        </Text>
-                    </RectButton> 
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
-                        para importar dados com as colunas Descrição, Despesa/Ganho, Data de vencimento, Data de pagamento, Pago/Não Pago, Categoria e Valor.
-                    </Text>
-                    */}
                     <RectButton onPress={handleClearFinances} style={styles.button}>
                         <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
                         <Text style={styles.buttonText} >
@@ -956,14 +515,6 @@ export default function AboutUs() {
                             Geral
                         </Text>
                     </View>
-                    {/* 
-                    <RectButton onPress={handleSaveFile} style={styles.button}>
-                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Teste
-                        </Text>
-                    </RectButton> 
-                    */}
 
                     <RectButton onPress={handleResetSettings} style={styles.button}>
                         <Feather name="settings" size={24} style={{ marginRight: 6 }} color="#FFF" />
@@ -995,7 +546,7 @@ export default function AboutUs() {
                     </RectButton>
 
                     <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Versão 1.2.9
+                        Versão 1.3.0
                     </Text>
                     <View style={{ height: 32 }} />
                 </ScrollView>
