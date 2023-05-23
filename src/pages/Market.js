@@ -18,6 +18,7 @@ import Modal from '../components/Modal';
 import { useMarket } from '../hooks/useMarket';
 import { useTheme } from '../hooks/useTheme';
 import EmptyMessage from '../components/EmptyMessage';
+import { useSettings } from '../hooks/useSettings';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -26,6 +27,8 @@ export default function Market() {
   const {
     currentTheme
   } = useTheme();
+
+  const { marketSimplifiedItems } = useSettings();
 
   const {
     handleAddFinances,
@@ -190,27 +193,74 @@ export default function Market() {
                             flexDirection: 'column', alignItems: 'flex-start', width: '90%',
                           }}>
                             <Text style={{ ...styles.cardTextListItem, lineHeight: 22, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.description}</Text>
-                            <Text style={{ ...styles.cardTextListItem, lineHeight: 14, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                              {item.category}
+                            <Text style={{ ...styles.cardTextListItem, lineHeight: 16, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                              Cat.: {item.category}
                             </Text>
                             <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
-                              <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                                {
-                                  item.amount.toLocaleString('pt-BR', {
-                                    style: 'currency',
-                                    currency: 'BRL',
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                    useGrouping: true,
-                                  })}
-                              </Text>
-                              <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                                Qtd.
-                              </Text>
-                              <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantity}</Text>
-
 
                             </View>
+                            {
+                              marketSimplifiedItems ? (
+                                <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
+                                  <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                                    Val. uni.:{
+                                      item.amount.toLocaleString('pt-BR', {
+                                        style: 'currency',
+                                        currency: 'BRL',
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                        useGrouping: true,
+                                      })}
+                                  </Text>
+                                  <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                                    Qtd.
+                                  </Text>
+                                  <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantity}</Text>
+                                </View>
+                              ) : (
+                                <>
+                                  <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
+                                    <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                                      Val. uni.: {
+                                        item.amount.toLocaleString('pt-BR', {
+                                          style: 'currency',
+                                          currency: 'BRL',
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2,
+                                          useGrouping: true,
+                                        })}
+                                    </Text>
+                                  </View>
+                                  <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
+                                    <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                                      Estoque
+                                    </Text>
+                                    <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantity}</Text>
+
+                                    <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                                      Desejado
+                                    </Text>
+                                    <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantityDesired === '' ? 0 : item.quantityDesired}</Text>
+                                  </View>
+                                  {
+                                    item.date !== '' && (
+                                      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
+                                        <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                                          Dt. Compra: {new Date(item.date).toLocaleDateString('pt-BR')}
+                                        </Text>
+                                      </View>
+                                    )}
+                                  {
+                                    item.location !== '' && (
+                                      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
+                                        <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                                          Local: {item.location}
+                                        </Text>
+                                      </View>
+                                    )}
+                                </>
+                              )
+                            }
                           </View>
                         </View>
                         <View style={{

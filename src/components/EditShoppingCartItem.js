@@ -1,16 +1,21 @@
 
 import React, { useMemo, useState } from 'react';
 
+import { Feather } from '@expo/vector-icons';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { useFormik } from 'formik';
-import { Dimensions, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Dimensions, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as Yup from 'yup';
 import { useMarket } from '../hooks/useMarket';
 import { useTheme } from '../hooks/useTheme';
+import { useSettings } from '../hooks/useSettings';
 
 export default function EditShoppingCartItem({ onClose, selectedTransaction }) {
     const [isEditable, setIsEditable] = useState(false)
+
+    const { marketSimplifiedItems } = useSettings();
 
     const { updateTransaction, deleteTransaction } = useMarket();
 
@@ -32,6 +37,9 @@ export default function EditShoppingCartItem({ onClose, selectedTransaction }) {
             amount: Yup.string().required("O campo Valor é obrigatório"),
             category: Yup.string().required("O campo Categoria é obrigatório"),
             quantity: Yup.string().required("O campo Quantidade é obrigatório"),
+            quantityDesired: Yup.string(),
+            date: Yup.string(),
+            location: Yup.string(),
         })
     }, [])
 
@@ -40,7 +48,10 @@ export default function EditShoppingCartItem({ onClose, selectedTransaction }) {
             description: selectedTransaction.description,
             amount: moeda(selectedTransaction.amount),
             category: selectedTransaction.category,
-            quantity: String(selectedTransaction.quantity)
+            quantity: String(selectedTransaction.quantity),
+            quantityDesired: String(selectedTransaction.quantityDesired),
+            date: selectedTransaction.date !== '' ? new Date(selectedTransaction.date).toLocaleDateString('pt-BR') : '',
+            location: selectedTransaction.location
         },
         validationSchema: formSchema,
         onSubmit: values => {
@@ -49,17 +60,26 @@ export default function EditShoppingCartItem({ onClose, selectedTransaction }) {
     });
 
     async function handleSubmitForm(formValues) {
+        const submittedDate = formValues.date === '' ? '' : formValues.date.split('/')
+
         const data = {
             ...selectedTransaction,
             amount: parseFloat(formValues.amount.replaceAll('.', '').replace(',', '.')),
             quantity: parseInt(formValues.quantity),
             description: formValues.description,
             category: formValues.category,
+            quantityDesired: !!formValues.quantityDesired ? parseInt(formValues.quantityDesired) : '',
+            location: formValues.location,
+            date: formValues.date === '' ? '' : new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000,
         }
         updateTransaction(data)
         onClose()
     }
 
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate;
+        formik.setFieldValue('date', `${currentDate.getDate() < 10 ? '0' + currentDate.getDate() : currentDate.getDate()}/${(currentDate.getMonth() + 1) < 10 ? '0' + (currentDate.getMonth() + 1) : (currentDate.getMonth() + 1)}/${currentDate.getFullYear()}`);
+    };
 
     return (
         <>
@@ -159,6 +179,108 @@ export default function EditShoppingCartItem({ onClose, selectedTransaction }) {
             {formik.errors.quantity && (
                 <Text style={styles.helperText}>{formik.errors.quantity}</Text>
             )}
+
+            {
+                !marketSimplifiedItems && (
+                    <>
+                        <View>
+                            <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Quantidade desejada</Text>
+                            <TextInput
+                                editable={isEditable}
+                                selectTextOnFocus={isEditable}
+                                placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                                style={{
+                                    ...styles.input,
+                                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                                }}
+                                keyboardType="decimal-pad"
+                                placeholder="Quantidade desejada"
+                                onChangeText={(text) => formik.setFieldValue('quantityDesired', text)}
+                                value={formik.values.quantityDesired}
+                            />
+                        </View>
+                        {formik.errors.quantityDesired && (
+                            <Text style={styles.helperText}>{formik.errors.quantityDesired}</Text>
+                        )}
+
+                        <View>
+                            <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Local da compra</Text>
+                            <TextInput
+                                editable={isEditable}
+                                selectTextOnFocus={isEditable}
+                                placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                                style={{
+                                    ...styles.input,
+                                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                                }}
+                                placeholder="Local da compra"
+                                onChangeText={(text) => formik.setFieldValue('location', text)}
+                                value={formik.values.location}
+                            />
+                        </View>
+
+                        <View>
+                            <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data</Text>
+                            <View style={styles.inputGroup}>
+                                <Pressable
+                                    onPress={() => {
+                                        !isEditable ? null : DateTimePickerAndroid.open({
+                                            themeVariant: currentTheme,
+                                            value: new Date(Date.now()),
+                                            onChange,
+                                            mode: 'date',
+                                            is24Hour: false,
+                                        });
+                                    }}
+                                    style={{
+                                        width: '82%',
+                                    }}
+                                >
+                                    <View
+                                        style={{
+                                            width: '100%',
+                                        }}
+                                        pointerEvents='none'
+                                    >
+                                        <TextInput
+                                            editable={isEditable}
+                                            selectTextOnFocus={isEditable}
+                                            placeholder="dd/mm/aaaa"
+                                            keyboardType="decimal-pad"
+                                            maxLength={10}
+                                            value={formik.values.date}
+                                            placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                                            style={{
+                                                ...styles.inputInputGroup,
+                                                width: '100%',
+                                                backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                                                color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                                            }}
+                                        />
+                                    </View>
+                                </Pressable>
+                                <TouchableOpacity onPress={() => {
+                                    !isEditable ? null : DateTimePickerAndroid.open({
+                                        themeVariant: currentTheme,
+                                        value: new Date(Date.now()),
+                                        onChange,
+                                        mode: 'date',
+                                        is24Hour: false,
+                                    });
+                                }} style={styles.buttonInputGroup}>
+                                    <Feather name="calendar" size={24} color="#FFF" />
+                                </TouchableOpacity>
+                            </View>
+                            {formik.errors.date && (
+                                <Text style={styles.helperText}>{formik.errors.date}</Text>
+                            )}
+                        </View>
+
+                    </>
+                )
+            }
 
             <View style={{ height: 16 }} />
 

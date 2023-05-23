@@ -52,7 +52,9 @@ export default function AboutUs() {
         handleSwitchViewTotalHistoryCard,
         handleCleanAsyncStorage,
         simpleFinancesItem,
-        handleSetSimpleFinancesItem
+        handleSetSimpleFinancesItem,
+        marketSimplifiedItems,
+        handleSetmarketSimplifiedItems
     } = useSettings();
 
     const { handleAddFinances } = useMarket();
@@ -472,6 +474,18 @@ export default function AboutUs() {
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
                         <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
                             Mercado
+                        </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                        <Switch
+                            trackColor={{ false: "#767577", true: "#767577" }}
+                            thumbColor={marketSimplifiedItems ? "#9c44dc" : "#3e3e3e"}
+                            ios_backgroundColor="#3e3e3e"
+                            onValueChange={handleSetmarketSimplifiedItems}
+                            value={marketSimplifiedItems}
+                        />
+                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                            Usar formulário simplificado de itens
                         </Text>
                     </View>
                     <RectButton onPress={handleClearMarket} style={styles.button}>

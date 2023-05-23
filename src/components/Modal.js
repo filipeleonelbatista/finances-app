@@ -1,5 +1,4 @@
 import { Feather } from '@expo/vector-icons';
-import { useHeaderHeight } from '@react-navigation/elements';
 import { useFocusEffect } from '@react-navigation/native';
 import React from 'react';
 import { BackHandler, Dimensions, KeyboardAvoidingView, StyleSheet, View } from 'react-native';
@@ -7,11 +6,8 @@ import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import { useTheme } from '../hooks/useTheme';
 
 export default function Modal({ open, onClose, children }) {
-  const height = useHeaderHeight()
 
-  const {
-    currentTheme
-  } = useTheme();
+  const { currentTheme } = useTheme();
 
   if (!open) return null
 
@@ -27,7 +23,7 @@ export default function Modal({ open, onClose, children }) {
   return (
     <KeyboardAvoidingView
       behavior={'padding'}
-      keyboardVerticalOffset={height + 48}
+      keyboardVerticalOffset={62}
       style={styles.container}
       enabled
     >
@@ -63,6 +59,7 @@ const styles = StyleSheet.create({
     width: '100%',
     display: 'flex',
     minHeight: 65,
+    maxHeight: '90%',
     elevation: 4,
   },
   cardContent: {

@@ -45,6 +45,12 @@
     },
     "plugins": [
       [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Permitir que $(PRODUCT_NAME) acesse sua localização."
+        }
+      ],
+      [
         "expo-media-library",
         {
           "photosPermission": "Permitir que $(PRODUCT_NAME) acesse suas fotos.",

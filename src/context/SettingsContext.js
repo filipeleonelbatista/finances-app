@@ -11,6 +11,7 @@ export function SettingsContextProvider(props) {
   const [willAddFuelToTransactionList, setWillAddFuelToTransactionList] = useState(false)
   const [willUsePrefixToRemoveTihteSum, setWillUsePrefixToRemoveTihteSum] = useState(false)
   const [simpleFinancesItem, setSimpleFinancesItem] = useState(false)
+  const [marketSimplifiedItems, setMarketSimplifiedItems] = useState(false)
   const [prefixTithe, setPrefixTithe] = useState('')
 
   const handleCleanAsyncStorage = async () => {
@@ -32,6 +33,11 @@ export function SettingsContextProvider(props) {
           },
         },
       ])
+  }
+
+  const handleSetmarketSimplifiedItems = async (value) => {
+    setMarketSimplifiedItems(value)
+    await updateStorageContext()
   }
 
   const handleSetSimpleFinancesItem = async (value) => {
@@ -71,7 +77,8 @@ export function SettingsContextProvider(props) {
       willAddFuelToTransactionList,
       willUsePrefixToRemoveTihteSum,
       prefixTithe,
-      simpleFinancesItem
+      simpleFinancesItem,
+      marketSimplifiedItems
     }
     await AsyncStorage.setItem('Settings', JSON.stringify(defaultSettings))
   }
@@ -84,9 +91,10 @@ export function SettingsContextProvider(props) {
         setIsEnableTitheCard(currentSettings.isEnableTitheCard)
         setIsEnableTotalHistoryCard(currentSettings.isEnableTotalHistoryCard)
         setWillAddFuelToTransactionList(currentSettings.willAddFuelToTransactionList)
-        setWillUsePrefixToRemoveTihteSum(currentSettings.willUsePrefixToRemoveTihteSum)
+        setWillUsePrefixToRemoveTihteSum(currentSettings.willUsePrefixToRemoveTihteSum) 
         setPrefixTithe(currentSettings.prefixTithe)
         setSimpleFinancesItem(currentSettings.simpleFinancesItem)
+        setMarketSimplifiedItems(currentSettings.simpleFinancesItem)
       } else {
         const defaultSettings = {
           isEnableTitheCard,
@@ -94,7 +102,8 @@ export function SettingsContextProvider(props) {
           willAddFuelToTransactionList,
           willUsePrefixToRemoveTihteSum,
           prefixTithe,
-          simpleFinancesItem
+          simpleFinancesItem,
+          marketSimplifiedItems
         }
 
         await AsyncStorage.setItem('Settings', JSON.stringify(defaultSettings))
@@ -125,7 +134,10 @@ export function SettingsContextProvider(props) {
         handleCleanAsyncStorage,
         simpleFinancesItem,
         setSimpleFinancesItem,
-        handleSetSimpleFinancesItem
+        handleSetSimpleFinancesItem,
+        marketSimplifiedItems,
+        setMarketSimplifiedItems,
+        handleSetmarketSimplifiedItems
       }}
     >
       {props.children}
