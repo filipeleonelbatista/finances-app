@@ -172,233 +172,239 @@ export default function Finances() {
           }
         </ScrollView>
 
+        <View style={styles.list}>
+          <View style={styles.listRow}>
+            <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais apenas dos itens do período selecionado</Text>
+          </View>
+          <View style={styles.listRow}>
+            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Extrato</Text>
+
+            <TouchableOpacity
+              onPress={() => {
+                setOpenFilter(!openFilter)
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: 28,
+                paddingVertical: 6,
+                borderWidth: 1,
+                borderRadius: 20,
+                backgroundColor: 'transparent',
+                borderColor: '#9c44dc',
+              }}
+            >
+              <Text style={{ fontSize: 16, color: "#9c44dc" }}><Feather name="filter" size={18} color="#9c44dc" /> Filtros</Text>
+            </TouchableOpacity>
+          </View>
+          {
+            openFilter && (
+              <>
+                <View style={styles.listRow}>
+                  <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                    Entradas/Saídas
+                  </Text>
+                  <Picker
+                    selectedValue={selectedtypeofpayment}
+                    onValueChange={(itemValue, itemIndex) =>
+                      setselectedtypeofpayment(itemValue)
+                    }
+                    mode='dropdown'
+                    dropdownIconColor={'#9c44dc'}
+                    dropdownIconRippleColor={'#9c44dc'}
+                    enabled
+                    style={{
+                      width: '50%',
+                      borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                    }}
+                  >
+                    <Picker.Item label="Todas" value="0" />
+                    <Picker.Item label="Entradas" value="1" />
+                    <Picker.Item label="Saídas" value="2" />
+                  </Picker>
+                </View>
+
+                <View style={styles.listRow}>
+                  <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                    Filtrar por período
+                  </Text>
+                </View>
+                <View style={styles.listRow}>
+                  <FlatList
+                    showsHorizontalScrollIndicator={false}
+                    horizontal
+                    ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                    data={filterLabels}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          borderWidth: 1,
+                          borderRadius: 16,
+                          backgroundColor: 'transparent',
+                          borderColor: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                        }}
+                        onPress={() => setSelectedPeriod(item)}
+                      >
+                        <Text style={{
+                          color: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                        }}>
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
+
+                {
+                  !simpleFinancesItem && (
+                    <>
+                      <View style={styles.listRow}>
+                        <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                          Categoria de gastos
+                        </Text>
+                        <Picker
+                          selectedValue={selectedPaymentCategory}
+                          onValueChange={(itemValue, itemIndex) =>
+                            setSelectedPaymentCategory(itemValue)
+                          }
+                          mode='dropdown'
+                          dropdownIconColor={'#9c44dc'}
+                          dropdownIconRippleColor={'#9c44dc'}
+                          enabled
+                          style={{
+                            width: '50%',
+                            borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                          }}
+                        >
+                          {
+                            categoriesList.map((cat, index) => (
+                              <Picker.Item key={index} label={cat} value={cat} />
+                            ))
+                          }
+                        </Picker>
+                      </View>
+                      <View style={styles.listRow}>
+                        <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Filtrar por Status de pagamento</Text>
+                      </View>
+                      <View style={styles.listRow}>
+                        <FlatList
+                          showsHorizontalScrollIndicator={false}
+                          horizontal
+                          ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                          data={pamentStatusLabel}
+                          renderItem={({ item }) => (
+                            <TouchableOpacity
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingHorizontal: 8,
+                                paddingVertical: 4,
+                                borderWidth: 1,
+                                borderRadius: 16,
+                                backgroundColor: 'transparent',
+                                borderColor: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                              }}
+                              onPress={() => setSelectedPaymentStatus(item)}
+                            >
+                              <Text style={{
+                                color: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                              }}>
+                                {item}
+                              </Text>
+                            </TouchableOpacity>
+                          )}
+                        />
+                      </View>
+                      <View style={styles.listRow}>
+                        <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                          Ordenar por data
+                        </Text>
+                      </View>
+                      <View style={styles.listRow}>
+                        <FlatList
+                          showsHorizontalScrollIndicator={false}
+                          horizontal
+                          ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                          data={dateOrderOptions}
+                          renderItem={({ item }) => (
+                            <TouchableOpacity
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingHorizontal: 8,
+                                paddingVertical: 4,
+                                borderWidth: 1,
+                                borderRadius: 16,
+                                backgroundColor: 'transparent',
+                                borderColor: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                              }}
+                              onPress={() => setSelectedDateOrderFilter(item)}
+                            >
+                              <Text style={{
+                                color: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                              }}>
+                                {item}
+                              </Text>
+                            </TouchableOpacity>
+                          )}
+                        />
+                      </View>
+                    </>
+                  )
+                }
+
+                <View style={styles.listRow}>
+                  <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                    Favoritos
+                  </Text>
+                </View>
+                <View style={styles.listRow}>
+                  <FlatList
+                    showsHorizontalScrollIndicator={false}
+                    horizontal
+                    ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                    data={favoritedFilterLabel}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          borderWidth: 1,
+                          borderRadius: 16,
+                          backgroundColor: 'transparent',
+                          borderColor: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                        }}
+                        onPress={() => setSelectedFavoritedFilter(item)}
+                      >
+                        <Text style={{
+                          color: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                        }}>
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
+
+              </>
+            )
+          }
+        </View>
+
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
             <View style={styles.list}>
-              <View style={styles.listRow}>
-                <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais apenas dos itens do período selecionado</Text>
-              </View>
-
-              <View style={styles.listRow}>
-                <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Extrato</Text>
-
-                <TouchableOpacity
-                  onPress={() => {
-                    setOpenFilter(!openFilter)
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    paddingHorizontal: 28,
-                    paddingVertical: 6,
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    backgroundColor: 'transparent',
-                    borderColor: '#9c44dc',
-                  }}
-                >
-                  <Text style={{ fontSize: 16, color: "#9c44dc" }}><Feather name="filter" size={18} color="#9c44dc" /> Filtros</Text>
-                </TouchableOpacity>
-              </View>
-              {
-                openFilter && (
-                  <>
-                    <View style={styles.listRow}>
-                      <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                        Entradas/Saídas
-                      </Text>
-                      <Picker
-                        selectedValue={selectedtypeofpayment}
-                        onValueChange={(itemValue, itemIndex) =>
-                          setselectedtypeofpayment(itemValue)
-                        }
-                        mode='dropdown'
-                        dropdownIconColor={'#9c44dc'}
-                        dropdownIconRippleColor={'#9c44dc'}
-                        enabled
-                        style={{
-                          width: '50%',
-                          borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
-                        }}
-                      >
-                        <Picker.Item label="Todas" value="0" />
-                        <Picker.Item label="Entradas" value="1" />
-                        <Picker.Item label="Saídas" value="2" />
-                      </Picker>
-                    </View>
-
-                    <View style={styles.listRow}>
-                      <FlatList
-                        showsHorizontalScrollIndicator={false}
-                        horizontal
-                        ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                        data={filterLabels}
-                        renderItem={({ item }) => (
-                          <TouchableOpacity
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              paddingHorizontal: 8,
-                              paddingVertical: 4,
-                              borderWidth: 1,
-                              borderRadius: 16,
-                              backgroundColor: 'transparent',
-                              borderColor: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                            }}
-                            onPress={() => setSelectedPeriod(item)}
-                          >
-                            <Text style={{
-                              color: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                            }}>
-                              {item}
-                            </Text>
-                          </TouchableOpacity>
-                        )}
-                      />
-                    </View>
-
-                    {
-                      !simpleFinancesItem && (
-                        <>
-                          <View style={styles.listRow}>
-                            <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                              Categoria de gastos
-                            </Text>
-                            <Picker
-                              selectedValue={selectedPaymentCategory}
-                              onValueChange={(itemValue, itemIndex) =>
-                                setSelectedPaymentCategory(itemValue)
-                              }
-                              mode='dropdown'
-                              dropdownIconColor={'#9c44dc'}
-                              dropdownIconRippleColor={'#9c44dc'}
-                              enabled
-                              style={{
-                                width: '50%',
-                                borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
-                              }}
-                            >
-                              {
-                                categoriesList.map((cat, index) => (
-                                  <Picker.Item key={index} label={cat} value={cat} />
-                                ))
-                              }
-                            </Picker>
-                          </View>
-                          <View style={styles.listRow}>
-                            <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Filtrar por Status de pagamento</Text>
-                          </View>
-                          <View style={styles.listRow}>
-                            <FlatList
-                              showsHorizontalScrollIndicator={false}
-                              horizontal
-                              ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                              data={pamentStatusLabel}
-                              renderItem={({ item }) => (
-                                <TouchableOpacity
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    paddingHorizontal: 8,
-                                    paddingVertical: 4,
-                                    borderWidth: 1,
-                                    borderRadius: 16,
-                                    backgroundColor: 'transparent',
-                                    borderColor: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                                  }}
-                                  onPress={() => setSelectedPaymentStatus(item)}
-                                >
-                                  <Text style={{
-                                    color: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                                  }}>
-                                    {item}
-                                  </Text>
-                                </TouchableOpacity>
-                              )}
-                            />
-                          </View>
-                          <View style={styles.listRow}>
-                            <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                              Ordenar por data
-                            </Text>
-                          </View>
-                          <View style={styles.listRow}>
-                            <FlatList
-                              showsHorizontalScrollIndicator={false}
-                              horizontal
-                              ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                              data={dateOrderOptions}
-                              renderItem={({ item }) => (
-                                <TouchableOpacity
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    paddingHorizontal: 8,
-                                    paddingVertical: 4,
-                                    borderWidth: 1,
-                                    borderRadius: 16,
-                                    backgroundColor: 'transparent',
-                                    borderColor: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                                  }}
-                                  onPress={() => setSelectedDateOrderFilter(item)}
-                                >
-                                  <Text style={{
-                                    color: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                                  }}>
-                                    {item}
-                                  </Text>
-                                </TouchableOpacity>
-                              )}
-                            />
-                          </View>
-                        </>
-                      )
-                    }
-
-                    <View style={styles.listRow}>
-                      <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                        Favoritos
-                      </Text>
-                    </View>
-                    <View style={styles.listRow}>
-                      <FlatList
-                        showsHorizontalScrollIndicator={false}
-                        horizontal
-                        ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                        data={favoritedFilterLabel}
-                        renderItem={({ item }) => (
-                          <TouchableOpacity
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              paddingHorizontal: 8,
-                              paddingVertical: 4,
-                              borderWidth: 1,
-                              borderRadius: 16,
-                              backgroundColor: 'transparent',
-                              borderColor: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                            }}
-                            onPress={() => setSelectedFavoritedFilter(item)}
-                          >
-                            <Text style={{
-                              color: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                            }}>
-                              {item}
-                            </Text>
-                          </TouchableOpacity>
-                        )}
-                      />
-                    </View>
-
-                  </>
-                )
-              }
-
               <View style={styles.listRow}>
                 <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
                   Toque no item para visualizar e depois editar ou excluir.{'\n'}Segure para adicionar/remover dos favoritos
