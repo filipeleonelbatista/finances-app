@@ -47,13 +47,13 @@ export default function Market() {
 
   return (
     <Menu>
-      <Modal open={openModalSetEstimative} onClose={() => setOpenModalSetEstimative(false)}>
+      <Modal currentTheme={currentTheme} open={openModalSetEstimative} onClose={() => setOpenModalSetEstimative(false)}>
         <EstimativeForm onClose={() => setOpenModalSetEstimative(false)} />
       </Modal>
-      <Modal open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
+      <Modal currentTheme={currentTheme} open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
         <EditShoppingCartItem onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
       </Modal>
-      <Modal open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
+      <Modal currentTheme={currentTheme} open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
         <AddShoppingCartItem onClose={() => setOpenModalAddTransaction(false)} />
       </Modal>
 

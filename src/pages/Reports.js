@@ -184,10 +184,10 @@ export default function Reports() {
 
   return (
     <Menu>
-      <Modal open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
+      <Modal currentTheme={currentTheme} open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
         <EditGoalForm onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
       </Modal>
-      <Modal open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
+      <Modal currentTheme={currentTheme} open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
         <AddGoalForm onClose={() => setOpenModalAddTransaction(false)} />
       </Modal>
 

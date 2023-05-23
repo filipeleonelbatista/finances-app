@@ -94,10 +94,10 @@ export default function Runs() {
 
   return (
     <Menu>
-      <Modal open={openModalSetAutonomy} onClose={() => setOpenModalSetAutonomy(false)}>
+      <Modal currentTheme={currentTheme} open={openModalSetAutonomy} onClose={() => setOpenModalSetAutonomy(false)}>
         <AutonomyForm onClose={() => setOpenModalSetAutonomy(false)} />
       </Modal>
-      <Modal open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
+      <Modal currentTheme={currentTheme} open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
         <AddFuelForm onClose={() => setOpenModalAddTransaction(false)} />
       </Modal>
 

@@ -3,12 +3,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import React from 'react';
 import { BackHandler, Dimensions, KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
-import { useTheme } from '../hooks/useTheme';
 
-export default function Modal({ open, onClose, children }) {
-
-  const { currentTheme } = useTheme();
-
+export default function Modal({ open, onClose, children, currentTheme }) {
   if (!open) return null
 
   useFocusEffect(() => {

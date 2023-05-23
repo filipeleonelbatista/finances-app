@@ -89,10 +89,10 @@ export default function Finances() {
 
   return (
     <Menu>
-      <Modal open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
+      <Modal currentTheme={currentTheme} open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
         <EditItemForm onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
       </Modal>
-      <Modal open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
+      <Modal currentTheme={currentTheme} open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
         <AddItemForm onClose={() => setOpenModalAddTransaction(false)} />
       </Modal>
 
