@@ -9,16 +9,17 @@ import { Picker } from '@react-native-picker/picker';
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { TextInput } from 'react-native';
 import bgImg from '../assets/images/background.png';
 import AddShoppingCartItem from '../components/AddShoppingCartItem';
 import EditShoppingCartItem from '../components/EditShoppingCartItem';
+import EmptyMessage from '../components/EmptyMessage';
 import EstimativeForm from '../components/EstimativeForm';
 import Menu from '../components/Menu';
 import Modal from '../components/Modal';
 import { useMarket } from '../hooks/useMarket';
-import { useTheme } from '../hooks/useTheme';
-import EmptyMessage from '../components/EmptyMessage';
 import { useSettings } from '../hooks/useSettings';
+import { useTheme } from '../hooks/useTheme';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -31,7 +32,6 @@ export default function Market() {
   const { marketSimplifiedItems } = useSettings();
 
   const {
-    handleAddFinances,
     filteredList,
     listTotal,
     selectedCategory,
@@ -39,6 +39,7 @@ export default function Market() {
     selectedTransaction,
     setSelectedTransaction,
     estimative,
+    search, setSearch,
   } = useMarket();
 
   const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
@@ -139,37 +140,53 @@ export default function Market() {
           </View>
         </ScrollView>
 
+        <View style={styles.list}>
+          <View style={styles.listRow}>
+            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Lista de compras</Text>
+
+            <Picker
+              selectedValue={selectedCategory}
+              onValueChange={(itemValue, itemIndex) =>
+                setSelectedCategory(itemValue)
+              }
+              mode='dropdown'
+              dropdownIconColor={'#9c44dc'}
+              dropdownIconRippleColor={'#9c44dc'}
+              enabled
+              style={{
+                width: '50%',
+                borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+              }}
+            >
+              <Picker.Item label="Todos os itens" value="Todos os itens" />
+              <Picker.Item label="Carnes" value="Carnes" />
+              <Picker.Item label="Fruteira" value="Fruteira" />
+              <Picker.Item label="Higiêne" value="Higiêne" />
+              <Picker.Item label="Limpeza" value="Limpeza" />
+              <Picker.Item label="Mercearia" value="Mercearia" />
+              <Picker.Item label="Outros" value="Outros" />
+            </Picker>
+          </View>
+        </View>
+
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
             <>
-              <View style={styles.list}>
+              <View style={{ ...styles.list, marginTop: 0 }}>
 
-                <View style={styles.listRow}>
-                  <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Lista de compras</Text>
-
-                  <Picker
-                    selectedValue={selectedCategory}
-                    onValueChange={(itemValue, itemIndex) =>
-                      setSelectedCategory(itemValue)
-                    }
-                    mode='dropdown'
-                    dropdownIconColor={'#9c44dc'}
-                    dropdownIconRippleColor={'#9c44dc'}
-                    enabled
-                    style={{
-                      width: '50%',
-                      borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
-                    }}
-                  >
-                    <Picker.Item label="Todos os itens" value="Todos os itens" />
-                    <Picker.Item label="Carnes" value="Carnes" />
-                    <Picker.Item label="Fruteira" value="Fruteira" />
-                    <Picker.Item label="Higiêne" value="Higiêne" />
-                    <Picker.Item label="Limpeza" value="Limpeza" />
-                    <Picker.Item label="Mercearia" value="Mercearia" />
-                    <Picker.Item label="Outros" value="Outros" />
-                  </Picker>
-                </View>
+                <TextInput
+                  placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                  style={{
+                    ...styles.input,
+                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                    marginBottom: 16
+                  }}
+                  placeholder="Pesquise os itens..."
+                  onChangeText={text => setSearch(text)}
+                  value={search}
+                  editable={true}
+                />
 
                 <View style={styles.listRow}>
                   <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
@@ -486,5 +503,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 16,
     color: '#543b6c',
+  },
+  input: {
+    marginTop: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFF',
+    borderColor: "#CCC",
+    borderRadius: 4,
+    width: '100%',
+    height: 48,
+    borderWidth: 1
   },
 })

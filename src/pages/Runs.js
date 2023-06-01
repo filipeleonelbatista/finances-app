@@ -151,36 +151,38 @@ export default function Runs() {
             <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{filteredList[0]?.currentDistance ?? 0}</Text>
           </View>
         </ScrollView>
+
+        <View style={styles.list}>
+          <View style={styles.listRow}>
+            <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais referentes ao ultimo abastecimento</Text>
+          </View>
+
+          <View style={styles.listRow}>
+            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Abastecimentos</Text>
+
+            <Picker
+              selectedValue={selectedPeriod}
+              onValueChange={(itemValue, itemIndex) =>
+                setSelectedPeriod(itemValue)
+              }
+              mode='dropdown'
+              dropdownIconColor={'#9c44dc'}
+              dropdownIconRippleColor={'#9c44dc'}
+              enabled
+              style={{
+                width: '50%',
+                borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+              }}
+            >
+              <Picker.Item label="Mês anterior" value="Mês anterior" />
+              <Picker.Item label="Este mês" value="Este mês" />
+              <Picker.Item label="Todos" value="Todos" />
+            </Picker>
+          </View>
+        </View>
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
             <View style={styles.list}>
-              <View style={styles.listRow}>
-                <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais referentes ao ultimo abastecimento</Text>
-              </View>
-
-              <View style={styles.listRow}>
-                <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Abastecimentos</Text>
-
-                <Picker
-                  selectedValue={selectedPeriod}
-                  onValueChange={(itemValue, itemIndex) =>
-                    setSelectedPeriod(itemValue)
-                  }
-                  mode='dropdown'
-                  dropdownIconColor={'#9c44dc'}
-                  dropdownIconRippleColor={'#9c44dc'}
-                  enabled
-                  style={{
-                    width: '50%',
-                    borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
-                  }}
-                >
-                  <Picker.Item label="Mês anterior" value="Mês anterior" />
-                  <Picker.Item label="Este mês" value="Este mês" />
-                  <Picker.Item label="Todos" value="Todos" />
-                </Picker>
-              </View>
-
               <View style={styles.listRow}>
                 <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Clique no item para excluir</Text>
               </View>

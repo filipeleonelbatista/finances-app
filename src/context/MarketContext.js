@@ -13,6 +13,7 @@ export function MarketContextProvider(props) {
 
   const [selectedTransaction, setSelectedTransaction] = useState();
   const [selectedCategory, setSelectedCategory] = useState('Todos os itens');
+  const [search, setSearch] = useState('');
 
   const setEstimativeValue = async (value) => {
     setEstimative(value)
@@ -28,8 +29,11 @@ export function MarketContextProvider(props) {
         return item.category === selectedCategory;
       }
     })
-    return filteredCategory ?? [];
-  }, [MarketList, selectedCategory])
+
+    const filteredWords = search === '' ? filteredCategory : filteredCategory.filter(item => item.description.includes(search))
+
+    return filteredWords ?? [];
+  }, [MarketList, selectedCategory, search])
 
   const listTotal = useMemo(() => {
     let TotalList = 0.0;
@@ -168,7 +172,8 @@ export function MarketContextProvider(props) {
         handleAddFinances,
         estimative,
         setEstimativeValue,
-        importMarket
+        importMarket,
+        search, setSearch,
       }}
     >
       {props.children}

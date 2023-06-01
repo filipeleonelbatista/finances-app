@@ -8,7 +8,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build:apk": "eas build -p android --profile preview",
-    "build:store": "eas build -p android --profile production"
+    "build:store": "eas build -p android --profile production",
+    "start:emulator": "emulator -avd Pixel_2_API_33"
   },
   "dependencies": {
     "@expo-google-fonts/poppins": "^0.2.3",
