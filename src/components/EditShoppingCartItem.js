@@ -46,7 +46,7 @@ export default function EditShoppingCartItem({ onClose, selectedTransaction }) {
     const formik = useFormik({
         initialValues: {
             description: selectedTransaction.description,
-            amount: moeda(selectedTransaction.amount),
+            amount: moeda(selectedTransaction.amount.toFixed(2)),
             category: selectedTransaction.category,
             quantity: String(selectedTransaction.quantity),
             quantityDesired: String(selectedTransaction.quantityDesired),

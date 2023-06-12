@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Dimensions, FlatList, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import { Feather, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -42,6 +42,7 @@ export default function Finances() {
     selectedFavoritedFilter, setSelectedFavoritedFilter,
     favoritedFilterLabel,
     categoriesList, selectedPaymentCategory, setSelectedPaymentCategory,
+    search, setSearch,
   } = usePayments();
 
   const {
@@ -401,7 +402,21 @@ export default function Finances() {
             )
           }
         </View>
-
+        <View style={styles.list}>
+          <TextInput
+            placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+            style={{
+              ...styles.input,
+              backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+              color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+              marginBottom: 4
+            }}
+            placeholder="Pesquise os itens..."
+            onChangeText={text => setSearch(text)}
+            value={search}
+            editable={true}
+          />
+        </View>
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
             <View style={styles.list}>
@@ -726,5 +741,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 16,
     color: '#543b6c',
+  },
+  input: {
+    paddingHorizontal: 12,
+    backgroundColor: '#FFF',
+    borderColor: "#CCC",
+    borderRadius: 4,
+    width: '100%',
+    height: 48,
+    borderWidth: 1
   },
 })

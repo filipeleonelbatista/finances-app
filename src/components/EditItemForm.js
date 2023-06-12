@@ -46,7 +46,7 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
     const formik = useFormik({
         initialValues: {
             description: selectedTransaction.description,
-            amount: moeda(selectedTransaction.amount),
+            amount: moeda(selectedTransaction.amount.toFixed(2)),
             date: selectedTransaction.date !== '' ? new Date(selectedTransaction.date).toLocaleDateString('pt-BR') : '',
             paymentDate: selectedTransaction.paymentDate !== '' ? new Date(selectedTransaction.paymentDate).toLocaleDateString('pt-BR') : '',
             paymentStatus: selectedTransaction.paymentStatus,

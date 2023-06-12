@@ -19,6 +19,7 @@ export function PaymentsContextProvider(props) {
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState('Todos');
   const [selectedDateOrderFilter, setSelectedDateOrderFilter] = useState('Vencimento');
   const [selectedFavoritedFilter, setSelectedFavoritedFilter] = useState('Todos');
+  const [search, setSearch] = useState('');
 
   const favoritedFilterLabel = [
     'Todos',
@@ -93,7 +94,9 @@ export function PaymentsContextProvider(props) {
         return false;
       })
 
-      const filteredByPeriod = filteredType.filter(item => {
+      const filteredWords = search === '' ? filteredType : filteredType.filter(item => item.description.includes(search))
+
+      const filteredByPeriod = filteredWords.filter(item => {
         const itemDate = dayjs(item.date)
 
         if (selectedPeriod === 'Todos') {
@@ -236,7 +239,8 @@ export function PaymentsContextProvider(props) {
     selectedPaymentStatus,
     selectedDateOrderFilter,
     selectedFavoritedFilter,
-    selectedPaymentCategory
+    selectedPaymentCategory,
+    search
   ])
 
   const listTotal = useMemo(() => {
@@ -450,6 +454,7 @@ export function PaymentsContextProvider(props) {
         favoritedFilterLabel,
         categoriesList,
         selectedPaymentCategory, setSelectedPaymentCategory,
+        search, setSearch,
       }}
     >
       {props.children}

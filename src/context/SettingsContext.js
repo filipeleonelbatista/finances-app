@@ -37,78 +37,139 @@ export function SettingsContextProvider(props) {
 
   const handleSetmarketSimplifiedItems = async (value) => {
     setMarketSimplifiedItems(value)
+    await AsyncStorage.setItem('@MarketSimplifiedItems', JSON.stringify(value))
     await updateStorageContext()
   }
 
   const handleSetSimpleFinancesItem = async (value) => {
     setSimpleFinancesItem(value)
+    await AsyncStorage.setItem('@SimpleFinancesItem', JSON.stringify(value))
     await updateStorageContext()
   }
 
   const handleSetPrefixTithe = async (value) => {
     setPrefixTithe(value)
+    await AsyncStorage.setItem('@PrefixTithe', JSON.stringify(value))
     await updateStorageContext()
   }
 
   const handleToggleWillAddFuel = async (value) => {
     setWillAddFuelToTransactionList(value)
+    await AsyncStorage.setItem('@WillAddFuelToTransactionList', JSON.stringify(value))
     await updateStorageContext()
   }
 
   const handleWillRemovePrefixToRemove = async (value) => {
     setWillUsePrefixToRemoveTihteSum(value)
+    await AsyncStorage.setItem('@WillUsePrefixToRemoveTihteSum', JSON.stringify(value))
     await updateStorageContext()
   }
 
   const handleSwitchViewTotalHistoryCard = async (value) => {
     setIsEnableTotalHistoryCard(value)
+    await AsyncStorage.setItem('@IsEnableTotalHistoryCard', JSON.stringify(value))
     await updateStorageContext()
   }
 
   const handleSwitchViewTitheCard = async (value) => {
     setIsEnableTitheCard(value)
+    await AsyncStorage.setItem('@IsEnableTitheCard', JSON.stringify(value))
     await updateStorageContext()
   }
 
   const updateStorageContext = async () => {
-    const defaultSettings = {
-      isEnableTitheCard,
-      isEnableTotalHistoryCard,
-      willAddFuelToTransactionList,
-      willUsePrefixToRemoveTihteSum,
-      prefixTithe,
-      simpleFinancesItem,
-      marketSimplifiedItems
+    try {
+      await loadIsEnableTitheCard();
+      await loadIsEnableTotalHistoryCard();
+      await loadWillAddFuelToTransactionList();
+      await loadWillUsePrefixToRemoveTihteSum();
+      await loadPrefixTithe();
+      await loadSimpleFinancesItem();
+      await loadMarketSimplifiedItems();
+    } catch (error) {
+      console.log(error)
     }
-    await AsyncStorage.setItem('Settings', JSON.stringify(defaultSettings))
+  }
+
+  const loadIsEnableTitheCard = async () => {
+    const value = await AsyncStorage.getItem('@IsEnableTitheCard');
+    if (value !== null) {
+      setIsEnableTitheCard(JSON.parse(value))
+    } else {
+      setIsEnableTitheCard(isEnableTitheCard)
+      await AsyncStorage.setItem('@IsEnableTitheCard', JSON.stringify(isEnableTitheCard))
+    }
+  }
+
+  const loadIsEnableTotalHistoryCard = async () => {
+    const value = await AsyncStorage.getItem('@IsEnableTotalHistoryCard');
+    if (value !== null) {
+      setIsEnableTotalHistoryCard(JSON.parse(value))
+    } else {
+      setIsEnableTotalHistoryCard(isEnableTotalHistoryCard)
+      await AsyncStorage.setItem('@IsEnableTotalHistoryCard', JSON.stringify(isEnableTotalHistoryCard))
+    }
+  }
+
+  const loadWillAddFuelToTransactionList = async () => {
+    const value = await AsyncStorage.getItem('@WillAddFuelToTransactionList');
+    if (value !== null) {
+      setWillAddFuelToTransactionList(JSON.parse(value))
+    } else {
+      setWillAddFuelToTransactionList(willAddFuelToTransactionList)
+      await AsyncStorage.setItem('@WillAddFuelToTransactionList', JSON.stringify(willAddFuelToTransactionList))
+    }
+  }
+
+  const loadWillUsePrefixToRemoveTihteSum = async () => {
+    const value = await AsyncStorage.getItem('@WillUsePrefixToRemoveTihteSum');
+    if (value !== null) {
+      setWillUsePrefixToRemoveTihteSum(JSON.parse(value))
+    } else {
+      setWillUsePrefixToRemoveTihteSum(willUsePrefixToRemoveTihteSum)
+      await AsyncStorage.setItem('@WillUsePrefixToRemoveTihteSum', JSON.stringify(willUsePrefixToRemoveTihteSum))
+    }
+  }
+
+  const loadPrefixTithe = async () => {
+    const value = await AsyncStorage.getItem('@PrefixTithe');
+    if (value !== null) {
+      setPrefixTithe(JSON.parse(value))
+    } else {
+      setPrefixTithe(prefixTithe)
+      await AsyncStorage.setItem('@PrefixTithe', JSON.stringify(prefixTithe))
+    }
+  }
+
+  const loadSimpleFinancesItem = async () => {
+    const value = await AsyncStorage.getItem('@SimpleFinancesItem');
+    if (value !== null) {
+      setSimpleFinancesItem(JSON.parse(value))
+    } else {
+      setSimpleFinancesItem(simpleFinancesItem)
+      await AsyncStorage.setItem('@SimpleFinancesItem', JSON.stringify(simpleFinancesItem))
+    }
+  }
+
+  const loadMarketSimplifiedItems = async () => {
+    const value = await AsyncStorage.getItem('@MarketSimplifiedItems');
+    if (value !== null) {
+      setMarketSimplifiedItems(JSON.parse(value))
+    } else {
+      setMarketSimplifiedItems(marketSimplifiedItems)
+      await AsyncStorage.setItem('@MarketSimplifiedItems', JSON.stringify(marketSimplifiedItems))
+    }
   }
 
   const loadData = useCallback(async () => {
     try {
-      const value = await AsyncStorage.getItem('Settings');
-      if (value !== null) {
-        const currentSettings = JSON.parse(value)
-        setIsEnableTitheCard(currentSettings.isEnableTitheCard)
-        setIsEnableTotalHistoryCard(currentSettings.isEnableTotalHistoryCard)
-        setWillAddFuelToTransactionList(currentSettings.willAddFuelToTransactionList)
-        setWillUsePrefixToRemoveTihteSum(currentSettings.willUsePrefixToRemoveTihteSum) 
-        setPrefixTithe(currentSettings.prefixTithe)
-        setSimpleFinancesItem(currentSettings.simpleFinancesItem)
-        setMarketSimplifiedItems(currentSettings.simpleFinancesItem)
-      } else {
-        const defaultSettings = {
-          isEnableTitheCard,
-          isEnableTotalHistoryCard,
-          willAddFuelToTransactionList,
-          willUsePrefixToRemoveTihteSum,
-          prefixTithe,
-          simpleFinancesItem,
-          marketSimplifiedItems
-        }
-
-        await AsyncStorage.setItem('Settings', JSON.stringify(defaultSettings))
-      }
-
+      await loadIsEnableTitheCard();
+      await loadIsEnableTotalHistoryCard();
+      await loadWillAddFuelToTransactionList();
+      await loadWillUsePrefixToRemoveTihteSum();
+      await loadPrefixTithe();
+      await loadSimpleFinancesItem();
+      await loadMarketSimplifiedItems();
     } catch (error) {
       console.log(error)
     }

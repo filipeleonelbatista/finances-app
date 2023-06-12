@@ -42,7 +42,7 @@ export default function EditGoalForm({ onClose, selectedTransaction }) {
     const formik = useFormik({
         initialValues: {
             description: selectedTransaction.description,
-            amount: moeda(selectedTransaction.amount),
+            amount: moeda(selectedTransaction.amount.toFixed(2)),
             currentAmount: moeda(selectedTransaction.currentAmount),
             date: selectedTransaction.date !== '' ? new Date(selectedTransaction.date).toLocaleDateString('pt-BR') : '',
         },
