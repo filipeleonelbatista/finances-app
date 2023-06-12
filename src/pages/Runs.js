@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 
 import { Dimensions, ImageBackground, StyleSheet, Text, View } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -17,6 +17,9 @@ import Modal from '../components/Modal';
 import { useRuns } from '../hooks/useRuns';
 import { useTheme } from '../hooks/useTheme';
 import EmptyMessage from '../components/EmptyMessage';
+import { TextInput } from 'react-native';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { useWindowDimensions } from 'react-native';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -26,7 +29,10 @@ export default function Runs() {
     currentTheme
   } = useTheme();
 
-  const [selectedPeriod, setSelectedPeriod] = useState('Este mês');
+  const { width } = useWindowDimensions();
+
+  const [startDate, setStartDate] = useState(dayjs().startOf('month').format("DD/MM/YYYY"));
+  const [endDate, setEndDate] = useState(dayjs().endOf('month').format("DD/MM/YYYY"));
 
   const {
     FuelList,
@@ -42,20 +48,9 @@ export default function Runs() {
 
       const filteredByPeriod = FuelList.filter(item => {
         const itemDate = dayjs(item.date)
-
-        if (selectedPeriod === 'Todos') {
-          return true;
-        }
-        if (selectedPeriod === 'Este mês') {
-          const firstDayOfMonth = dayjs().startOf('month');
-          const lastDayOfMonth = dayjs().endOf('month');
-          return itemDate.isSameOrAfter(firstDayOfMonth) && itemDate.isSameOrBefore(lastDayOfMonth);
-        }
-        if (selectedPeriod === 'Mês anterior') {
-          const startOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
-          const endOfLastMonth = dayjs().subtract(1, 'month').endOf('month');
-          return itemDate.isSameOrAfter(startOfLastMonth) && itemDate.isSameOrBefore(endOfLastMonth);
-        }
+        const currentStartDate = dayjs(`${startDate.split('/')[2]}-${startDate.split('/')[1]}-${startDate.split('/')[0]}`)
+        const currentEndDate = dayjs(`${endDate.split('/')[2]}-${endDate.split('/')[1]}-${endDate.split('/')[0]}`)
+        return itemDate.isSameOrAfter(currentStartDate) && itemDate.isSameOrBefore(currentEndDate)
       })
 
       const sortedByDateArray = filteredByPeriod.sort((a, b) => {
@@ -76,7 +71,7 @@ export default function Runs() {
       return sortedByDateArray;
     }
     return [];
-  }, [FuelList, selectedPeriod])
+  }, [FuelList, startDate, endDate])
 
   const listTotal = useMemo(() => {
     let TotalList = 0.0;
@@ -91,6 +86,14 @@ export default function Runs() {
     const result = filteredList[0] ? ((autonomy * (filteredList[0]?.amount / filteredList[0]?.unityAmount)) + filteredList[0]?.currentDistance) : 0
     return result.toFixed(0);
   }, [filteredList, autonomy])
+
+  const onChangeStartDate = (_, selectedDate) => {
+    setStartDate(dayjs(selectedDate).format("DD/MM/YYYY"))
+  };
+
+  const onChangeEndDate = (_, selectedDate) => {
+    setEndDate(dayjs(selectedDate).format("DD/MM/YYYY"))
+  };
 
   return (
     <Menu>
@@ -158,27 +161,65 @@ export default function Runs() {
           </View>
 
           <View style={styles.listRow}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Abastecimentos</Text>
-
-            <Picker
-              selectedValue={selectedPeriod}
-              onValueChange={(itemValue, itemIndex) =>
-                setSelectedPeriod(itemValue)
-              }
-              mode='dropdown'
-              dropdownIconColor={'#9c44dc'}
-              dropdownIconRippleColor={'#9c44dc'}
-              enabled
-              style={{
-                width: '50%',
-                borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
-              }}
-            >
-              <Picker.Item label="Mês anterior" value="Mês anterior" />
-              <Picker.Item label="Este mês" value="Este mês" />
-              <Picker.Item label="Todos" value="Todos" />
-            </Picker>
+            <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+              Filtrar por período
+            </Text>
           </View>
+          <View style={styles.listRow}>
+            <View style={{ ...styles.listRow, alignItems: 'center', marginHorizontal: 2 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TextInput
+                  placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                  style={{
+                    ...styles.input,
+                    width: width * 0.33,
+                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                  }}
+                  placeholder="Data inicio"
+                  value={startDate}
+                  editable={false}
+                />
+                <TouchableOpacity onPress={() => {
+                  DateTimePickerAndroid.open({
+                    themeVariant: currentTheme,
+                    value: new Date(Date.now()),
+                    onChange: onChangeStartDate,
+                    mode: 'date',
+                    is24Hour: false,
+                  });
+                }} style={styles.buttonInputGroup}>
+                  <Feather name="calendar" size={24} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TextInput
+                  placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                  style={{
+                    ...styles.input,
+                    width: width * 0.33,
+                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                  }}
+                  placeholder="Data Fim"
+                  value={endDate}
+                  editable={false}
+                />
+                <TouchableOpacity onPress={() => {
+                  DateTimePickerAndroid.open({
+                    themeVariant: currentTheme,
+                    value: new Date(Date.now()),
+                    onChange: onChangeEndDate,
+                    mode: 'date',
+                    is24Hour: false,
+                  });
+                }} style={styles.buttonInputGroup}>
+                  <Feather name="calendar" size={24} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
         </View>
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
@@ -435,5 +476,32 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 16,
     color: '#543b6c',
+  },
+  input: {
+    paddingHorizontal: 12,
+    backgroundColor: '#FFF',
+    borderColor: "#CCC",
+    borderRadius: 4,
+    width: '100%',
+    height: 48,
+    borderWidth: 1,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 0,
+  },
+  buttonInputGroup: {
+    width: 47,
+    height: 47,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#9c44dc',
+    borderColor: "#9c44dc",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 8,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 8,
   },
 })

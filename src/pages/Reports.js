@@ -19,6 +19,8 @@ import { useGoals } from '../hooks/useGoals';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
 import { useTheme } from '../hooks/useTheme';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { TextInput } from 'react-native';
 
 export default function Reports() {
   const { width } = useWindowDimensions();
@@ -35,8 +37,6 @@ export default function Reports() {
     Expenses,
     filteredList,
     selectedtypeofpayment, setselectedtypeofpayment,
-    selectedPeriod, setSelectedPeriod,
-    filterLabels,
     pamentStatusLabel,
     selectedPaymentStatus, setSelectedPaymentStatus,
     selectedDateOrderFilter, setSelectedDateOrderFilter,
@@ -44,6 +44,8 @@ export default function Reports() {
     selectedFavoritedFilter, setSelectedFavoritedFilter,
     favoritedFilterLabel,
     categoriesList, selectedPaymentCategory, setSelectedPaymentCategory,
+    startDate, setStartDate,
+    endDate, setEndDate,
   } = usePayments();
 
   const {
@@ -181,6 +183,14 @@ export default function Reports() {
     return sortedData;
 
   }, [filteredList])
+
+  const onChangeStartDate = (_, selectedDate) => {
+    setStartDate(dayjs(selectedDate).format("DD/MM/YYYY"))
+  };
+
+  const onChangeEndDate = (_, selectedDate) => {
+    setEndDate(dayjs(selectedDate).format("DD/MM/YYYY"))
+  };
 
   return (
     <Menu>
@@ -358,35 +368,63 @@ export default function Reports() {
                   </Picker>
                 </View>
 
+
                 <View style={styles.listRow}>
-                  <FlatList
-                    showsHorizontalScrollIndicator={false}
-                    horizontal
-                    ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                    data={filterLabels}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          borderWidth: 1,
-                          borderRadius: 16,
-                          backgroundColor: 'transparent',
-                          borderColor: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}
-                        onPress={() => setSelectedPeriod(item)}
-                      >
-                        <Text style={{
-                          color: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}>
-                          {item}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  />
+                  <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                    Filtrar por período
+                  </Text>
+                </View>
+                <View style={{ ...styles.listRow, alignItems: 'center', marginHorizontal: 2 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput
+                      placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                      style={{
+                        ...styles.input,
+                        width: width * 0.32,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                      }}
+                      placeholder="Data inicio"
+                      value={startDate}
+                      editable={false}
+                    />
+                    <TouchableOpacity onPress={() => {
+                      DateTimePickerAndroid.open({
+                        themeVariant: currentTheme,
+                        value: new Date(Date.now()),
+                        onChange: onChangeStartDate,
+                        mode: 'date',
+                        is24Hour: false,
+                      });
+                    }} style={styles.buttonInputGroup}>
+                      <Feather name="calendar" size={24} color="#FFF" />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput
+                      placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                      style={{
+                        ...styles.input,
+                        width: width * 0.32,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                      }}
+                      placeholder="Data Fim"
+                      value={endDate}
+                      editable={false}
+                    />
+                    <TouchableOpacity onPress={() => {
+                      DateTimePickerAndroid.open({
+                        themeVariant: currentTheme,
+                        value: new Date(Date.now()),
+                        onChange: onChangeEndDate,
+                        mode: 'date',
+                        is24Hour: false,
+                      });
+                    }} style={styles.buttonInputGroup}>
+                      <Feather name="calendar" size={24} color="#FFF" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
 
                 {
@@ -787,5 +825,32 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 16,
     color: '#543b6c',
+  },
+  input: {
+    paddingHorizontal: 12,
+    backgroundColor: '#FFF',
+    borderColor: "#CCC",
+    borderRadius: 4,
+    width: '100%',
+    height: 48,
+    borderWidth: 1,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 0,
+  },
+  buttonInputGroup: {
+    width: 47,
+    height: 47,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#9c44dc',
+    borderColor: "#9c44dc",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 8,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 8,
   },
 })

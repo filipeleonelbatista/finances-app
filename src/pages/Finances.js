@@ -18,6 +18,8 @@ import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
 import { useTheme } from '../hooks/useTheme';
 import EmptyMessage from '../components/EmptyMessage';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { useWindowDimensions } from 'react-native';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -43,7 +45,11 @@ export default function Finances() {
     favoritedFilterLabel,
     categoriesList, selectedPaymentCategory, setSelectedPaymentCategory,
     search, setSearch,
+    startDate, setStartDate,
+    endDate, setEndDate,
   } = usePayments();
+
+  const { width } = useWindowDimensions();
 
   const {
     isEnableTitheCard,
@@ -87,6 +93,14 @@ export default function Finances() {
     'Ganhos': <Feather name="dollar-sign" size={28} color={"#12a454"} />,
     'Investimentos': <FontAwesome name="line-chart" size={28} color={"#12a454"} />,
   }
+
+  const onChangeStartDate = (_, selectedDate) => {
+    setStartDate(dayjs(selectedDate).format("DD/MM/YYYY"))
+  };
+
+  const onChangeEndDate = (_, selectedDate) => {
+    setEndDate(dayjs(selectedDate).format("DD/MM/YYYY"))
+  };
 
   return (
     <Menu>
@@ -231,35 +245,57 @@ export default function Finances() {
                     Filtrar por período
                   </Text>
                 </View>
-                <View style={styles.listRow}>
-                  <FlatList
-                    showsHorizontalScrollIndicator={false}
-                    horizontal
-                    ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                    data={filterLabels}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          borderWidth: 1,
-                          borderRadius: 16,
-                          backgroundColor: 'transparent',
-                          borderColor: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}
-                        onPress={() => setSelectedPeriod(item)}
-                      >
-                        <Text style={{
-                          color: item === selectedPeriod ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}>
-                          {item}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  />
+                <View style={{ ...styles.listRow, alignItems: 'center', marginHorizontal: 2 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput
+                      placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                      style={{
+                        ...styles.input,
+                        width: width * 0.33,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                      }}
+                      placeholder="Data inicio"
+                      value={startDate}
+                      editable={false}
+                    />
+                    <TouchableOpacity onPress={() => {
+                      DateTimePickerAndroid.open({
+                        themeVariant: currentTheme,
+                        value: new Date(Date.now()),
+                        onChange: onChangeStartDate,
+                        mode: 'date',
+                        is24Hour: false,
+                      });
+                    }} style={styles.buttonInputGroup}>
+                      <Feather name="calendar" size={24} color="#FFF" />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput
+                      placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                      style={{
+                        ...styles.input,
+                        width: width * 0.33,
+                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                      }}
+                      placeholder="Data Fim"
+                      value={endDate}
+                      editable={false}
+                    />
+                    <TouchableOpacity onPress={() => {
+                      DateTimePickerAndroid.open({
+                        themeVariant: currentTheme,
+                        value: new Date(Date.now()),
+                        onChange: onChangeEndDate,
+                        mode: 'date',
+                        is24Hour: false,
+                      });
+                    }} style={styles.buttonInputGroup}>
+                      <Feather name="calendar" size={24} color="#FFF" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
 
                 {
@@ -402,21 +438,27 @@ export default function Finances() {
             )
           }
         </View>
-        <View style={styles.list}>
-          <TextInput
-            placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-            style={{
-              ...styles.input,
-              backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-              color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-              marginBottom: 4
-            }}
-            placeholder="Pesquise os itens..."
-            onChangeText={text => setSearch(text)}
-            value={search}
-            editable={true}
-          />
-        </View>
+
+        {
+          filteredList.length > 0 && (
+            <View style={styles.list}>
+              <TextInput
+                placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                style={{
+                  ...styles.input,
+                  backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
+                  color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                  marginBottom: 4
+                }}
+                placeholder="Pesquise os itens..."
+                onChangeText={text => setSearch(text)}
+                value={search}
+                editable={true}
+              />
+            </View>
+          )
+        }
+
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
             <View style={styles.list}>
@@ -749,6 +791,24 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     width: '100%',
     height: 48,
-    borderWidth: 1
+    borderWidth: 1,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 0,
+  },
+  buttonInputGroup: {
+    width: 47,
+    height: 47,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#9c44dc',
+    borderColor: "#9c44dc",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 8,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 8,
   },
 })

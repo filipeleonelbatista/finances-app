@@ -20,6 +20,8 @@ export function PaymentsContextProvider(props) {
   const [selectedDateOrderFilter, setSelectedDateOrderFilter] = useState('Vencimento');
   const [selectedFavoritedFilter, setSelectedFavoritedFilter] = useState('Todos');
   const [search, setSearch] = useState('');
+  const [startDate, setStartDate] = useState(dayjs().startOf('month').format("DD/MM/YYYY"));
+  const [endDate, setEndDate] = useState(dayjs().endOf('month').format("DD/MM/YYYY"));
 
   const favoritedFilterLabel = [
     'Todos',
@@ -56,21 +58,21 @@ export function PaymentsContextProvider(props) {
 
   const categoriesList = [
     'Todos',
-    'Vestuário',
-    'Streaming',
-    'Estudos',
-    'Moradia',
-    'Beleza',
-    'Emergência',
-    'Mercado',
-    'TV/Internet/Telefone',
-    'Transporte',
-    'Saúde',
+    'Outros',
     'Bares e Restaurantes',
+    'Beleza',
     'Cartão',
+    'Emergência',
+    'Estudos',
     'Ganhos',
     'Investimentos',
-    'Outros',
+    'Mercado',
+    'Moradia',
+    'Saúde',
+    'Streaming',
+    'TV/Internet/Telefone',
+    'Transporte',
+    'Vestuário',
   ]
 
   const [selectedTransaction, setSelectedTransaction] = useState();
@@ -98,70 +100,9 @@ export function PaymentsContextProvider(props) {
 
       const filteredByPeriod = filteredWords.filter(item => {
         const itemDate = dayjs(item.date)
-
-        if (selectedPeriod === 'Todos') {
-          return true;
-        }
-        if (selectedPeriod === 'Próximo mês') {
-          const startOfNextMonth = dayjs().add(1, 'month').startOf('month');
-          const endOfNextMonth = dayjs().add(2, 'month').startOf('month').subtract(1, 'day');
-          return itemDate.isSameOrAfter(startOfNextMonth) && itemDate.isSameOrBefore(endOfNextMonth);
-        }
-        if (selectedPeriod === 'Próxima semana') {
-          const startOfLastWeek = dayjs().add(1, 'week').startOf('week');
-          const endOfLastWeek = dayjs().add(1, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Em duas semanas') {
-          const startOfLastWeek = dayjs().add(2, 'week').startOf('week');
-          const endOfLastWeek = dayjs().add(2, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Em três semanas') {
-          const startOfLastWeek = dayjs().add(3, 'week').startOf('week');
-          const endOfLastWeek = dayjs().add(3, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Em quatro semanas') {
-          const startOfLastWeek = dayjs().add(4, 'week').startOf('week');
-          const endOfLastWeek = dayjs().add(4, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Este mês') {
-          const firstDayOfMonth = dayjs().startOf('month');
-          const lastDayOfMonth = dayjs().endOf('month');
-          return itemDate.isSameOrAfter(firstDayOfMonth) && itemDate.isSameOrBefore(lastDayOfMonth);
-        }
-        if (selectedPeriod === 'Esta semana') {
-          const startOfWeek = dayjs().startOf('week');
-          const endOfWeek = dayjs().endOf('week');
-          return itemDate.isSameOrAfter(startOfWeek) && itemDate.isSameOrBefore(endOfWeek);
-        }
-        if (selectedPeriod === 'Semana passada') {
-          const startOfLastWeek = dayjs().subtract(1, 'week').startOf('week');
-          const endOfLastWeek = dayjs().subtract(1, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Duas semanas atrás') {
-          const startOfLastWeek = dayjs().subtract(2, 'week').startOf('week');
-          const endOfLastWeek = dayjs().subtract(2, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Três semanas atrás') {
-          const startOfLastWeek = dayjs().subtract(3, 'week').startOf('week');
-          const endOfLastWeek = dayjs().subtract(3, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Quatro semanas atrás') {
-          const startOfLastWeek = dayjs().subtract(4, 'week').startOf('week');
-          const endOfLastWeek = dayjs().subtract(4, 'week').endOf('week');
-          return itemDate.isSameOrAfter(startOfLastWeek) && itemDate.isSameOrBefore(endOfLastWeek);
-        }
-        if (selectedPeriod === 'Mês passado') {
-          const startOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
-          const endOfLastMonth = dayjs().subtract(1, 'month').endOf('month');
-          return itemDate.isSameOrAfter(startOfLastMonth) && itemDate.isSameOrBefore(endOfLastMonth);
-        }
+        const currentStartDate = dayjs(`${startDate.split('/')[2]}-${startDate.split('/')[1]}-${startDate.split('/')[0]}`)
+        const currentEndDate = dayjs(`${endDate.split('/')[2]}-${endDate.split('/')[1]}-${endDate.split('/')[0]}`)
+        return itemDate.isSameOrAfter(currentStartDate) && itemDate.isSameOrBefore(currentEndDate)
       })
 
       const filteredByPaymentCategory = filteredByPeriod.filter(item => {
@@ -240,7 +181,9 @@ export function PaymentsContextProvider(props) {
     selectedDateOrderFilter,
     selectedFavoritedFilter,
     selectedPaymentCategory,
-    search
+    search,
+    startDate,
+    endDate,
   ])
 
   const listTotal = useMemo(() => {
@@ -455,6 +398,8 @@ export function PaymentsContextProvider(props) {
         categoriesList,
         selectedPaymentCategory, setSelectedPaymentCategory,
         search, setSearch,
+        startDate, setStartDate,
+        endDate, setEndDate,
       }}
     >
       {props.children}

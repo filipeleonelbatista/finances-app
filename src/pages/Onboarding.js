@@ -128,9 +128,8 @@ export default function Onboarding() {
           height: height,
           backgroundColor: '#442c61',
           alignItems: "center",
-          justifyContent: 'flex-start',
+          justifyContent: 'center',
           paddingHorizontal: 24,
-          paddingTop: 24,
         }}>
           <Image
             source={item.image}
