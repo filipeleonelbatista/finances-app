@@ -5,7 +5,7 @@ import { ImageBackground, View } from 'react-native';
 
 import bgImg from '../assets/images/background.png';
 
-export default function Header({ title, iconComponent }) {
+export default function Header({ title, iconComponent, isLeft = false }) {
   const theme = useTheme();
 
   const bg = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[900]);
@@ -18,8 +18,8 @@ export default function Header({ title, iconComponent }) {
       width: '100%',
       backgroundColor: theme.colors.purple[600],
     }}>
-      <HStack alignItems="center" justifyContent='space-between' px={4}>
-        <Box w={10} />
+      <HStack justifyContent='space-between' alignItems={'center'} px={4}>
+        {isLeft ? (iconComponent) : < Box w={10} />}
         <Text
           color={headerText}
           bold
@@ -27,7 +27,7 @@ export default function Header({ title, iconComponent }) {
         >
           {title}<Text color={theme.colors.purple[800]}>$</Text>
         </Text>
-        {iconComponent}
+        {!isLeft ? (iconComponent) : < Box w={10} />}
       </HStack>
     </ImageBackground>
   )

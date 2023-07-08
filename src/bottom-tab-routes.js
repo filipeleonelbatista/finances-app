@@ -24,6 +24,7 @@ export default function BottomTabRoutes() {
     <Tab.Navigator
       initialRouteName={"Finanças"}
       screenOptions={{
+        tabBarHideOnKeyboard: true,
         headerShown: false,
         tabBarStyle: {
           backgroundColor: bg,

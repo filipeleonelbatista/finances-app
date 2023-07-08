@@ -1,28 +1,25 @@
 import React, { useState } from 'react';
 
-import { ScrollView, VStack, useColorModeValue, useTheme, Text, IconButton, HStack, Box, Input, Button } from 'native-base';
-import { Dimensions, FlatList, ImageBackground, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Actionsheet, Box, Button, HStack, IconButton, Input, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
+import { Dimensions, FlatList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { RectButton, } from 'react-native-gesture-handler';
 
 import { Feather, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { useEffect } from 'react';
 import { useWindowDimensions } from 'react-native';
-import bgImg from '../assets/images/background.png';
-import AddItemForm from '../components/AddItemForm';
-import EditItemForm from '../components/EditItemForm';
 import EmptyMessage from '../components/EmptyMessage';
-import Modal from '../components/Modal';
+import Header from '../components/Header';
+import { usePages } from '../hooks/usePages';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
-import { useForms } from '../hooks/useForms';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
-import { useEffect } from 'react';
-import Header from '../components/Header';
+import EditItemForm from '../components/EditItemForm';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -35,15 +32,21 @@ export default function Finances() {
   const headerText = useColorModeValue('white', theme.colors.gray[800]);
   const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
 
-  const { setSelectedSheet } = useForms();
+  const { setSelectedSheet } = usePages();
 
   const isFocused = useIsFocused();
 
   useEffect(() => {
     if (isFocused) {
-      setSelectedSheet('add-finances')
+      setSelectedSheet('Finanças')
     }
   }, [isFocused])
+
+  const {
+    isOpen,
+    onOpen,
+    onClose
+  } = useDisclose();
 
   const navigation = useNavigation();
 
@@ -135,6 +138,9 @@ export default function Finances() {
               borderRadius='full'
               icon={<Feather name="settings" size={20} color={headerText} />}
               onPress={() => navigation.navigate("Configuracoes")}
+              _pressed={{
+                color: theme.colors.purple[300]
+              }}
             />
           }
         />
@@ -272,31 +278,6 @@ export default function Finances() {
           {
             openFilter && (
               <VStack space={2}>
-                <HStack justifyContent="space-between">
-                  <Text color={text} fontSize={16} bold>
-                    Entradas/Saídas
-                  </Text>
-                  <Picker
-                    selectedValue={selectedtypeofpayment}
-                    onValueChange={(itemValue, itemIndex) =>
-                      setselectedtypeofpayment(itemValue)
-                    }
-                    mode='dropdown'
-                    dropdownIconColor={theme.colors.purple[600]}
-                    dropdownIconRippleColor={theme.colors.purple[600]}
-                    enabled
-                    style={{
-                      width: '50%',
-                      borderRadius: 4,
-                      color: text
-                    }}
-                  >
-                    <Picker.Item label="Todas" value="0" />
-                    <Picker.Item label="Entradas" value="1" />
-                    <Picker.Item label="Saídas" value="2" />
-                  </Picker>
-                </HStack>
-
                 <VStack space={2}>
                   <Text color={text} fontSize={16} bold>
                     Filtrar por período
@@ -361,11 +342,35 @@ export default function Finances() {
                   </HStack>
                 </VStack>
 
+                <HStack justifyContent="space-between" alignItems="center">
+                  <Text color={text} fontSize={16} bold>
+                    Entradas/Saídas
+                  </Text>
+                  <Picker
+                    selectedValue={selectedtypeofpayment}
+                    onValueChange={(itemValue, itemIndex) =>
+                      setselectedtypeofpayment(itemValue)
+                    }
+                    mode='dropdown'
+                    dropdownIconColor={theme.colors.purple[600]}
+                    dropdownIconRippleColor={theme.colors.purple[600]}
+                    enabled
+                    style={{
+                      width: '50%',
+                      borderRadius: 4,
+                      color: text
+                    }}
+                  >
+                    <Picker.Item label="Todas" value="0" />
+                    <Picker.Item label="Entradas" value="1" />
+                    <Picker.Item label="Saídas" value="2" />
+                  </Picker>
+                </HStack>
                 {
                   !simpleFinancesItem && (
                     <>
-                      <View style={styles.listRow}>
-                        <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                      <HStack justifyContent="space-between" alignItems="center">
+                        <Text color={text} fontSize={16} bold>
                           Categoria de gastos
                         </Text>
                         <Picker
@@ -374,12 +379,12 @@ export default function Finances() {
                             setSelectedPaymentCategory(itemValue)
                           }
                           mode='dropdown'
-                          dropdownIconColor={'#9c44dc'}
-                          dropdownIconRippleColor={'#9c44dc'}
+                          dropdownIconColor={theme.colors.purple[600]}
+                          dropdownIconRippleColor={theme.colors.purple[600]}
                           enabled
                           style={{
                             width: '50%',
-                            borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                            borderRadius: 4, color: text
                           }}
                         >
                           {
@@ -388,11 +393,12 @@ export default function Finances() {
                             ))
                           }
                         </Picker>
-                      </View>
-                      <View style={styles.listRow}>
-                        <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Filtrar por Status de pagamento</Text>
-                      </View>
-                      <View style={styles.listRow}>
+                      </HStack>
+
+                      <VStack space={2}>
+                        <Text color={text} fontSize={16} bold>
+                          Status de pagamento
+                        </Text>
                         <FlatList
                           showsHorizontalScrollIndicator={false}
                           horizontal
@@ -409,64 +415,25 @@ export default function Finances() {
                                 borderWidth: 1,
                                 borderRadius: 16,
                                 backgroundColor: 'transparent',
-                                borderColor: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                                borderColor: item === selectedPaymentStatus ? theme.colors.purple[600] : text,
                               }}
                               onPress={() => setSelectedPaymentStatus(item)}
                             >
-                              <Text style={{
-                                color: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}>
+                              <Text color={item === selectedPaymentStatus ? theme.colors.purple[600] : text}>
                                 {item}
                               </Text>
                             </TouchableOpacity>
                           )}
                         />
-                      </View>
-                      <View style={styles.listRow}>
-                        <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                          Ordenar por data
-                        </Text>
-                      </View>
-                      <View style={styles.listRow}>
-                        <FlatList
-                          showsHorizontalScrollIndicator={false}
-                          horizontal
-                          ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                          data={dateOrderOptions}
-                          renderItem={({ item }) => (
-                            <TouchableOpacity
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingHorizontal: 8,
-                                paddingVertical: 4,
-                                borderWidth: 1,
-                                borderRadius: 16,
-                                backgroundColor: 'transparent',
-                                borderColor: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}
-                              onPress={() => setSelectedDateOrderFilter(item)}
-                            >
-                              <Text style={{
-                                color: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}>
-                                {item}
-                              </Text>
-                            </TouchableOpacity>
-                          )}
-                        />
-                      </View>
+                      </VStack>
                     </>
                   )
                 }
 
-                <View style={styles.listRow}>
-                  <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                <VStack>
+                  <Text color={text} fontSize={16} bold>
                     Favoritos
                   </Text>
-                </View>
-                <View style={styles.listRow}>
                   <FlatList
                     showsHorizontalScrollIndicator={false}
                     horizontal
@@ -483,55 +450,40 @@ export default function Finances() {
                           borderWidth: 1,
                           borderRadius: 16,
                           backgroundColor: 'transparent',
-                          borderColor: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
+                          borderColor: item === selectedFavoritedFilter ? theme.colors.purple[600] : text,
                         }}
                         onPress={() => setSelectedFavoritedFilter(item)}
                       >
-                        <Text style={{
-                          color: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}>
+                        <Text color={item === selectedFavoritedFilter ? theme.colors.purple[600] : text}>
                           {item}
                         </Text>
                       </TouchableOpacity>
                     )}
                   />
-                </View>
-
+                </VStack>
               </VStack>
-            )
-          }
-
-
+            )}
         </VStack>
 
         {
           filteredList.length > 0 && (
-            <View style={styles.list}>
-              <TextInput
-                placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                style={{
-                  ...styles.input,
-                  backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                  color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                  marginBottom: 4
-                }}
-                placeholder="Pesquise os itens..."
-                onChangeText={text => setSearch(text)}
-                value={search}
-                editable={true}
-              />
-            </View>
+            <Input
+              placeholder="Pesquise os itens..."
+              onChangeText={text => setSearch(text)}
+              value={search}
+              editable={true}
+              mx={4}
+              mt={2}
+            />
           )
         }
 
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
-            <View style={styles.list}>
-              <View style={styles.listRow}>
-                <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                  Toque no item para visualizar e depois editar ou excluir.{'\n'}Segure para adicionar/remover dos favoritos
-                </Text>
-              </View>
+            <VStack space={4} px={4} mt={2} mb={6}>
+              <Text color={text}>
+                Toque no item para visualizar e depois editar ou excluir.{'\n'}Segure para adicionar/remover dos favoritos
+              </Text>
 
               {
                 filteredList.map(item => (
@@ -539,7 +491,7 @@ export default function Finances() {
                     key={item.id}
                     onPress={() => {
                       setSelectedTransaction(item)
-                      setOpenModalSeeTransaction(true)
+                      onOpen()
                     }}
                     onLongPress={() => {
                       handleFavorite(item)
@@ -655,9 +607,10 @@ export default function Finances() {
                 ))
               }
 
-              <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
-                <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
-                <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+
+              <HStack justifyContent="space-between">
+                <Text color={text} fontSize={18} bold >Total</Text>
+                <Text color={text} fontSize={18} bold >
                   {listTotal.toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL',
@@ -666,13 +619,18 @@ export default function Finances() {
                     useGrouping: true,
                   })}
                 </Text>
-              </View>
-            </View>
+              </HStack>
+            </VStack>
           )
         }
-        <View style={{ height: 80 }} />
       </ScrollView>
-    </VStack>
+
+      <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
+        <Actionsheet.Content minH={height * 0.8}>
+          <EditItemForm onClose={onClose} selectedTransaction={selectedTransaction} />
+        </Actionsheet.Content>
+      </Actionsheet>
+    </VStack >
   );
 }
 

@@ -1,12 +1,13 @@
 import { Feather } from '@expo/vector-icons';
 import { Actionsheet, IconButton, Text, useDisclose } from 'native-base';
 import { useWindowDimensions } from 'react-native';
-import { useForms } from '../hooks/useForms';
+import { usePages } from '../hooks/usePages';
+import AddItemForm from './AddItemForm';
 
 export default function AddButton() {
   const { height } = useWindowDimensions();
 
-  const { selectedSheet } = useForms();
+  const { selectedSheet } = usePages();
 
   const {
     isOpen,
@@ -26,7 +27,9 @@ export default function AddButton() {
     />
     <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
       <Actionsheet.Content minH={height * 0.8}>
-        <Text>{selectedSheet}</Text>
+        {
+          selectedSheet === "Finanças" ? (<AddItemForm onClose={onClose} />) : null
+        }
       </Actionsheet.Content>
     </Actionsheet>
   </>;

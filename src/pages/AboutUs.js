@@ -1,8 +1,8 @@
 import { Feather } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { VStack, useColorMode, useColorModeValue } from 'native-base';
+import { IconButton, VStack, useColorMode, useColorModeValue, useTheme } from 'native-base';
 import React from 'react';
-import { Alert, BackHandler, Dimensions, Image, ImageBackground, KeyboardAvoidingView, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
+import { Alert, BackHandler, Dimensions, Image, KeyboardAvoidingView, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 
 import * as FileSystem from 'expo-file-system';
@@ -16,20 +16,24 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { jsonToCSV, readString } from 'react-native-csv';
 import { v4 } from 'uuid';
 import userImg from '../assets/icon.png';
-import bgImg from '../assets/images/background.png';
+import Header from '../components/Header';
 import { useMarket } from '../hooks/useMarket';
 import { usePayments } from '../hooks/usePayments';
 import { useRuns } from '../hooks/useRuns';
 import { useSettings } from '../hooks/useSettings';
-import { useTheme } from '../hooks/useTheme';
 
 export default function AboutUs() {
+    const theme = useTheme();
+    const bg = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[900]);
+    const headerText = useColorModeValue('white', theme.colors.gray[800]);
+    const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
+
     const navigation = useNavigation();
     const {
         colorMode,
         toggleColorMode
     } = useColorMode();
-    
+
     const height = useHeaderHeight()
 
     const {
@@ -62,11 +66,6 @@ export default function AboutUs() {
     } = useSettings();
 
     const { handleAddFinances } = useMarket();
-
-    const {
-        currentTheme,
-        handleToggleTheme
-    } = useTheme();
 
     async function handleClearMarket() {
         Alert.alert(
@@ -303,20 +302,24 @@ export default function AboutUs() {
                 <ScrollView
                     style={styles.ScrollViewContainer}
                 >
-                    <ImageBackground source={bgImg} style={styles.header}>
-                        <View style={styles.headerItens}>
-                            <Text style={{
-                                fontFamily: 'Poppins_600SemiBold',
-                                fontSize: 28,
-                                color: currentTheme === 'dark' ? '#1c1e21' : '#FFF'
-                            }}>
-                                Configuraçõe<Text style={{ color: '#543b6c' }}>$</Text>
-                            </Text>
-                        </View>
-                    </ImageBackground>
+                    <Header
+                        isLeft
+                        title="Configuraçõe"
+                        iconComponent={
+                            <IconButton
+                                size={10}
+                                borderRadius='full'
+                                icon={<Feather name="arrow-left" size={20} color={headerText} />}
+                                onPress={() => navigation.goBack()}
+                                _pressed={{
+                                    color: theme.colors.purple[300]
+                                }}
+                            />
+                        }
+                    />
                     <View style={styles.imageContainer}>
                         <View style={styles.imageBorder} >
-                            <View style={{ ...styles.imageBackgroundWhite, backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF' }}>
+                            <View style={{ ...styles.imageBackgroundWhite, backgroundColor: colorMode === 'dark' ? '#1c1e21' : '#FFF' }}>
                                 <Image source={userImg} style={styles.image} />
                             </View>
                         </View>
@@ -330,15 +333,15 @@ export default function AboutUs() {
                             onValueChange={toggleColorMode}
                             value={colorMode === 'dark'}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
                             Habilitar Tema Escuro
                         </Text>
                     </View>
                     <View style={{ width: '100%', alignItems: 'center' }}>
-                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
+                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: colorMode === 'dark' ? '#FFF' : '#1c1e21' }} />
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
-                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
                             Finanças
                         </Text>
                     </View>
@@ -350,7 +353,7 @@ export default function AboutUs() {
                             onValueChange={handleSetSimpleFinancesItem}
                             value={simpleFinancesItem}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
                             Usar formulário simplificado de itens
                         </Text>
                     </View>
@@ -362,7 +365,7 @@ export default function AboutUs() {
                             onValueChange={handleSwitchViewTotalHistoryCard}
                             value={isEnableTotalHistoryCard}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar card de Saldo</Text>
+                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar card de Saldo</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
                         <Switch
@@ -372,7 +375,7 @@ export default function AboutUs() {
                             onValueChange={handleSwitchViewTitheCard}
                             value={isEnableTitheCard}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar card de Dízimo</Text>
+                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar card de Dízimo</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
                         <Switch
@@ -382,17 +385,17 @@ export default function AboutUs() {
                             onValueChange={handleWillRemovePrefixToRemove}
                             value={willUsePrefixToRemoveTihteSum}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Remover itens com o prefixo da soma do Dízimo</Text>
+                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>Remover itens com o prefixo da soma do Dízimo</Text>
                     </View>
                     <View style={{ paddingHorizontal: 24 }}>
-                        <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Prefixo</Text>
+                        <Text style={{ ...styles.label, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>Prefixo</Text>
                         <TextInput
 
-                            placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                            placeholderTextColor={colorMode === 'dark' ? '#FFF' : '#1c1e21'}
                             style={{
                                 ...styles.input,
-                                backgroundColor: !willUsePrefixToRemoveTihteSum ? currentTheme === 'dark' ? '#333' : '#DDD' : currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                                color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                                backgroundColor: !willUsePrefixToRemoveTihteSum ? colorMode === 'dark' ? '#333' : '#DDD' : colorMode === 'dark' ? '#1c1e21' : '#FFF',
+                                color: colorMode === 'dark' ? '#FFF' : '#1c1e21',
                                 marginBottom: 4
                             }}
                             placeholder="Prefixo"
@@ -400,7 +403,7 @@ export default function AboutUs() {
                             value={prefixTithe}
                             editable={willUsePrefixToRemoveTihteSum}
                         />
-                        <Text style={{ ...styles.helperText, color: currentTheme === 'dark' ? "#CCC" : "#666" }}>Se o título da transação tiver este prefixo não será contado na soma do dízimo</Text>
+                        <Text style={{ ...styles.helperText, color: colorMode === 'dark' ? "#CCC" : "#666" }}>Se o título da transação tiver este prefixo não será contado na soma do dízimo</Text>
                     </View>
 
                     <RectButton onPress={handleGenerateCSV} style={styles.button}>
@@ -416,8 +419,8 @@ export default function AboutUs() {
                         </Text>
                     </RectButton>
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
+                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
+                        Use um arquivo <Text style={{ color: colorMode === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
                         gerado pelo sistema para importar os dados de um amigo ou familiar.
                     </Text>
 
@@ -429,10 +432,10 @@ export default function AboutUs() {
                     </RectButton>
 
                     <View style={{ width: '100%', alignItems: 'center' }}>
-                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
+                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: colorMode === 'dark' ? '#FFF' : '#1c1e21' }} />
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
-                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
                             Combustível
                         </Text>
                     </View>
@@ -444,7 +447,7 @@ export default function AboutUs() {
                             onValueChange={handleToggleWillAddFuel}
                             value={willAddFuelToTransactionList}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
                             Habilitar adicionar abastecimento automaticamente em finanças
                         </Text>
                     </View>
@@ -468,15 +471,15 @@ export default function AboutUs() {
                         </Text>
                     </RectButton>
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
+                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
+                        Use um arquivo <Text style={{ color: colorMode === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
                         para importar dados com as colunas Local do abastecimento, Data do abasatecimento, Tipo, Valor Litro, Valor pago, Km Atual.
                     </Text> */}
                     <View style={{ width: '100%', alignItems: 'center' }}>
-                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
+                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: colorMode === 'dark' ? '#FFF' : '#1c1e21' }} />
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
-                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
                             Mercado
                         </Text>
                     </View>
@@ -488,7 +491,7 @@ export default function AboutUs() {
                             onValueChange={handleSetmarketSimplifiedItems}
                             value={marketSimplifiedItems}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
                             Usar formulário simplificado de itens
                         </Text>
                     </View>
@@ -505,7 +508,7 @@ export default function AboutUs() {
                         </Text>
                     </RectButton>
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
                         Para remover basta clicar no item em Finanças e excluir.
                     </Text>
 
@@ -522,15 +525,15 @@ export default function AboutUs() {
                         </Text>
                     </RectButton>
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
-                        Use um arquivo <Text style={{ color: currentTheme === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
+                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
+                        Use um arquivo <Text style={{ color: colorMode === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
                         para importar dados com as colunas Produto, Categoria, Quantidade, Valor.
                     </Text> */}
                     <View style={{ width: '100%', alignItems: 'center' }}>
-                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
+                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: colorMode === 'dark' ? '#FFF' : '#1c1e21' }} />
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
-                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
                             Geral
                         </Text>
                     </View>
@@ -549,12 +552,12 @@ export default function AboutUs() {
                         </Text>
                     </RectButton>
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
                         Essa opção apagará todos os registros do app.
                     </Text>
 
                     <View style={{ width: '100%', alignItems: 'center' }}>
-                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
+                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: colorMode === 'dark' ? '#FFF' : '#1c1e21' }} />
                     </View>
 
                     <RectButton onPress={() => { Linking.openURL("https://filipeleonelbatista.vercel.app/") }} style={styles.button}>
@@ -564,7 +567,7 @@ export default function AboutUs() {
                         </Text>
                     </RectButton>
 
-                    <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+                    <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
                         Versão {Constants.manifest.version}
                     </Text>
                     <View style={{ height: 32 }} />

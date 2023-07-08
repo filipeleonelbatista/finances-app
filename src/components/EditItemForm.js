@@ -3,21 +3,20 @@ import React, { useMemo, useState } from 'react';
 
 import { Feather } from '@expo/vector-icons';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 import { useFormik } from 'formik';
-import { Dimensions, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Box, Button, HStack, IconButton, Input, ScrollView, Text, VStack, useColorModeValue, useTheme } from 'native-base';
+import { Dimensions, StyleSheet, Switch, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as Yup from 'yup';
 import { usePayments } from '../hooks/usePayments';
-import { useTheme } from '../hooks/useTheme';
 import { useSettings } from '../hooks/useSettings';
-import { Picker } from '@react-native-picker/picker';
 
 export default function EditItemForm({ onClose, selectedTransaction }) {
-    const [isEditable, setIsEditable] = useState(false)
+    const theme = useTheme();
+    const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
 
-    const {
-        currentTheme
-    } = useTheme();
+    const [isEditable, setIsEditable] = useState(false)
 
     const { simpleFinancesItem } = useSettings();
 
@@ -91,126 +90,126 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
     };
 
     return (
-        <>
-            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{isEditable ? 'Editar' : 'Visualizar'} transação</Text>
-            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{isEditable ? 'Edite' : 'Visualize'} informações sobre o entrada ou saída selecionada.</Text>
-
-            <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Descrição</Text>
-                <TextInput
-                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                    style={{
-                        ...styles.input,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        <ScrollView
+            w={'100%'}
+            px={4}
+        >
+            <HStack space={2} mb={2} justifyContent="space-between">
+                {
+                    !isEditable ? (
+                        <IconButton
+                            onPress={() => setIsEditable(true)}
+                            _pressed={{
+                                bgColor: 'green.300'
+                            }}
+                            icon={<Feather name="edit" size={24} color={theme.colors.green[500]} />}
+                            borderRadius={4}
+                            borderWidth={1}
+                            borderColor={theme.colors.green[500]}
+                        />
+                    ) : <Box w={10} />
+                }
+                <Text bold fontSize={24} color={text}>
+                    {isEditable ? 'Editar' : 'Visualizar'} transação
+                </Text>
+                <IconButton
+                    onPress={() => {
+                        deleteTransaction(selectedTransaction)
+                        onClose()
                     }}
+                    _pressed={{
+                        bgColor: 'red.300'
+                    }}
+                    icon={<Feather name="trash" size={24} color={theme.colors.red[500]} />}
+                    borderRadius={4}
+                    borderWidth={1}
+                    borderColor={theme.colors.red[500]}
+                />
+            </HStack>
+            <Text color={text} mb={2}>
+                {isEditable ? 'Edite' : 'Visualize'} informações sobre o entrada ou saída selecionada.
+            </Text>
+            <VStack space={2}>
+                <Text color={text}>
+                    Descrição
+                </Text>
+                <Input
+                    isDisabled={!isEditable}
+                    errors={!!formik.errors.description}
+                    helperText={formik.errors.description}
                     placeholder="Descrição"
-                    editable={isEditable}
-                    selectTextOnFocus={isEditable}
                     onChangeText={(text) => formik.setFieldValue('description', text)}
                     value={formik.values.description}
                 />
-                {formik.errors.description && (
-                    <Text style={styles.helperText}>{formik.errors.description}</Text>
-                )}
-            </View>
-            <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor</Text>
-                <TextInput
-                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                    style={{
-                        ...styles.input,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                    }}
-                    editable={isEditable}
-                    selectTextOnFocus={isEditable}
+            </VStack>
+            <VStack space={2}>
+                <Text color={text}>
+                    Valor
+                </Text>
+                <Input
+                    isDisabled={!isEditable}
+                    errors={!!formik.errors.amount}
+                    helperText={formik.errors.amount}
                     keyboardType="decimal-pad"
                     placeholder="Valor"
                     onChangeText={(text) => formik.setFieldValue('amount', moeda(text))}
                     value={formik.values.amount}
                 />
-            </View>
-            {formik.errors.amount && (
-                <Text style={styles.helperText}>{formik.errors.amount}</Text>
-            )}
-            <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data de vencimento</Text>
-                <View style={styles.inputGroup}>
-                    <Pressable
-                        onPress={() => {
-                            !isEditable ? null :
-                                DateTimePickerAndroid.open({
-                                    themeVariant: currentTheme,
-                                    value: new Date(Date.now()),
-                                    onChange,
-                                    mode: 'date',
-                                    is24Hour: false,
-                                });
-                        }}
-                        style={{
-                            width: '82%',
-                        }}
-                    >
-                        <View
-                            style={{
-                                width: '100%',
+            </VStack>
+            <VStack space={2}>
+                <Text color={text}>
+                    Data de vencimento
+                </Text>
+                <Input
+                    isDisabled={!isEditable}
+                    errors={!!formik.errors.date}
+                    helperText={formik.errors.date}
+                    placeholder="DD/MM/AAAA"
+                    value={formik.values.date}
+                    editable={false}
+                    rightElement={
+                        <Button
+                            size="xs"
+                            rounded="none"
+                            w="1/4"
+                            p={0}
+                            h="full"
+                            bgColor={theme.colors.purple[600]}
+                            onPress={() => {
+                                isEditable &&
+                                    DateTimePickerAndroid.open({
+                                        value: new Date(Date.now()),
+                                        onChange,
+                                        mode: 'date',
+                                        is24Hour: false,
+                                    });
                             }}
-                            pointerEvents='none'
                         >
-                            <TextInput
-                                placeholder="dd/mm/aaaa"
-                                keyboardType="decimal-pad"
-                                editable={isEditable}
-                                selectTextOnFocus={isEditable}
-                                maxLength={10}
-                                value={formik.values.date}
-                                placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                                style={{
-                                    ...styles.inputInputGroup,
-                                    width: '100%',
-                                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                                }}
-                            />
-                        </View>
-                    </Pressable>
-                    <TouchableOpacity onPress={() => {
-                        !isEditable ? null :
-                            DateTimePickerAndroid.open({
-                                themeVariant: currentTheme,
-                                value: new Date(Date.now()),
-                                onChange,
-                                mode: 'date',
-                                is24Hour: false,
-                            });
-                    }} style={styles.buttonInputGroup}>
-                        <Feather name="calendar" size={24} color="#FFF" />
-                    </TouchableOpacity>
-                </View>
-
-                {formik.errors.date && (
-                    <Text style={styles.helperText}>{formik.errors.date}</Text>
-                )}
-            </View>
+                            <Feather name="calendar" size={24} color="#FFF" />
+                        </Button>
+                    }
+                />
+            </VStack>
 
             {
                 !simpleFinancesItem && (
                     <>
-                        <View>
-                            <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Categoria</Text>
+                        <VStack space={2}>
+                            <Text bold fontSize={18} color={text}>
+                                Categoria
+                            </Text>
                             <Picker
                                 selectedValue={formik.values.category ?? 'Outros'}
                                 onValueChange={(itemValue, itemIndex) =>
                                     formik.setFieldValue("category", itemValue)
                                 }
                                 mode='dropdown'
-                                dropdownIconColor={'#9c44dc'}
-                                dropdownIconRippleColor={'#9c44dc'}
+                                dropdownIconColor={theme.colors.purple[600]}
+                                dropdownIconRippleColor={theme.colors.purple[600]}
                                 enabled={isEditable}
                                 style={{
                                     width: '100%',
-                                    borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                                    borderRadius: 4, color: text
                                 }}
                             >
                                 {
@@ -219,118 +218,82 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
                                     ))
                                 }
                             </Picker>
-                        </View>
-                        <View>
-                            <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data de pagamento</Text>
-                            <View style={styles.inputGroup}>
-                                <Pressable
-                                    onPress={() => {
-                                        !isEditable ? null :
-                                            DateTimePickerAndroid.open({
-                                                themeVariant: currentTheme,
-                                                value: new Date(Date.now()),
-                                                onChange: onChangePaymentDate,
-                                                mode: 'date',
-                                                is24Hour: false,
-                                            });
-                                    }}
-                                    style={{
-                                        width: '82%',
-                                    }}
-                                >
-                                    <View
-                                        style={{
-                                            width: '100%',
+                        </VStack>
+                        <VStack space={2}>
+                            <Text color={text}>
+                                Data do pagamento
+                            </Text>
+                            <Input
+                                isDisabled={!isEditable}
+                                errors={!!formik.errors.paymentDate}
+                                helperText={formik.errors.paymentDate}
+                                placeholder="DD/MM/AAAA"
+                                value={formik.values.paymentDate}
+                                editable={false}
+                                rightElement={
+                                    <Button
+                                        size="xs"
+                                        rounded="none"
+                                        w="1/4"
+                                        p={0}
+                                        h="full"
+                                        bgColor={theme.colors.purple[600]}
+                                        onPress={() => {
+                                            isEditable &&
+                                                DateTimePickerAndroid.open({
+                                                    value: new Date(Date.now()),
+                                                    onChange: onChangePaymentDate,
+                                                    mode: 'date',
+                                                    is24Hour: false,
+                                                });
                                         }}
-                                        pointerEvents='none'
                                     >
-                                        <TextInput
-                                            placeholder="dd/mm/aaaa"
-                                            keyboardType="decimal-pad"
-                                            editable={isEditable}
-                                            selectTextOnFocus={isEditable}
-                                            maxLength={10}
-                                            value={formik.values.paymentDate}
-                                            placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                                            style={{
-                                                ...styles.inputInputGroup,
-                                                width: '100%',
-                                                backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                                                color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                                            }}
-                                        />
-                                    </View>
-                                </Pressable>
-                                <TouchableOpacity onPress={() => {
-                                    !isEditable ? null :
-                                        DateTimePickerAndroid.open({
-                                            themeVariant: currentTheme,
-                                            value: new Date(Date.now()),
-                                            onChange: onChangePaymentDate,
-                                            mode: 'date',
-                                            is24Hour: false,
-                                        });
-                                }} style={styles.buttonInputGroup}>
-                                    <Feather name="calendar" size={24} color="#FFF" />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
+                                        <Feather name="calendar" size={24} color="#FFF" />
+                                    </Button>
+                                }
+                            />
+                        </VStack>
                     </>
                 )
             }
 
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <HStack space={2} alignItems="center">
                 <Switch
                     disabled={!isEditable}
-                    trackColor={{ false: "#767577", true: "#767577" }}
-                    thumbColor={formik.values.isEnabled ? "#9c44dc" : "#3e3e3e"}
-                    ios_backgroundColor="#3e3e3e"
+                    trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                    thumbColor={formik.values.isEnabled ? theme.colors.purple[600] : theme.colors.gray[800]}
+                    ios_backgroundColor={theme.colors.gray[800]}
                     onValueChange={toggleSwitch}
                     value={formik.values.isEnabled}
                 />
-                <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>É despesa?</Text>
-            </View>
-
-            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Deixe marcado caso esteja adicionando uma saída (Despesa).</Text>
+                <Text fontSize={14} color={text}>É despesa?</Text>
+            </HStack>
+            <Text fontSize={14} color={text}>Deixe marcado caso esteja adicionando uma saída (Despesa).</Text>
 
             {
                 !simpleFinancesItem && (
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <HStack space={2} alignItems="center">
                         <Switch
                             disabled={!isEditable}
-                            trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={formik.values.paymentStatus ? "#9c44dc" : "#3e3e3e"}
-                            ios_backgroundColor="#3e3e3e"
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={formik.values.paymentStatus ? theme.colors.purple[600] : theme.colors.gray[800]}
+                            ios_backgroundColor={theme.colors.gray[800]}
                             onValueChange={toggleSwitchPaymentStatus}
                             value={formik.values.paymentStatus}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Foi Pago?</Text>
-                    </View>
+                        <Text fontSize={14} color={text}>Foi Pago?</Text>
+                    </HStack>
                 )
             }
 
-            {isEditable ? (
-                <>
-                    <TouchableOpacity onPress={formik.submitForm} style={styles.buttonSave}>
-                        <Text style={styles.buttonText}>Salvar</Text>
-                    </TouchableOpacity>
-                </>
-            ) : (
-                <>
-                    <TouchableOpacity onPress={() => setIsEditable(true)} style={styles.buttonSave}>
-                        <Text style={styles.buttonText}>Editar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
-                        deleteTransaction(selectedTransaction)
-                        onClose()
-                    }} style={styles.buttonDelete}>
-                        <Text style={{ ...styles.buttonText, color: '#e83e5a' }}>Deletar</Text>
-                    </TouchableOpacity>
-                </>
+            {isEditable && (
+                <Button onPress={formik.submitForm} colorScheme="purple">
+                    Salvar
+                </Button>
             )}
 
-            <View style={{ height: 16 }} />
-        </>
+            <View style={{ height: 32 }} />
+        </ScrollView>
     );
 }
 

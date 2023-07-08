@@ -7,17 +7,17 @@ import {
   Poppins_400Regular,
   Poppins_600SemiBold, useFonts
 } from '@expo-google-fonts/poppins';
-import { PaymentsContextProvider } from './src/context/PaymentsContext';
+import { NativeBaseProvider } from 'native-base';
 import logo from './src/assets/icon.png';
+import { GoalsContextProvider } from './src/context/GoalsContext';
+import { MarketContextProvider } from './src/context/MarketContext';
+import { PaymentsContextProvider } from './src/context/PaymentsContext';
 import { RunsContextProvider } from './src/context/RunsContext';
 import { SettingsContextProvider } from './src/context/SettingsContext';
 import { ThemeContextProvider } from './src/context/ThemeContext';
-import { MarketContextProvider } from './src/context/MarketContext';
-import { GoalsContextProvider } from './src/context/GoalsContext';
-import { NativeBaseProvider } from 'native-base';
 
-import { LogBox } from "react-native"
-import { FormsContextProvider } from './src/context/FormsContext';
+import { LogBox } from "react-native";
+import { PagesContextProvider } from './src/context/PagesContext';
 
 LogBox.ignoreLogs([
   'In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.',
@@ -59,7 +59,7 @@ export default function App() {
       </View>
       <NativeBaseProvider>
         <ThemeContextProvider>
-          <FormsContextProvider>
+          <PagesContextProvider>
             <SettingsContextProvider>
               <PaymentsContextProvider>
                 <RunsContextProvider>
@@ -71,7 +71,7 @@ export default function App() {
                 </RunsContextProvider>
               </PaymentsContextProvider>
             </SettingsContextProvider>
-          </FormsContextProvider>
+          </PagesContextProvider>
         </ThemeContextProvider>
       </NativeBaseProvider>
     </>

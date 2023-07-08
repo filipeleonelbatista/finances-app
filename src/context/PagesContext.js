@@ -1,17 +1,17 @@
 import React, { createContext, useState } from "react";
 
-export const FormsContext = createContext({});
+export const PagesContext = createContext({});
 
-export function FormsContextProvider(props) {
+export function PagesContextProvider(props) {
   const [selectedSheet, setSelectedSheet] = useState(null);
 
   return (
-    <FormsContext.Provider
+    <PagesContext.Provider
       value={{
         selectedSheet, setSelectedSheet
       }}
     >
       {props.children}
-    </FormsContext.Provider>
+    </PagesContext.Provider>
   );
 }
