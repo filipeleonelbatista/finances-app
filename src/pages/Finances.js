@@ -1,30 +1,52 @@
 import React, { useState } from 'react';
 
-import { Dimensions, FlatList, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, VStack, useColorModeValue, useTheme, Text, IconButton, HStack, Box, Input, Button } from 'native-base';
+import { Dimensions, FlatList, ImageBackground, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { RectButton, } from 'react-native-gesture-handler';
 
 import { Feather, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { useWindowDimensions } from 'react-native';
 import bgImg from '../assets/images/background.png';
 import AddItemForm from '../components/AddItemForm';
 import EditItemForm from '../components/EditItemForm';
-import Menu from '../components/Menu';
+import EmptyMessage from '../components/EmptyMessage';
 import Modal from '../components/Modal';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
-import { useTheme } from '../hooks/useTheme';
-import EmptyMessage from '../components/EmptyMessage';
-import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { useWindowDimensions } from 'react-native';
+import { useForms } from '../hooks/useForms';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useEffect } from 'react';
+import Header from '../components/Header';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 
 export default function Finances() {
+  const theme = useTheme();
+
+  const bg = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[900]);
+  const bgCard = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[800]);
+  const headerText = useColorModeValue('white', theme.colors.gray[800]);
+  const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
+
+  const { setSelectedSheet } = useForms();
+
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (isFocused) {
+      setSelectedSheet('add-finances')
+    }
+  }, [isFocused])
+
+  const navigation = useNavigation();
+
   const {
     Incomings,
     Expenses,
@@ -49,7 +71,7 @@ export default function Finances() {
     endDate, setEndDate,
   } = usePayments();
 
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
 
   const {
     isEnableTitheCard,
@@ -103,97 +125,131 @@ export default function Finances() {
   };
 
   return (
-    <Menu>
-      <Modal currentTheme={currentTheme} open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
-        <EditItemForm onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
-      </Modal>
-      <Modal currentTheme={currentTheme} open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
-        <AddItemForm onClose={() => setOpenModalAddTransaction(false)} />
-      </Modal>
-
-      <RectButton onPress={() => setOpenModalAddTransaction(true)} style={styles.headerButton}>
-        <Feather name="plus" size={24} color="#FFF" />
-      </RectButton>
-
+    <VStack flex={1} bg={bg}>
       <ScrollView style={styles.container}>
-        <ImageBackground source={bgImg} style={styles.header}>
-          <View style={styles.headerItens}>
-            <View style={styles.headerEmpty} />
-            <Text style={{
-              fontFamily: 'Poppins_600SemiBold',
-              fontSize: 28,
-              color: currentTheme === 'dark' ? '#1c1e21' : '#FFF'
-            }}>
-              Finança<Text style={{ color: '#543b6c' }}>$</Text>
-            </Text>
-            <View style={styles.headerEmpty} />
-          </View>
-        </ImageBackground>
+        <Header
+          title="Finança"
+          iconComponent={
+            <IconButton
+              size={10}
+              borderRadius='full'
+              icon={<Feather name="settings" size={20} color={headerText} />}
+              onPress={() => navigation.navigate("Configuracoes")}
+            />
+          }
+        />
 
         <ScrollView
           horizontal
+          w={'100%'}
+          mt={-50}
+          h={150}
+          ItemSeparatorComponent={() => <Box m={2} />}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
+          _contentContainerStyle={{
             height: 130,
             paddingHorizontal: 8,
           }}
-          style={styles.ScrollViewContainer}
         >
           {
             isEnableTotalHistoryCard && (
-              <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
-                <View style={styles.cardTitleOrientation}>
-                  <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Saldo</Text>
-                  <Feather name={Saldo > 0 ? "arrow-up-circle" : "arrow-down-circle"} size={48} color={Saldo > 0 ? "#12a454" : "#e83e5a"} />
-                </View>
-                <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{formatCurrency(Saldo)}</Text>
-              </View>
+              <VStack mx={1} shadow={2} bg={bgCard} minW={180} h={110} borderRadius={4} p={4}>
+                <HStack justifyContent="space-between">
+                  <Text
+                    color={text}
+                    fontSize={18}
+                  >
+                    Entradas
+                  </Text>
+                  <Feather name={Saldo > 0 ? "arrow-up-circle" : "arrow-down-circle"} size={48} color={theme.colors.green[500]} />
+                </HStack>
+                <Text color={text} fontSize={Saldo < 10000 ? 26 : 20} numberOfLines={1} maxW={170}>
+                  {formatCurrency(Saldo)}
+                </Text>
+              </VStack>
             )
           }
-          <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Entradas</Text>
-              <Feather name="arrow-up-circle" size={48} color="#12a454" />
-            </View>
-            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{
-              formatCurrency(Incomings)
-            }</Text>
-          </View>
 
-          <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Saídas</Text>
-              <Feather name="arrow-down-circle" size={48} color="#e83e5a" />
-            </View>
-            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>-{formatCurrency(Expenses)}</Text>
-          </View>
-          <View style={styles.cardGreen}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardTextGreen}>Total</Text>
-              <Feather name="dollar-sign" size={48} color="#FFF" />
-            </View>
-            <Text style={styles.cardValueGreen}>{formatCurrency(Total)}</Text>
-          </View>
+          <VStack mx={1} shadow={2} bg={bgCard} minW={180} h={110} borderRadius={4} p={4}>
+            <HStack justifyContent="space-between">
+              <Text
+                color={text}
+                fontSize={18}
+              >
+                Entradas
+              </Text>
+              <Feather name="arrow-up-circle" size={48} color={theme.colors.green[500]} />
+            </HStack>
+            <Text color={text} fontSize={Incomings < 10000 ? 26 : 20} numberOfLines={1} maxW={170}>
+              {formatCurrency(Incomings)}
+            </Text>
+          </VStack>
+
+          <VStack mx={1} shadow={2} bg={bgCard} minW={180} h={110} borderRadius={4} p={4}>
+            <HStack justifyContent="space-between">
+              <Text
+                color={text}
+                fontSize={18}
+              >
+                Saídas
+              </Text>
+              <Feather name="arrow-down-circle" size={48} color={theme.colors.red[500]} />
+            </HStack>
+            <Text color={text} fontSize={Expenses < 10000 ? 26 : 20} numberOfLines={1} maxW={170}>
+              {formatCurrency(Expenses)}
+            </Text>
+          </VStack>
+
+          <VStack mx={1} shadow={2} bg={theme.colors.purple[900]} minW={180} h={110} borderRadius={4} p={4}>
+            <HStack justifyContent="space-between">
+              <Text
+                color={"white"}
+                fontSize={18}
+              >
+                Total
+              </Text>
+              <Feather name="dollar-sign" size={48} color={"white"} />
+            </HStack>
+            <Text color={"white"} fontSize={Total < 10000 ? 26 : 20} numberOfLines={1} maxW={170}>
+              {formatCurrency(Total)}
+            </Text>
+          </VStack>
+
           {
             isEnableTitheCard && (
-              <View style={styles.cardGreen}>
-                <View style={styles.cardTitleOrientation}>
-                  <Text style={styles.cardTextGreen}>Dízimo</Text>
-                  <Feather name="dollar-sign" size={48} color="#FFF" />
-                </View>
-                <Text style={styles.cardValueGreen}>{formatCurrency(Tithe)}</Text>
-              </View>
+              <VStack mx={1} shadow={2} bg={theme.colors.purple[900]} minW={180} h={110} borderRadius={4} p={4}>
+                <HStack justifyContent="space-between">
+                  <Text
+                    color={"white"}
+                    fontSize={18}
+                  >
+                    Dízimo
+                  </Text>
+                  <Feather name="dollar-sign" size={48} color={"white"} />
+                </HStack>
+                <Text color={"white"} fontSize={Tithe < 10000 ? 26 : 20} numberOfLines={1} maxW={170}>
+                  {formatCurrency(Tithe)}
+                </Text>
+              </VStack>
             )
           }
         </ScrollView>
 
-        <View style={styles.list}>
-          <View style={styles.listRow}>
-            <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>* Totais apenas dos itens do período selecionado</Text>
-          </View>
-          <View style={styles.listRow}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Extrato</Text>
-
+        <VStack px={4} mt={-36} space={4}>
+          <Text
+            fontSize={14}
+            color={text}
+          >
+            * Totais apenas dos itens do período selecionado
+          </Text>
+          <HStack justifyContent="space-between">
+            <Text
+              bold
+              fontSize={20}
+              color={text}
+            >
+              Extrato
+            </Text>
             <TouchableOpacity
               onPress={() => {
                 setOpenFilter(!openFilter)
@@ -210,14 +266,14 @@ export default function Finances() {
                 borderColor: '#9c44dc',
               }}
             >
-              <Text style={{ fontSize: 16, color: "#9c44dc" }}><Feather name="filter" size={18} color="#9c44dc" /> Filtros</Text>
+              <Text fontSize={16} color={theme.colors.purple[600]}><Feather name="filter" size={18} color={theme.colors.purple[600]} /> Filtros</Text>
             </TouchableOpacity>
-          </View>
+          </HStack>
           {
             openFilter && (
-              <>
-                <View style={styles.listRow}>
-                  <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+              <VStack space={2}>
+                <HStack justifyContent="space-between">
+                  <Text color={text} fontSize={16} bold>
                     Entradas/Saídas
                   </Text>
                   <Picker
@@ -226,77 +282,84 @@ export default function Finances() {
                       setselectedtypeofpayment(itemValue)
                     }
                     mode='dropdown'
-                    dropdownIconColor={'#9c44dc'}
-                    dropdownIconRippleColor={'#9c44dc'}
+                    dropdownIconColor={theme.colors.purple[600]}
+                    dropdownIconRippleColor={theme.colors.purple[600]}
                     enabled
                     style={{
                       width: '50%',
-                      borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                      borderRadius: 4,
+                      color: text
                     }}
                   >
                     <Picker.Item label="Todas" value="0" />
                     <Picker.Item label="Entradas" value="1" />
                     <Picker.Item label="Saídas" value="2" />
                   </Picker>
-                </View>
+                </HStack>
 
-                <View style={styles.listRow}>
-                  <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                <VStack space={2}>
+                  <Text color={text} fontSize={16} bold>
                     Filtrar por período
                   </Text>
-                </View>
-                <View style={{ ...styles.listRow, alignItems: 'center', marginHorizontal: 2 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TextInput
-                      placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                      style={{
-                        ...styles.input,
-                        width: width * 0.33,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                      }}
+                  <HStack w={"100%"} space={2}>
+                    <Input
+                      flex={1}
+                      type={"text"}
+                      py="0"
                       placeholder="Data inicio"
                       value={startDate}
                       editable={false}
+                      InputRightElement={
+                        <Button
+                          size="xs"
+                          rounded="none"
+                          w="1/4"
+                          p={0}
+                          h="full"
+                          bgColor={theme.colors.purple[600]}
+                          onPress={() => {
+                            DateTimePickerAndroid.open({
+                              themeVariant: currentTheme,
+                              value: new Date(Date.now()),
+                              onChange: onChangeStartDate,
+                              mode: 'date',
+                              is24Hour: false,
+                            });
+                          }}
+                        >
+                          <Feather name="calendar" size={24} color="#FFF" />
+                        </Button>}
                     />
-                    <TouchableOpacity onPress={() => {
-                      DateTimePickerAndroid.open({
-                        themeVariant: currentTheme,
-                        value: new Date(Date.now()),
-                        onChange: onChangeStartDate,
-                        mode: 'date',
-                        is24Hour: false,
-                      });
-                    }} style={styles.buttonInputGroup}>
-                      <Feather name="calendar" size={24} color="#FFF" />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TextInput
-                      placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                      style={{
-                        ...styles.input,
-                        width: width * 0.33,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                      }}
+                    <Input
+                      flex={1}
+                      type={"text"}
+                      py="0"
                       placeholder="Data Fim"
                       value={endDate}
                       editable={false}
+                      InputRightElement={
+                        <Button
+                          size="xs"
+                          rounded="none"
+                          w="1/4"
+                          p={2}
+                          h="full"
+                          bgColor={theme.colors.purple[600]}
+                          onPress={() => {
+                            DateTimePickerAndroid.open({
+                              themeVariant: currentTheme,
+                              value: new Date(Date.now()),
+                              onChange: onChangeEndDate,
+                              mode: 'date',
+                              is24Hour: false,
+                            });
+                          }}
+                        >
+                          <Feather name="calendar" size={24} color="#FFF" />
+                        </Button>}
                     />
-                    <TouchableOpacity onPress={() => {
-                      DateTimePickerAndroid.open({
-                        themeVariant: currentTheme,
-                        value: new Date(Date.now()),
-                        onChange: onChangeEndDate,
-                        mode: 'date',
-                        is24Hour: false,
-                      });
-                    }} style={styles.buttonInputGroup}>
-                      <Feather name="calendar" size={24} color="#FFF" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                  </HStack>
+                </VStack>
 
                 {
                   !simpleFinancesItem && (
@@ -434,10 +497,12 @@ export default function Finances() {
                   />
                 </View>
 
-              </>
+              </VStack>
             )
           }
-        </View>
+
+
+        </VStack>
 
         {
           filteredList.length > 0 && (
@@ -607,7 +672,7 @@ export default function Finances() {
         }
         <View style={{ height: 80 }} />
       </ScrollView>
-    </Menu>
+    </VStack>
   );
 }
 

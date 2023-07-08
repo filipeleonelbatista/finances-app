@@ -8,13 +8,20 @@ import {
   Poppins_600SemiBold, useFonts
 } from '@expo-google-fonts/poppins';
 import { PaymentsContextProvider } from './src/context/PaymentsContext';
-
 import logo from './src/assets/icon.png';
 import { RunsContextProvider } from './src/context/RunsContext';
 import { SettingsContextProvider } from './src/context/SettingsContext';
 import { ThemeContextProvider } from './src/context/ThemeContext';
 import { MarketContextProvider } from './src/context/MarketContext';
 import { GoalsContextProvider } from './src/context/GoalsContext';
+import { NativeBaseProvider } from 'native-base';
+
+import { LogBox } from "react-native"
+import { FormsContextProvider } from './src/context/FormsContext';
+
+LogBox.ignoreLogs([
+  'In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.',
+])
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -50,19 +57,23 @@ export default function App() {
       }}>
         <StatusBar style="light" />
       </View>
-      <ThemeContextProvider>
-        <SettingsContextProvider>
-          <PaymentsContextProvider>
-            <RunsContextProvider>
-              <MarketContextProvider>
-                <GoalsContextProvider>
-                  <Routes />
-                </GoalsContextProvider>
-              </MarketContextProvider>
-            </RunsContextProvider>
-          </PaymentsContextProvider>
-        </SettingsContextProvider>
-      </ThemeContextProvider>
+      <NativeBaseProvider>
+        <ThemeContextProvider>
+          <FormsContextProvider>
+            <SettingsContextProvider>
+              <PaymentsContextProvider>
+                <RunsContextProvider>
+                  <MarketContextProvider>
+                    <GoalsContextProvider>
+                      <Routes />
+                    </GoalsContextProvider>
+                  </MarketContextProvider>
+                </RunsContextProvider>
+              </PaymentsContextProvider>
+            </SettingsContextProvider>
+          </FormsContextProvider>
+        </ThemeContextProvider>
+      </NativeBaseProvider>
     </>
   );
 

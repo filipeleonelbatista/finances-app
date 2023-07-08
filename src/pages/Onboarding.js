@@ -68,7 +68,7 @@ export default function Onboarding() {
     try {
       await AsyncStorage.setItem('@onboarding', 'true');
       setIsOnboardingPassed("passed")
-      navigation.navigate('Finanças')
+      navigation.navigate('TabNavigator', { screen: 'Finanças'})
     } catch (e) {
       console.error(e)
     }
@@ -82,7 +82,7 @@ export default function Onboarding() {
           if (value !== null) {
             if (JSON.parse(value)) {
               setIsOnboardingPassed("passed")
-              navigation.navigate('Finanças');
+              navigation.navigate('TabNavigator', { screen: 'Finanças'});
             }
           } else {
             setIsOnboardingPassed("no-passed")

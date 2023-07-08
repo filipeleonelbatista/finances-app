@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
+import { Feather } from '@expo/vector-icons';
+import { VStack } from 'native-base';
 import { Dimensions, ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
-
-import { Feather } from '@expo/vector-icons';
 
 import { Picker } from '@react-native-picker/picker';
 import dayjs from "dayjs";
@@ -15,7 +15,6 @@ import AddShoppingCartItem from '../components/AddShoppingCartItem';
 import EditShoppingCartItem from '../components/EditShoppingCartItem';
 import EmptyMessage from '../components/EmptyMessage';
 import EstimativeForm from '../components/EstimativeForm';
-import Menu from '../components/Menu';
 import Modal from '../components/Modal';
 import { useMarket } from '../hooks/useMarket';
 import { useSettings } from '../hooks/useSettings';
@@ -47,7 +46,7 @@ export default function Market() {
   const [openModalSetEstimative, setOpenModalSetEstimative] = useState(false);
 
   return (
-    <Menu>
+    <VStack>
       <Modal currentTheme={currentTheme} open={openModalSetEstimative} onClose={() => setOpenModalSetEstimative(false)}>
         <EstimativeForm onClose={() => setOpenModalSetEstimative(false)} />
       </Modal>
@@ -327,7 +326,7 @@ export default function Market() {
 
         <View style={{ height: 80 }} />
       </ScrollView>
-    </Menu>
+    </VStack>
   );
 }
 

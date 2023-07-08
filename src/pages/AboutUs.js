@@ -1,8 +1,9 @@
 import { Feather } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import { VStack, useColorMode, useColorModeValue } from 'native-base';
 import React from 'react';
 import { Alert, BackHandler, Dimensions, Image, ImageBackground, KeyboardAvoidingView, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
-import Constants from 'expo-constants';
 
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -16,7 +17,6 @@ import { jsonToCSV, readString } from 'react-native-csv';
 import { v4 } from 'uuid';
 import userImg from '../assets/icon.png';
 import bgImg from '../assets/images/background.png';
-import Menu from '../components/Menu';
 import { useMarket } from '../hooks/useMarket';
 import { usePayments } from '../hooks/usePayments';
 import { useRuns } from '../hooks/useRuns';
@@ -25,7 +25,11 @@ import { useTheme } from '../hooks/useTheme';
 
 export default function AboutUs() {
     const navigation = useNavigation();
-
+    const {
+        colorMode,
+        toggleColorMode
+    } = useColorMode();
+    
     const height = useHeaderHeight()
 
     const {
@@ -290,7 +294,7 @@ export default function AboutUs() {
     })
 
     return (
-        <Menu>
+        <VStack>
             <KeyboardAvoidingView
                 behavior={'padding'}
                 keyboardVerticalOffset={height + 48}
@@ -321,10 +325,10 @@ export default function AboutUs() {
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
                         <Switch
                             trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={currentTheme === 'dark' ? "#9c44dc" : "#3e3e3e"}
+                            thumbColor={colorMode === 'dark' ? "#9c44dc" : "#3e3e3e"}
                             ios_backgroundColor="#3e3e3e"
-                            onValueChange={handleToggleTheme}
-                            value={currentTheme === 'dark'}
+                            onValueChange={toggleColorMode}
+                            value={colorMode === 'dark'}
                         />
                         <Text style={{ ...styles.labelSwitch, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
                             Habilitar Tema Escuro
@@ -566,7 +570,7 @@ export default function AboutUs() {
                     <View style={{ height: 32 }} />
                 </ScrollView>
             </KeyboardAvoidingView>
-        </Menu>
+        </VStack>
     );
 }
 

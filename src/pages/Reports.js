@@ -4,23 +4,22 @@ import { Dimensions, FlatList, ImageBackground, StyleSheet, Text, View } from 'r
 import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { differenceInCalendarDays } from 'date-fns';
-import { useWindowDimensions } from 'react-native';
+import { VStack } from 'native-base';
+import { TextInput, useWindowDimensions } from 'react-native';
 import { PieChart } from "react-native-chart-kit";
 import * as Progress from 'react-native-progress';
 import bgImg from '../assets/images/background.png';
 import AddGoalForm from '../components/AddGoalForm';
 import EditGoalForm from '../components/EditGoalForm';
 import EmptyMessage from '../components/EmptyMessage';
-import Menu from '../components/Menu';
 import Modal from '../components/Modal';
 import { useGoals } from '../hooks/useGoals';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
 import { useTheme } from '../hooks/useTheme';
-import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { TextInput } from 'react-native';
 
 export default function Reports() {
   const { width } = useWindowDimensions();
@@ -193,7 +192,7 @@ export default function Reports() {
   };
 
   return (
-    <Menu>
+    <VStack>
       <Modal currentTheme={currentTheme} open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
         <EditGoalForm onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
       </Modal>
@@ -649,7 +648,7 @@ export default function Reports() {
         </View>
         <View style={{ height: 80 }} />
       </ScrollView >
-    </Menu >
+    </VStack >
   );
 }
 

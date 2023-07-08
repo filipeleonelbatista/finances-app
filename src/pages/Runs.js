@@ -4,22 +4,20 @@ import { Dimensions, ImageBackground, StyleSheet, Text, View } from 'react-nativ
 import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { VStack } from 'native-base';
 
-import { Picker } from '@react-native-picker/picker';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { TextInput, useWindowDimensions } from 'react-native';
 import bgImg from '../assets/images/background.png';
 import AddFuelForm from '../components/AddFuelForm';
 import AutonomyForm from '../components/AutonomyForm';
-import Menu from '../components/Menu';
+import EmptyMessage from '../components/EmptyMessage';
 import Modal from '../components/Modal';
 import { useRuns } from '../hooks/useRuns';
 import { useTheme } from '../hooks/useTheme';
-import EmptyMessage from '../components/EmptyMessage';
-import { TextInput } from 'react-native';
-import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { useWindowDimensions } from 'react-native';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -96,7 +94,7 @@ export default function Runs() {
   };
 
   return (
-    <Menu>
+    <VStack>
       <Modal currentTheme={currentTheme} open={openModalSetAutonomy} onClose={() => setOpenModalSetAutonomy(false)}>
         <AutonomyForm onClose={() => setOpenModalSetAutonomy(false)} />
       </Modal>
@@ -300,7 +298,7 @@ export default function Runs() {
         }
         <View style={{ height: 80 }} />
       </ScrollView>
-    </Menu>
+    </VStack>
   );
 }
 
