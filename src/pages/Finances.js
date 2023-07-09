@@ -133,7 +133,7 @@ export default function Finances() {
               icon={<Feather name="settings" size={20} color={headerText} />}
               onPress={() => navigation.navigate("Configuracoes")}
               _pressed={{
-                color: theme.colors.purple[300]
+                bgColor: theme.colors.purple[300]
               }}
             />
           }
@@ -599,7 +599,13 @@ export default function Finances() {
                         <VStack
                           alignItems='flex-end' width='34%'
                         >
-                          <Text fontSize={18} color={text} mt={4} mr={3} >
+                          <Text
+                            fontSize={18}
+                            numberOfLines={1}
+                            color={text}
+                            mt={4}
+                            mr={3}
+                          >
                             {item.isEnabled ? "-" : ""}
                             {item.amount.toLocaleString('pt-BR', {
                               style: 'currency',

@@ -106,6 +106,9 @@ export default function AddItemForm({ onClose }) {
                     onChangeText={(text) => formik.setFieldValue('description', text)}
                     value={formik.values.description}
                 />
+                {formik.errors.description && (
+                    <Text color="red.600">{formik.errors.description}</Text>
+                )}
             </VStack>
             <VStack space={2}>
                 <Text color={text}>
@@ -119,6 +122,9 @@ export default function AddItemForm({ onClose }) {
                     onChangeText={(text) => formik.setFieldValue('amount', moeda(text))}
                     value={formik.values.amount}
                 />
+                {formik.errors.amount && (
+                    <Text color="red.600">{formik.errors.amount}</Text>
+                )}
             </VStack>
             <VStack space={2}>
                 <Text color={text}>
@@ -151,6 +157,9 @@ export default function AddItemForm({ onClose }) {
                         </Button>
                     }
                 />
+                {formik.errors.date && (
+                    <Text color="red.600">{formik.errors.date}</Text>
+                )}
             </VStack>
 
             {
@@ -180,6 +189,9 @@ export default function AddItemForm({ onClose }) {
                                     ))
                                 }
                             </Picker>
+                            {formik.errors.category && (
+                                <Text color="red.600">{formik.errors.category}</Text>
+                            )}
                         </VStack>
                         <VStack space={2}>
                             <Text color={text}>
@@ -212,6 +224,9 @@ export default function AddItemForm({ onClose }) {
                                     </Button>
                                 }
                             />
+                            {formik.errors.paymentDate && (
+                                <Text color="red.600">{formik.errors.paymentDate}</Text>
+                            )}
                         </VStack>
                     </>
                 )
@@ -227,20 +242,28 @@ export default function AddItemForm({ onClose }) {
                 />
                 <Text fontSize={14} color={text}>É despesa?</Text>
             </HStack>
+            {formik.errors.isEnabled && (
+                <Text color="red.600">{formik.errors.isEnabled}</Text>
+            )}
             <Text fontSize={14} color={text}>Deixe marcado caso esteja adicionando uma saída (Despesa).</Text>
 
             {
                 !simpleFinancesItem && (
-                    <HStack space={2} alignItems="center">
-                        <Switch
-                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
-                            thumbColor={formik.values.paymentStatus ? theme.colors.purple[600] : theme.colors.gray[800]}
-                            ios_backgroundColor={theme.colors.gray[800]}
-                            onValueChange={toggleSwitchPaymentStatus}
-                            value={formik.values.paymentStatus}
-                        />
-                        <Text fontSize={14} color={text}>Foi Pago?</Text>
-                    </HStack>
+                    <>
+                        <HStack space={2} alignItems="center">
+                            <Switch
+                                trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                                thumbColor={formik.values.paymentStatus ? theme.colors.purple[600] : theme.colors.gray[800]}
+                                ios_backgroundColor={theme.colors.gray[800]}
+                                onValueChange={toggleSwitchPaymentStatus}
+                                value={formik.values.paymentStatus}
+                            />
+                            <Text fontSize={14} color={text}>Foi Pago?</Text>
+                        </HStack>
+                        {formik.errors.paymentStatus && (
+                            <Text color="red.600">{formik.errors.paymentStatus}</Text>
+                        )}
+                    </>
                 )
             }
             <Button onPress={formik.submitForm} colorScheme="purple" mb={8}>

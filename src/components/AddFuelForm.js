@@ -92,6 +92,9 @@ export default function AddFuelForm({ onClose }) {
                     onChangeText={(text) => formik.setFieldValue('location', text)}
                     value={formik.values.location}
                 />
+                {formik.errors.location && (
+                    <Text color="red.600">{formik.errors.location}</Text>
+                )}
             </VStack>
 
             <VStack space={2}>
@@ -106,6 +109,9 @@ export default function AddFuelForm({ onClose }) {
                     onChangeText={(text) => formik.setFieldValue('currentDistance', text)}
                     value={formik.values.currentDistance}
                 />
+                {formik.errors.currentDistance && (
+                    <Text color="red.600">{formik.errors.currentDistance}</Text>
+                )}
             </VStack>
 
             <VStack space={2}>
@@ -120,6 +126,9 @@ export default function AddFuelForm({ onClose }) {
                     onChangeText={(text) => formik.setFieldValue('unityAmount', moeda(text))}
                     value={formik.values.unityAmount}
                 />
+                {formik.errors.unityAmount && (
+                    <Text color="red.600">{formik.errors.unityAmount}</Text>
+                )}
             </VStack>
 
             <VStack space={2}>
@@ -134,6 +143,9 @@ export default function AddFuelForm({ onClose }) {
                     onChangeText={(text) => formik.setFieldValue('amount', moeda(text))}
                     value={formik.values.amount}
                 />
+                {formik.errors.amount && (
+                    <Text color="red.600">{formik.errors.amount}</Text>
+                )}
             </VStack>
             <VStack>
                 <Text color={text}>Tipo do combustivel</Text>
@@ -163,7 +175,7 @@ export default function AddFuelForm({ onClose }) {
                     <Picker.Item label="Dísel aditivado" value="Dísel aditivado" />
                 </Picker>
                 {formik.errors.type && (
-                    <Text color={'red.500'}>{formik.errors.type}</Text>
+                    <Text color={'red.600'}>{formik.errors.type}</Text>
                 )}
             </VStack>
 
@@ -198,6 +210,9 @@ export default function AddFuelForm({ onClose }) {
                         </Button>
                     }
                 />
+                {formik.errors.date && (
+                    <Text color="red.600">{formik.errors.date}</Text>
+                )}
 
                 <Button onPress={formik.submitForm} colorScheme="purple" mb={8}>
                     <Text fontSize={14}>Adicionar</Text>

@@ -3,7 +3,7 @@ import React from 'react';
 import { useWindowDimensions } from 'react-native';
 import emptyImage from '../assets/add_notes.png';
 
-export default function EmptyMessage() {
+export default function ErrorSheet() {
   const { width } = useWindowDimensions();
 
   const theme = useTheme();
@@ -17,7 +17,8 @@ export default function EmptyMessage() {
         bold
         color={text}
       >
-        Toque em '+' para itens para{'\n'}adicionar itens à tabela!
+        Houve um erro ao carregar o formulário.{"\n"}
+        Tente novamente!
       </Text>
     </VStack>
   )

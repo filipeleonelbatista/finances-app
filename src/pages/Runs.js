@@ -130,7 +130,7 @@ export default function Runs() {
               icon={<Feather name="settings" size={20} color={headerText} />}
               onPress={() => navigation.navigate("Configuracoes")}
               _pressed={{
-                color: theme.colors.purple[300]
+                bgColor: theme.colors.purple[300]
               }}
             />
           }
@@ -321,7 +321,11 @@ export default function Runs() {
                       alignItems={'flex-end'}
                       w={'34%'}
                       s                    >
-                      <Text color={text} fontSize={18}>
+                      <Text
+                        color={text}
+                        numberOfLines={1}
+                        fontSize={18}
+                      >
                         {item.amount.toLocaleString('pt-BR', {
                           style: 'currency',
                           currency: 'BRL',

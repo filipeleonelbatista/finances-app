@@ -1,32 +1,59 @@
 import React, { useState } from 'react';
 
-import { Feather } from '@expo/vector-icons';
-import { VStack } from 'native-base';
-import { Dimensions, ImageBackground, StyleSheet, Text, View } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { Feather, FontAwesome } from '@expo/vector-icons';
+import { Actionsheet, Box, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
+import { Dimensions, StyleSheet, View } from 'react-native';
+import { RectButton } from 'react-native-gesture-handler';
 
 import { Picker } from '@react-native-picker/picker';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { useEffect } from 'react';
 import { TextInput } from 'react-native';
-import bgImg from '../assets/images/background.png';
-import AddShoppingCartItem from '../components/AddShoppingCartItem';
-import EditShoppingCartItem from '../components/EditShoppingCartItem';
 import EmptyMessage from '../components/EmptyMessage';
-import EstimativeForm from '../components/EstimativeForm';
-import Modal from '../components/Modal';
+import Header from '../components/Header';
 import { useMarket } from '../hooks/useMarket';
+import { usePages } from '../hooks/usePages';
 import { useSettings } from '../hooks/useSettings';
-import { useTheme } from '../hooks/useTheme';
+import EditShoppingCartItem from '../components/EditShoppingCartItem';
+import EstimativeForm from '../components/EstimativeForm';
+import ErrorSheet from '../components/ErrorSheet';
+import { useWindowDimensions } from 'react-native';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 
 export default function Market() {
+  const theme = useTheme();
+
+  const bg = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[900]);
+  const bgCard = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[800]);
+  const headerText = useColorModeValue('white', theme.colors.gray[800]);
+  const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
+
+  const { setSelectedSheet } = usePages();
+
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (isFocused) {
+      setSelectedSheet('Mercado')
+    }
+  }, [isFocused])
+
   const {
-    currentTheme
-  } = useTheme();
+    isOpen,
+    onOpen,
+    onClose
+  } = useDisclose();
+
+  const navigation = useNavigation();
+
+  const { height } = useWindowDimensions();
+
+  const currentTheme = 'light'
 
   const { marketSimplifiedItems } = useSettings();
 
@@ -39,75 +66,82 @@ export default function Market() {
     setSelectedTransaction,
     estimative,
     search, setSearch,
+    updateStock
   } = useMarket();
 
-  const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
-  const [openModalSeeTransaction, setOpenModalSeeTransaction] = useState(false);
-  const [openModalSetEstimative, setOpenModalSetEstimative] = useState(false);
+  const [selectedSheetOpen, setSelectedSheetOpen] = useState(null);
 
   return (
-    <VStack>
-      <Modal currentTheme={currentTheme} open={openModalSetEstimative} onClose={() => setOpenModalSetEstimative(false)}>
-        <EstimativeForm onClose={() => setOpenModalSetEstimative(false)} />
-      </Modal>
-      <Modal currentTheme={currentTheme} open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
-        <EditShoppingCartItem onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
-      </Modal>
-      <Modal currentTheme={currentTheme} open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
-        <AddShoppingCartItem onClose={() => setOpenModalAddTransaction(false)} />
-      </Modal>
-
-      <RectButton onPress={() => setOpenModalAddTransaction(true)} style={styles.headerButton}>
-        <Feather name="plus" size={24} color="#FFF" />
-      </RectButton>
-
-      <ScrollView style={styles.container}>
-        <ImageBackground source={bgImg} style={styles.header}>
-          <View style={styles.headerItens}>
-            <View style={styles.headerEmpty} />
-            <Text style={{
-              fontFamily: 'Poppins_600SemiBold',
-              fontSize: 28,
-              color: currentTheme === 'dark' ? '#1c1e21' : '#FFF'
-            }}>
-              Compra<Text style={{ color: '#543b6c' }}>$</Text>
-            </Text>
-            <View style={styles.headerEmpty} />
-          </View>
-        </ImageBackground>
+    <VStack flex={1} bg={bg}>
+      <ScrollView flex={1} w={'100%'} h={'100%'}>
+        <Header
+          title="Compra"
+          iconComponent={
+            <IconButton
+              size={10}
+              borderRadius='full'
+              icon={<Feather name="settings" size={20} color={headerText} />}
+              onPress={() => navigation.navigate("Configuracoes")}
+              _pressed={{
+                bgColor: theme.colors.purple[300]
+              }}
+            />
+          }
+        />
 
         <ScrollView
           horizontal
+          w={'100%'}
+          mt={-50}
+          h={150}
+          ItemSeparatorComponent={() => <Box m={2} />}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
+          _contentContainerStyle={{
             height: 130,
             paddingHorizontal: 8,
           }}
-          style={styles.ScrollViewContainer}
         >
-          <RectButton onPress={() => setOpenModalSetEstimative(true)} style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Estimativa</Text>
-              <Feather name="arrow-up-circle" size={48} color="#12a454" />
-            </View>
-            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-              {
-                estimative.toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL',
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                  useGrouping: true,
-                })
-              }
-            </Text>
-          </RectButton>
-          <View style={{ ...styles.cardWite, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={{ ...styles.cardText, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Subtotal</Text>
-              <Feather name="arrow-down-circle" size={48} color="#e83e5a" />
-            </View>
-            <Text style={{ ...styles.cardValue, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+          <Pressable
+            onPress={() => {
+              setSelectedSheetOpen('estimativa')
+              onOpen()
+            }}
+          >
+            <VStack mx={1} shadow={2} bg={bgCard} minW={180} h={110} borderRadius={4} p={4}>
+              <HStack justifyContent="space-between">
+                <Text
+                  color={text}
+                  fontSize={18}
+                >
+                  Estimativa
+                </Text>
+                <Feather name="arrow-up-circle" size={48} color={theme.colors.green[500]} />
+              </HStack>
+              <Text color={text} fontSize={estimative < 10000 ? 26 : 20} numberOfLines={1} maxW={170}>
+                {
+                  estimative.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                    useGrouping: true,
+                  })
+                }
+              </Text>
+            </VStack>
+          </Pressable>
+
+          <VStack mx={1} shadow={2} bg={bgCard} minW={180} h={110} borderRadius={4} p={4}>
+            <HStack justifyContent="space-between">
+              <Text
+                color={text}
+                fontSize={18}
+              >
+                Subtotal
+              </Text>
+              <Feather name="arrow-down-circle" size={48} color={theme.colors.red[500]} />
+            </HStack>
+            <Text color={text} fontSize={listTotal < 10000 ? 26 : 20} numberOfLines={1} maxW={170}>
               {
                 listTotal.toLocaleString('pt-BR', {
                   style: 'currency',
@@ -118,14 +152,19 @@ export default function Market() {
                 })
               }
             </Text>
-          </View>
+          </VStack>
 
-          <View style={styles.cardGreen}>
-            <View style={styles.cardTitleOrientation}>
-              <Text style={styles.cardTextGreen}>Total</Text>
-              <Feather name="dollar-sign" size={48} color="#FFF" />
-            </View>
-            <Text style={styles.cardValueGreen}>
+          <VStack mx={1} shadow={2} bg={theme.colors.purple[900]} minW={180} h={110} borderRadius={4} p={4}>
+            <HStack justifyContent="space-between">
+              <Text
+                color={"white"}
+                fontSize={18}
+              >
+                Total
+              </Text>
+              <Feather name="dollar-sign" size={48} color={"white"} />
+            </HStack>
+            <Text color={"white"} fontSize={(estimative - listTotal) < 10000 ? 26 : 20} numberOfLines={1} maxW={170}>
               {
                 (estimative - listTotal).toLocaleString('pt-BR', {
                   style: 'currency',
@@ -136,25 +175,37 @@ export default function Market() {
                 })
               }
             </Text>
-          </View>
+          </VStack>
         </ScrollView>
 
-        <View style={styles.list}>
-          <View style={styles.listRow}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Lista de compras</Text>
-
+        <VStack px={4} mt={-36} space={4}>
+          <Text
+            fontSize={14}
+            color={text}
+          >
+            * Toque em estimativa para definir um limite de gastos
+          </Text>
+          <HStack justifyContent="space-between" alignItems={"center"} mt={-4}>
+            <Text
+              bold
+              fontSize={20}
+              color={text}
+            >
+              Lista de compras
+            </Text>
             <Picker
               selectedValue={selectedCategory}
               onValueChange={(itemValue, itemIndex) =>
                 setSelectedCategory(itemValue)
               }
               mode='dropdown'
-              dropdownIconColor={'#9c44dc'}
-              dropdownIconRippleColor={'#9c44dc'}
+              dropdownIconColor={theme.colors.purple[600]}
+              dropdownIconRippleColor={theme.colors.purple[600]}
               enabled
               style={{
                 width: '50%',
-                borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                borderRadius: 4,
+                color: text
               }}
             >
               <Picker.Item label="Todos os itens" value="Todos os itens" />
@@ -165,124 +216,146 @@ export default function Market() {
               <Picker.Item label="Mercearia" value="Mercearia" />
               <Picker.Item label="Outros" value="Outros" />
             </Picker>
-          </View>
-        </View>
+          </HStack>
+        </VStack>
+
+        {
+          filteredList.length > 0 && (
+            <Input
+              placeholder="Pesquise os itens..."
+              onChangeText={text => setSearch(text)}
+              value={search}
+              editable={true}
+              mx={4}
+              mt={2}
+            />
+          )
+        }
 
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
             <>
-              <View style={{ ...styles.list, marginTop: 0 }}>
-
-                <TextInput
-                  placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                  style={{
-                    ...styles.input,
-                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                    marginBottom: 16
-                  }}
-                  placeholder="Pesquise os itens..."
-                  onChangeText={text => setSearch(text)}
-                  value={search}
-                  editable={true}
-                />
-
-                <View style={styles.listRow}>
-                  <Text style={{ marginBottom: 4, marginTop: -15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                    Toque no item para editar ou excluir
-                  </Text>
-                </View>
+              <VStack space={4} px={4} mt={2} mb={6}>
+                <Text color={text}>
+                  Toque no item para visualizar e depois editar ou excluir.
+                </Text>
                 {
                   filteredList.map(item => (
-                    <RectButton
+                    <Pressable
                       onPress={() => {
                         setSelectedTransaction(item)
-                        setOpenModalSeeTransaction(true)
+                        setSelectedSheetOpen('editar')
+                        onOpen()
                       }}
                       key={item.id}
-                      style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF' }}
                     >
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                        <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', width: '65%' }}>
-                          <Feather name="shopping-bag" size={28} color={currentTheme === 'dark' ? '#FFF' : '#1c1e21'} />
-                          <View style={{
-                            flexDirection: 'column', alignItems: 'flex-start', width: '90%',
-                          }}>
-                            <Text style={{ ...styles.cardTextListItem, lineHeight: 22, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >{item.description}</Text>
-                            <Text style={{ ...styles.cardTextListItem, lineHeight: 16, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                              Cat.: {item.category}
+                      <HStack
+                        alignItems={"center"}
+                        bgColor={bgCard}
+                        shadow={2}
+                        borderRadius={4}
+                        px={4}
+                        py={2}
+                      >
+                        <HStack
+                          position={"absolute"}
+                          top={3}
+                          right={3}
+                          space={2}
+                        >
+                          {
+                            !marketSimplifiedItems && (
+                              <Box
+                                alignItems={"center"}
+                                justifyContent={"center"}
+                                py={1}
+                                px={2}
+                                borderWidth={1}
+                                borderColor={item.quantityDesired <= item.quantity ? theme.colors.green[600] : theme.colors.red[600]}
+                                borderRadius={'full'}
+                                bgColor={'transparent'}
+                              >
+                                <Text
+                                  fontSize={12}
+                                  color={item.quantityDesired <= item.quantity ? theme.colors.green[600] : theme.colors.red[600]}
+                                >
+                                  {item.quantityDesired <= item.quantity ? 'Em estoque' : 'Em falta'}
+                                </Text>
+                              </Box>
+                            )
+                          }
+                        </HStack>
+                        <HStack
+                          alignItems={"center"}
+                          flex={1}
+                          space={4}
+                        >
+                          <Feather name="shopping-bag" size={28} color={text} />
+                          <VStack
+                            alignItems={"flex-start"}
+                            w={'70%'}
+                          >
+                            <Text color={text} fontSize={20}>{item.description}</Text>
+                            <Text color={text} bold lineHeight={14}>
+                              {item.category}
                             </Text>
-                            <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
 
-                            </View>
+                            <HStack alignItems={"center"}>
+                              <Text color={text}>
+                                <FontAwesome name="money" size={14} color={text} /> {" "}
+                                {item.amount.toLocaleString('pt-BR', {
+                                  style: 'currency',
+                                  currency: 'BRL',
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                  useGrouping: true,
+                                })} {" "}
+                                {marketSimplifiedItems && (<FontAwesome name="times" size={14} color={text} />)}
+                                {marketSimplifiedItems && " " + item.quantity}
+
+                              </Text>
+                            </HStack>
+
                             {
-                              marketSimplifiedItems ? (
-                                <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
-                                  <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                                    Val. uni.:{
-                                      item.amount.toLocaleString('pt-BR', {
-                                        style: 'currency',
-                                        currency: 'BRL',
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2,
-                                        useGrouping: true,
-                                      })}
-                                  </Text>
-                                  <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                                    Qtd.
-                                  </Text>
-                                  <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantity}</Text>
-                                </View>
-                              ) : (
-                                <>
-                                  <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
-                                    <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                                      Val. uni.: {
-                                        item.amount.toLocaleString('pt-BR', {
-                                          style: 'currency',
-                                          currency: 'BRL',
-                                          minimumFractionDigits: 2,
-                                          maximumFractionDigits: 2,
-                                          useGrouping: true,
-                                        })}
-                                    </Text>
-                                  </View>
-                                  <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
-                                    <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                                      Estoque
-                                    </Text>
-                                    <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantity}</Text>
-
-                                    <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                                      Desejado
-                                    </Text>
-                                    <Text style={{ ...styles.cardTextListItem, lineHeight: 20, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>{item.quantityDesired === '' ? 0 : item.quantityDesired}</Text>
-                                  </View>
-                                  {
-                                    item.date !== '' && (
-                                      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
-                                        <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                                          Dt. Compra: {new Date(item.date).toLocaleDateString('pt-BR')}
-                                        </Text>
-                                      </View>
-                                    )}
-                                  {
-                                    item.location !== '' && (
-                                      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
-                                        <Text style={{ ...styles.cardTextListItem, lineHeight: 15, fontSize: 14, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                                          Local: {item.location}
-                                        </Text>
-                                      </View>
-                                    )}
-                                </>
+                              !marketSimplifiedItems && (
+                                <HStack alignItems={"center"} space={4} my={2}>
+                                  <IconButton
+                                    size={8}
+                                    borderRadius='full'
+                                    icon={<Feather name="minus" size={20} color={theme.colors.red[600]} />}
+                                    borderWidth={1}
+                                    borderColor={theme.colors.red[600]}
+                                    onPress={() => item.quantity > 0 && updateStock(item)}
+                                    _pressed={{
+                                      bgColor: theme.colors.red[300]
+                                    }}
+                                  />
+                                  <Text color={text} fontSize={20}>{item.quantity}</Text>
+                                  <IconButton
+                                    size={8}
+                                    borderRadius='full'
+                                    icon={<Feather name="plus" size={20} color={theme.colors.green[600]} />}
+                                    borderWidth={1}
+                                    borderColor={theme.colors.green[600]}
+                                    onPress={() => updateStock(item, true)}
+                                    _pressed={{
+                                      bgColor: theme.colors.purple[300]
+                                    }}
+                                  />
+                                </HStack>
                               )
                             }
-                          </View>
-                        </View>
-                        <View style={{
-                          alignItems: 'flex-end', width: '35%'
-                        }}>
-                          <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                          </VStack>
+                        </HStack>
+
+                        <HStack
+                          alignItems={"flex-end"}
+                          w={'35%'}
+                        >
+                          <Text
+                            w={'100%'}
+                            numberOfLines={1}
+                            textAlign={'right'} color={text} fontSize={18}>
                             {(item.amount * item.quantity).toLocaleString('pt-BR', {
                               style: 'currency',
                               currency: 'BRL',
@@ -291,17 +364,15 @@ export default function Market() {
                               useGrouping: true,
                             })}
                           </Text>
-                        </View>
-                      </View>
-
-                    </RectButton>
+                        </HStack>
+                      </HStack>
+                    </Pressable>
                   ))
                 }
 
-
-                <View style={{ ...styles.listRow, paddingHorizontal: 16, }}>
-                  <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Total</Text>
-                  <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                <HStack justifyContent="space-between">
+                  <Text color={text} fontSize={18} bold >Total</Text>
+                  <Text color={text} fontSize={18} bold >
                     {listTotal.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
@@ -310,207 +381,32 @@ export default function Market() {
                       useGrouping: true,
                     })}
                   </Text>
-                </View>
+                </HStack>
+              </VStack>
 
-              </View>
-
-              <View style={{ height: 16 }} />
-
-              <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 18, color: currentTheme === 'dark' ? "#CCC" : "#666", }}>
+              <Text color={text} fontSize={14} px={4} lineHeight={16} mb={8}>
                 Caso queira adicionar o total como um item em finanças vá em configurações e na sessão Mercado clique em Add Total em Finanças
               </Text>
             </>
           )
         }
 
-
-        <View style={{ height: 80 }} />
       </ScrollView>
-    </VStack>
+      <KeyboardAvoidingView
+        behavior={"height"}
+      >
+        <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
+          <Actionsheet.Content minH={height * 0.8}>
+            {
+              selectedSheetOpen === 'editar'
+                ? <EditShoppingCartItem onClose={onClose} selectedTransaction={selectedTransaction} />
+                : selectedSheetOpen === 'estimativa'
+                  ? <EstimativeForm onClose={onClose} />
+                  : <ErrorSheet />
+            }
+          </Actionsheet.Content>
+        </Actionsheet>
+      </KeyboardAvoidingView>
+    </VStack >
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  },
-  title: {
-    textAlign: 'center',
-    fontSize: 32,
-    color: '#f0f2f5',
-    marginVertical: 24,
-  },
-  ScrollViewContainer: {
-    width: '100%',
-    marginTop: -50,
-    height: 115,
-  },
-  header: {
-    paddingTop: 12,
-    height: 130,
-    width: '100%',
-    backgroundColor: '#9c44dc',
-  },
-  headerItens: {
-    marginHorizontal: 24,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  headerEmpty: {
-    width: 48,
-    height: 48,
-    borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  headerButton: {
-    width: 62,
-    height: 62,
-    borderRadius: 32,
-    backgroundColor: '#543b6c',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    right: 20,
-    bottom: 90,
-    zIndex: 50,
-    elevation: 6,
-  },
-  imageHeader: {
-    width: 130,
-    height: 30,
-  },
-  headerButtonText: {
-    fontSize: 24,
-    color: '#f0f2f5',
-  },
-  cardWite: {
-    flexDirection: 'column',
-    borderRadius: 4,
-    marginHorizontal: 6,
-    height: 110,
-    width: 180,
-    backgroundColor: '#FFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    elevation: 4,
-  },
-  cardGreen: {
-    flexDirection: 'column',
-    borderRadius: 4,
-    marginHorizontal: 6,
-    height: 110,
-    width: 180,
-    backgroundColor: '#543b6c',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    elevation: 4,
-  },
-  cardTextGreen: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-    color: '#f0f2f5',
-    marginBottom: 24,
-    marginBottom: 12,
-  },
-  cardValueGreen: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 22,
-    color: '#f0f2f5'
-  },
-  cardText: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-    marginBottom: 24,
-    marginBottom: 12,
-  },
-  cardValue: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 22,
-    color: '#363f5f'
-  },
-  cardTitleOrientation: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  statusBar: {
-    height: 24,
-    width: '100%',
-    backgroundColor: '#9c44dc',
-  },
-  button: {
-    borderRadius: 48,
-    marginHorizontal: 24,
-    marginVertical: 6,
-    backgroundColor: '#543b6c',
-    paddingHorizontal: 48,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-    color: '#f0f2f5',
-    textAlign: 'center',
-  },
-  list: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    marginTop: 16,
-    gap: 8,
-  },
-  listRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: "100%",
-  },
-  listCardItem: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 4,
-    backgroundColor: '#FFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    elevation: 4,
-  },
-  cardTextListItem: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-  },
-  listTitle: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 18,
-  },
-  listButtonFilter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 8
-  },
-  listButtonFilterText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 16,
-    color: '#543b6c',
-  },
-  input: {
-    marginTop: 6,
-    paddingHorizontal: 12,
-    backgroundColor: '#FFF',
-    borderColor: "#CCC",
-    borderRadius: 4,
-    width: '100%',
-    height: 48,
-    borderWidth: 1
-  },
-})

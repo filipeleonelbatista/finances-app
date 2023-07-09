@@ -4,18 +4,37 @@ import { useWindowDimensions } from 'react-native';
 import { usePages } from '../hooks/usePages';
 import AddItemForm from './AddItemForm';
 import AddFuelForm from './AddFuelForm';
+import AddShoppingCartItem from './AddShoppingCartItem';
+import AddGoalForm from './AddGoalForm';
+import ErrorSheet from './ErrorSheet';
+import { useMemo } from 'react';
 
 export default function AddButton() {
   const theme = useTheme();
   const { height } = useWindowDimensions();
-
-  const { selectedSheet } = usePages();
 
   const {
     isOpen,
     onOpen,
     onClose
   } = useDisclose();
+
+  const { selectedSheet } = usePages();
+
+  const selectedComponent = useMemo(() => {
+    switch (selectedSheet) {
+      case 'Finanças':
+        return <AddItemForm onClose={onClose} />
+      case 'Combustível':
+        return <AddFuelForm onClose={onClose} />
+      case 'Mercado':
+        return <AddShoppingCartItem onClose={onClose} />
+      case 'Relatórios':
+        return <AddGoalForm onClose={onClose} />
+      default:
+        return <ErrorSheet />
+    }
+  }, [selectedSheet])
 
   return <>
     <IconButton
@@ -25,6 +44,7 @@ export default function AddButton() {
       onPress={onOpen}
       borderRadius={'full'}
       mt={-6}
+      shadow={4}
       _pressed={{
         color: theme.colors.purple[300]
       }}
@@ -33,10 +53,7 @@ export default function AddButton() {
     <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
       <Actionsheet.Content minH={height * 0.8}>
         {
-          selectedSheet === "Finanças" ? (<AddItemForm onClose={onClose} />) : null
-        }
-        {
-          selectedSheet === "Combustível" ? (<AddFuelForm onClose={onClose} />) : null
+          selectedComponent
         }
       </Actionsheet.Content>
     </Actionsheet>
