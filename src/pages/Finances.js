@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
-import { Actionsheet, Box, Button, HStack, IconButton, Input, KeyboardAvoidingView, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
-import { Dimensions, FlatList, Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { RectButton, } from 'react-native-gesture-handler';
+import { Actionsheet, Box, Button, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
+import { FlatList, TouchableOpacity, View } from 'react-native';
 
 import { Feather, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -14,12 +13,12 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { useEffect } from 'react';
 import { useWindowDimensions } from 'react-native';
+import EditItemForm from '../components/EditItemForm';
 import EmptyMessage from '../components/EmptyMessage';
 import Header from '../components/Header';
 import { usePages } from '../hooks/usePages';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
-import EditItemForm from '../components/EditItemForm';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -482,7 +481,7 @@ export default function Finances() {
 
               {
                 filteredList.map(item => (
-                  <RectButton
+                  <Pressable
                     key={item.id}
                     onPress={() => {
                       setSelectedTransaction(item)
@@ -491,114 +490,130 @@ export default function Finances() {
                     onLongPress={() => {
                       handleFavorite(item)
                     }}
-                    style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF', position: 'relative' }}
                   >
-                    <View style={{ display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center', position: 'absolute', top: 6, right: 8 }}>
 
-                      {
-                        !simpleFinancesItem && item.isEnabled && (
-                          <View
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              paddingHorizontal: 8,
-                              paddingVertical: 2,
-                              borderWidth: 1,
-                              borderRadius: 16,
-                              backgroundColor: 'transparent',
-                              borderColor: item.paymentStatus ? '#12a454' : '#e83e5a',
-                            }}
-                          >
-                            <Text style={{
-                              fontSize: 12,
-                              color: item.paymentStatus ? '#12a454' : '#e83e5a',
-                            }}>
-                              {item.paymentStatus ? 'Pago' : 'Não Pago'}
-                            </Text>
-                          </View>
-                        )
-                      }
-                      <FontAwesome
-                        name={item.isFavorited ? "star" : "star-o"}
-                        size={18}
-                        color={item.isFavorited ? "#ffe234" : currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                      />
-                    </View>
+                    <HStack
+                      alignItems='center'
+                      w='100%'
+                      space={2}
+                      bgColor={bgCard}
+                      shadow={2}
+                      borderRadius={4}
+                      p={2}
+                    >
 
-                    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', width: '100%' }}>
 
-                      {
-                        item.isEnabled ? (
-                          item.category ? categoryItemLib[item.category] : (
+                      <HStack
+                        position={"absolute"}
+                        top={3}
+                        right={3}
+                        space={2}
+                      >
+
+                        {
+                          !simpleFinancesItem && item.isEnabled && (
+                            <Box
+                              alignItems={"center"}
+                              justifyContent={"center"}
+                              py={1}
+                              px={2}
+                              borderWidth={1}
+                              borderColor={item.paymentStatus ? theme.colors.green[600] : theme.colors.red[600]}
+                              borderRadius={'full'}
+                              bgColor={'transparent'}
+                            >
+                              <Text
+                                fontSize={12}
+                                color={item.paymentStatus ? theme.colors.green[600] : theme.colors.red[600]}
+                              >
+                                {item.paymentStatus ? 'Pago' : 'Não Pago'}
+                              </Text>
+                            </Box>
+                          )
+                        }
+                        <FontAwesome
+                          name={item.isFavorited ? "star" : "star-o"}
+                          size={18}
+                          color={item.isFavorited ? theme.colors.yellow[400] : text}
+                        />
+                      </HStack>
+                      <HStack
+                        w={'100%'}
+                        alignItems={"center"}
+                        space={4}
+                      >
+
+                        {
+                          item.isEnabled ? (
+                            item.category ? categoryItemLib[item.category] : (
+                              <Feather
+                                name={"arrow-down-circle"}
+                                size={28}
+                                color={theme.colors.red[600]}
+                              />
+                            )
+                          ) : (
                             <Feather
-                              name={"arrow-down-circle"}
+                              name={"arrow-up-circle"}
                               size={28}
-                              color={"#e83e5a"}
+                              color={theme.colors.green[600]}
                             />
                           )
-                        ) : (
-                          <Feather
-                            name={"arrow-up-circle"}
-                            size={28}
-                            color={"#12a454"}
-                          />
-                        )
-                      }
-                      <View style={{
-                        flexDirection: 'column', alignItems: 'flex-start', width: '50%',
-                      }}>
-                        <View style={{
-                          flexDirection: 'row', alignItems: 'flex-start', gap: 4,
-                        }}>
-                          <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                        }
+                        <VStack
+                          alignItems='flex-start'
+                          flex={1}
+                        >
+                          <Text fontSize={18} color={text}>
                             {item.description}
                           </Text>
-                        </View>
-                        {
-                          item.date !== '' && (
-                            <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                              {
-                                item.isEnabled ? 'Dt. Venc.: ' : "Dt. Receb.: "
-                              }
-                              {new Date(item.date).toLocaleDateString('pt-BR')}
-                            </Text>
-                          )
-                        }
-                        {
-                          !simpleFinancesItem && item.paymentDate !== '' && item.isEnabled && (
-                            <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                              Dt. Pgto.: {new Date(item.paymentDate).toLocaleDateString('pt-BR')}
-                            </Text>
-                          )
-                        }
-                        {
-                          !simpleFinancesItem && (
-                            <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                              {'Cat.: '}
-                              {
-                                item.category
-                              }
-                            </Text>
-                          )
-                        }
-                      </View>
-                      <View style={{
-                        alignItems: 'flex-end', width: '34%'
-                      }}>
-                        <Text style={{ ...styles.cardTextListItem, textAlign: 'right', marginTop: 20, fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                          {item.isEnabled ? "-" : ""}
-                          {item.amount.toLocaleString('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                            useGrouping: true,
-                          })}
-                        </Text>
-                      </View>
-                    </View>
-                  </RectButton>
+                          {
+                            item.date !== '' && (
+                              <Text color={text} >
+                                {
+                                  item.isEnabled ? 'Dt. Venc.: ' : "Dt. Receb.: "
+                                }
+                                {new Date(item.date).toLocaleDateString('pt-BR')}
+                              </Text>
+                            )
+                          }
+                          {
+                            !simpleFinancesItem && item.paymentDate !== '' && item.isEnabled && (
+                              <Text color={text}>
+                                Dt. Pgto.: {new Date(item.paymentDate).toLocaleDateString('pt-BR')}
+                              </Text>
+                            )
+                          }
+                          {
+                            !simpleFinancesItem && (
+
+                              <Text color={text}>
+                                {'Cat.: '}
+                                {
+                                  item.category
+                                }
+                              </Text>
+                            )
+                          }
+                        </VStack>
+                        <VStack
+                          alignItems='flex-end' width='34%'
+                        >
+                          <Text fontSize={18} color={text} mt={4} mr={3} >
+                            {item.isEnabled ? "-" : ""}
+                            {item.amount.toLocaleString('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL',
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                              useGrouping: true,
+                            })}
+                          </Text>
+                        </VStack>
+                      </HStack>
+                    </HStack>
+
+                  </Pressable>
                 ))
               }
 
@@ -618,7 +633,7 @@ export default function Finances() {
             </VStack>
           )
         }
-      </ScrollView>
+      </ScrollView >
 
       <KeyboardAvoidingView
         behavior={"height"}
@@ -632,205 +647,3 @@ export default function Finances() {
     </VStack >
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  },
-  title: {
-    textAlign: 'center',
-    fontSize: 32,
-    color: '#f0f2f5',
-    marginVertical: 24,
-  },
-  ScrollViewContainer: {
-    width: '100%',
-    marginTop: -50,
-    height: 115,
-  },
-  header: {
-    paddingTop: 12,
-    height: 130,
-    width: '100%',
-    backgroundColor: '#9c44dc',
-  },
-  headerItens: {
-    marginHorizontal: 24,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  headerEmpty: {
-    width: 48,
-    height: 48,
-    borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  headerButton: {
-    width: 62,
-    height: 62,
-    borderRadius: 32,
-    backgroundColor: '#543b6c',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    right: 20,
-    bottom: 90,
-    zIndex: 50,
-    elevation: 6,
-  },
-  imageHeader: {
-    width: 130,
-    height: 30,
-  },
-  headerButtonText: {
-    fontSize: 24,
-    color: '#f0f2f5',
-  },
-  cardWite: {
-    flexDirection: 'column',
-    borderRadius: 4,
-    marginHorizontal: 6,
-    height: 110,
-    width: 180,
-    backgroundColor: '#FFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    elevation: 4,
-  },
-  cardGreen: {
-    flexDirection: 'column',
-    borderRadius: 4,
-    marginHorizontal: 6,
-    height: 110,
-    width: 180,
-    backgroundColor: '#543b6c',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    elevation: 4,
-  },
-  cardTextGreen: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-    color: '#f0f2f5',
-    marginBottom: 24,
-    marginBottom: 12,
-  },
-  cardValueGreen: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 22,
-    color: '#f0f2f5'
-  },
-  cardText: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-    marginBottom: 24,
-    marginBottom: 12,
-  },
-  cardValue: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 22,
-    color: '#363f5f'
-  },
-  cardTitleOrientation: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  statusBar: {
-    height: 24,
-    width: '100%',
-    backgroundColor: '#9c44dc',
-  },
-  button: {
-    borderRadius: 48,
-    marginHorizontal: 24,
-    marginVertical: 6,
-    backgroundColor: '#543b6c',
-    paddingHorizontal: 48,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-    color: '#f0f2f5',
-    textAlign: 'center',
-  },
-  list: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    marginTop: 16,
-    gap: 8,
-  },
-  listRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: "100%",
-  },
-  listCardItem: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 4,
-    backgroundColor: '#FFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    elevation: 4,
-  },
-  cardTextListItem: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-  },
-  listTitle: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 18,
-  },
-  listButtonFilter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 8
-  },
-  listButtonFilterText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 16,
-    color: '#543b6c',
-  },
-  input: {
-    paddingHorizontal: 12,
-    backgroundColor: '#FFF',
-    borderColor: "#CCC",
-    borderRadius: 4,
-    width: '100%',
-    height: 48,
-    borderWidth: 1,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 0,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 0,
-  },
-  buttonInputGroup: {
-    width: 47,
-    height: 47,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#9c44dc',
-    borderColor: "#9c44dc",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 8,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 8,
-  },
-})

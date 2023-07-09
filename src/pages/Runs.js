@@ -286,7 +286,7 @@ export default function Runs() {
                     alignItems='center'
                     w='100%'
                     space={2}
-                    bgColor={bg}
+                    bgColor={bgCard}
                     shadow={2}
                     borderRadius={4}
                     p={2}
