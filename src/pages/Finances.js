@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import { Actionsheet, Box, Button, HStack, IconButton, Input, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
-import { Dimensions, FlatList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Actionsheet, Box, Button, HStack, IconButton, Input, KeyboardAvoidingView, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
+import { Dimensions, FlatList, Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { RectButton, } from 'react-native-gesture-handler';
 
 import { Feather, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -60,12 +60,9 @@ export default function Finances() {
     filteredList,
     listTotal,
     selectedtypeofpayment, setselectedtypeofpayment,
-    selectedPeriod, setSelectedPeriod,
-    filterLabels,
     pamentStatusLabel,
     selectedPaymentStatus, setSelectedPaymentStatus,
-    selectedDateOrderFilter, setSelectedDateOrderFilter,
-    dateOrderOptions, handleFavorite,
+    handleFavorite,
     selectedFavoritedFilter, setSelectedFavoritedFilter,
     favoritedFilterLabel,
     categoriesList, selectedPaymentCategory, setSelectedPaymentCategory,
@@ -74,7 +71,7 @@ export default function Finances() {
     endDate, setEndDate,
   } = usePayments();
 
-  const { width, height } = useWindowDimensions();
+  const { height } = useWindowDimensions();
 
   const {
     isEnableTitheCard,
@@ -97,8 +94,6 @@ export default function Finances() {
       })
   }
 
-  const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
-  const [openModalSeeTransaction, setOpenModalSeeTransaction] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
 
   const categoryItemLib = {
@@ -129,7 +124,7 @@ export default function Finances() {
 
   return (
     <VStack flex={1} bg={bg}>
-      <ScrollView style={styles.container}>
+      <ScrollView flex={1} w={'100%'} h={'100%'}>
         <Header
           title="Finança"
           iconComponent={
@@ -625,11 +620,15 @@ export default function Finances() {
         }
       </ScrollView>
 
-      <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
-        <Actionsheet.Content minH={height * 0.8}>
-          <EditItemForm onClose={onClose} selectedTransaction={selectedTransaction} />
-        </Actionsheet.Content>
-      </Actionsheet>
+      <KeyboardAvoidingView
+        behavior={"height"}
+      >
+        <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
+          <Actionsheet.Content minH={height * 0.8}>
+            <EditItemForm onClose={onClose} selectedTransaction={selectedTransaction} />
+          </Actionsheet.Content>
+        </Actionsheet>
+      </KeyboardAvoidingView>
     </VStack >
   );
 }
