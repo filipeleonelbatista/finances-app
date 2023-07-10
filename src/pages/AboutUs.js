@@ -285,7 +285,7 @@ export default function AboutUs() {
 
     useFocusEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-            navigation.navigate('Finanças');
+            navigation.goBack();
             return true;
         });
 
