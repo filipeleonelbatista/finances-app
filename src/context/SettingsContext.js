@@ -1,10 +1,22 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useColorMode } from "native-base";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { Alert, DevSettings, ToastAndroid } from "react-native";
 
 export const SettingsContext = createContext({});
 
 export function SettingsContextProvider(props) {
+
+  const {
+    colorMode,
+    toggleColorMode,
+    setColorMode,
+  } = useColorMode();
+
+  const handleToggleTheme = async () => {
+    await AsyncStorage.setItem('@Theme', colorMode === 'dark' ? 'light' : 'dark')
+    toggleColorMode()
+  }
 
   const [isShowLabelOnNavigation, setIsShowLabelOnNavigation] = useState(false)
   const [isEnableTitheCard, setIsEnableTitheCard] = useState(false)
@@ -86,6 +98,7 @@ export function SettingsContextProvider(props) {
 
   const updateStorageContext = async () => {
     try {
+      await loadThemeFromStorage();
       await loadIsShowLabelOnNavigation();
       await loadIsEnableTitheCard();
       await loadIsEnableTotalHistoryCard();
@@ -96,6 +109,16 @@ export function SettingsContextProvider(props) {
       await loadMarketSimplifiedItems();
     } catch (error) {
       console.log(error)
+    }
+  }
+
+  const loadThemeFromStorage = async () => {
+    const value = await AsyncStorage.getItem('@Theme');
+    if (value !== null) {
+      setColorMode(value)
+    } else {
+      setColorMode(colorMode)
+      await AsyncStorage.setItem('@Theme', colorMode)
     }
   }
 
@@ -181,6 +204,7 @@ export function SettingsContextProvider(props) {
 
   const loadData = useCallback(async () => {
     try {
+      await loadThemeFromStorage();
       await loadIsShowLabelOnNavigation();
       await loadIsEnableTitheCard();
       await loadIsEnableTotalHistoryCard();
@@ -220,7 +244,8 @@ export function SettingsContextProvider(props) {
         handleSetmarketSimplifiedItems,
         isShowLabelOnNavigation,
         setIsShowLabelOnNavigation,
-        handleSetIsShowLabelOnNavigation
+        handleSetIsShowLabelOnNavigation,
+        handleToggleTheme
       }}
     >
       {props.children}

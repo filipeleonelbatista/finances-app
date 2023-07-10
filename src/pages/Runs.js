@@ -122,7 +122,7 @@ export default function Runs() {
               icon={<Feather name="settings" size={20} color={headerText} />}
               onPress={() => navigation.navigate("Configuracoes")}
               _pressed={{
-                bgColor: theme.colors.purple[300]
+                bgColor: theme.colors.purple[900]
               }}
             />
           }

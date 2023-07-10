@@ -184,6 +184,13 @@ export default function Reports() {
         legendFontColor: text,
         legendFontSize: 14
       },
+      {
+        name: "Bares e Restaurantes",
+        population: getSum("Bares e Restaurantes"),
+        color: "#DBBCF2",
+        legendFontColor: text,
+        legendFontSize: 14
+      },
     ]
 
     const filteredData = data.filter(item => item.population > 0)
@@ -222,7 +229,7 @@ export default function Reports() {
               icon={<Feather name="settings" size={20} color={headerText} />}
               onPress={() => navigation.navigate("Configuracoes")}
               _pressed={{
-                bgColor: theme.colors.purple[300]
+                bgColor: theme.colors.purple[900]
               }}
             />
           }
@@ -244,7 +251,7 @@ export default function Reports() {
                   <Text color={text} fontSize={20}>
                     Sem dados para analisar
                   </Text>
-                  <Text color={text}>
+                  <Text color={text} textAlign="center">
                     Adicione e atualize os dados em finanças para ver o relatório aqui.
                   </Text>
                 </VStack>

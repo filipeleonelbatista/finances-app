@@ -31,9 +31,7 @@ export default function AboutUs() {
 
     const {
         colorMode,
-        toggleColorMode
     } = useColorMode();
-
 
     const {
         transactionsList,
@@ -63,7 +61,8 @@ export default function AboutUs() {
         marketSimplifiedItems,
         handleSetmarketSimplifiedItems,
         isShowLabelOnNavigation,
-        handleSetIsShowLabelOnNavigation
+        handleSetIsShowLabelOnNavigation,
+        handleToggleTheme
     } = useSettings();
 
     const { handleAddFinances } = useMarket();
@@ -306,7 +305,7 @@ export default function AboutUs() {
                             icon={<Feather name="arrow-left" size={20} color={headerText} />}
                             onPress={() => navigation.goBack()}
                             _pressed={{
-                                bgColor: theme.colors.purple[300]
+                                bgColor: theme.colors.purple[900]
                             }}
                         />
                     }
@@ -340,7 +339,7 @@ export default function AboutUs() {
                         trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
                         thumbColor={colorMode === 'dark' ? theme.colors.purple[600] : theme.colors.gray[600]}
                         ios_backgroundColor={theme.colors.gray[600]}
-                        onValueChange={toggleColorMode}
+                        onValueChange={handleToggleTheme}
                         value={colorMode === 'dark'}
                     />
                     <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
@@ -360,7 +359,7 @@ export default function AboutUs() {
                         value={isShowLabelOnNavigation}
                     />
                     <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
-                        Somente icones na navegação
+                        Titulos nos icones da navegação
                     </Text>
                 </HStack>
 
@@ -446,6 +445,9 @@ export default function AboutUs() {
                             color: 'white',
                             fontSize: 16
                         }}
+                        _pressed={{
+                            bgColor: theme.colors.purple[900]
+                        }}
                     >
                         Exportar finanças
                     </Button>
@@ -459,11 +461,14 @@ export default function AboutUs() {
                             color: 'white',
                             fontSize: 16
                         }}
+                        _pressed={{
+                            bgColor: theme.colors.purple[900]
+                        }}
                     >
                         Importar finanças
                     </Button>
 
-                    <Text color={text}>
+                    <Text color={text} px={2} textAlign="center">
                         Use um arquivo <Text color={text} bold fontSize={16} >.csv </Text>
                         gerado pelo sistema para importar os dados de um amigo ou familiar.
                     </Text>
@@ -477,6 +482,9 @@ export default function AboutUs() {
                         _text={{
                             color: 'white',
                             fontSize: 16
+                        }}
+                        _pressed={{
+                            bgColor: theme.colors.purple[900]
                         }}
                     >
                         Importar finanças
@@ -515,6 +523,9 @@ export default function AboutUs() {
                         _text={{
                             color: 'white',
                             fontSize: 16
+                        }}
+                        _pressed={{
+                            bgColor: theme.colors.purple[900]
                         }}
                     >
                         Apagar Combustível
@@ -555,6 +566,9 @@ export default function AboutUs() {
                             color: 'white',
                             fontSize: 16
                         }}
+                        _pressed={{
+                            bgColor: theme.colors.purple[900]
+                        }}
                     >
                         Apagar Compras
                     </Button>
@@ -569,11 +583,15 @@ export default function AboutUs() {
                             color: 'white',
                             fontSize: 16
                         }}
+                        _pressed={{
+                            bgColor: theme.colors.purple[900]
+                        }}
                     >
                         Add Total em Finanças
                     </Button>
 
-                    <Text color={text}>
+
+                    <Text color={text} px={2} textAlign="center">
                         Para remover basta clicar no item em Finanças e excluir.
                     </Text>
 
@@ -601,6 +619,9 @@ export default function AboutUs() {
                             color: 'white',
                             fontSize: 16
                         }}
+                        _pressed={{
+                            bgColor: theme.colors.purple[900]
+                        }}
                     >
                         Redefinir configurações
                     </Button>
@@ -615,11 +636,14 @@ export default function AboutUs() {
                             color: 'white',
                             fontSize: 16
                         }}
+                        _pressed={{
+                            bgColor: theme.colors.purple[900]
+                        }}
                     >
                         Apagar tabelas
                     </Button>
 
-                    <Text color={text}>
+                    <Text color={text} px={2} textAlign="center">
                         Essa opção apagará todos os registros do app.
                     </Text>
                 </VStack>
@@ -642,6 +666,9 @@ export default function AboutUs() {
                         _text={{
                             color: 'white',
                             fontSize: 16
+                        }}
+                        _pressed={{
+                            bgColor: theme.colors.purple[900]
                         }}
                     >
                         Sobre o desenvolvedor

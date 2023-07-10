@@ -309,7 +309,18 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
             }
 
             {isEditable && (
-                <Button onPress={formik.submitForm} colorScheme="purple">
+                <Button
+                    onPress={formik.submitForm}
+                    colorScheme="purple"
+                    mt={2}
+                    mb={8}
+                    _text={{
+                        color: "white",
+                    }}
+                    _pressed={{
+                        bgColor: theme.colors.purple[900]
+                    }}
+                >
                     Salvar
                 </Button>
             )}

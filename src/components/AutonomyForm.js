@@ -59,8 +59,19 @@ export default function AutonomyForm({ onClose }) {
                 />
             </VStack>
 
-            <Button onPress={formik.submitForm} colorScheme="purple" mt={4} mb={8}>
-                <Text fontSize={14}>Atualizar</Text>
+            <Button
+                onPress={formik.submitForm}
+                colorScheme="purple"
+                mt={2}
+                mb={8}
+                _text={{
+                    color: "white",
+                }}
+                _pressed={{
+                    bgColor: theme.colors.purple[900]
+                }}
+            >
+                Atualizar
             </Button>
         </ScrollView>
     );

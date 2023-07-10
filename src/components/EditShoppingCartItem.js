@@ -288,8 +288,19 @@ export default function EditShoppingCartItem({ onClose, selectedTransaction }) {
                         </>
                     )
                 }
-                <Button onPress={formik.submitForm} colorScheme="purple" mt={2} mb={8}>
-                    <Text fontSize={14}>Salvar</Text>
+                <Button
+                    onPress={formik.submitForm}
+                    colorScheme="purple"
+                    mt={2}
+                    mb={8}
+                    _text={{
+                        color: "white",
+                    }}
+                    _pressed={{
+                        bgColor: theme.colors.purple[900]
+                    }}
+                >
+                    Salvar
                 </Button>
             </VStack>
         </ScrollView >

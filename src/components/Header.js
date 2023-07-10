@@ -9,7 +9,6 @@ export default function Header({ title, iconComponent, isLeft = false }) {
   const theme = useTheme();
 
   const bg = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[900]);
-  const headerText = useColorModeValue('white', theme.colors.gray[800]);
 
   return (
     <ImageBackground source={bgImg} style={{
@@ -21,11 +20,11 @@ export default function Header({ title, iconComponent, isLeft = false }) {
       <HStack justifyContent='space-between' alignItems={'center'} px={4}>
         {isLeft ? (iconComponent) : < Box w={10} />}
         <Text
-          color={headerText}
+          color={bg}
           bold
           fontSize={28}
         >
-          {title}<Text color={theme.colors.purple[800]}>$</Text>
+          {title}<Text color={theme.colors.purple[900]}>$</Text>
         </Text>
         {!isLeft ? (iconComponent) : < Box w={10} />}
       </HStack>

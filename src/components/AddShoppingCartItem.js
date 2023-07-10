@@ -245,8 +245,19 @@ export default function AddShoppingCartItem({ onClose }) {
                         </>
                     )
                 }
-                <Button onPress={formik.submitForm} colorScheme="purple" mt={2} mb={8}>
-                    <Text fontSize={14}>Adicionar</Text>
+                <Button
+                    onPress={formik.submitForm}
+                    colorScheme="purple"
+                    mt={2}
+                    mb={8}
+                    _text={{
+                        color: "white",
+                    }}
+                    _pressed={{
+                        bgColor: theme.colors.purple[900]
+                    }}
+                >
+                    Adicionar
                 </Button>
             </VStack>
         </ScrollView >
