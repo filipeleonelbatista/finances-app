@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { Actionsheet, Box, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
-import { Dimensions, StyleSheet, View } from 'react-native';
-import { RectButton } from 'react-native-gesture-handler';
 
 import { Picker } from '@react-native-picker/picker';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -11,16 +9,15 @@ import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { useEffect } from 'react';
-import { TextInput } from 'react-native';
+import { useWindowDimensions } from 'react-native';
+import EditShoppingCartItem from '../components/EditShoppingCartItem';
 import EmptyMessage from '../components/EmptyMessage';
+import ErrorSheet from '../components/ErrorSheet';
+import EstimativeForm from '../components/EstimativeForm';
 import Header from '../components/Header';
 import { useMarket } from '../hooks/useMarket';
 import { usePages } from '../hooks/usePages';
 import { useSettings } from '../hooks/useSettings';
-import EditShoppingCartItem from '../components/EditShoppingCartItem';
-import EstimativeForm from '../components/EstimativeForm';
-import ErrorSheet from '../components/ErrorSheet';
-import { useWindowDimensions } from 'react-native';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -52,8 +49,6 @@ export default function Market() {
   const navigation = useNavigation();
 
   const { height } = useWindowDimensions();
-
-  const currentTheme = 'light'
 
   const { marketSimplifiedItems } = useSettings();
 

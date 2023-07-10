@@ -6,6 +6,7 @@ export const SettingsContext = createContext({});
 
 export function SettingsContextProvider(props) {
 
+  const [isShowLabelOnNavigation, setIsShowLabelOnNavigation] = useState(false)
   const [isEnableTitheCard, setIsEnableTitheCard] = useState(false)
   const [isEnableTotalHistoryCard, setIsEnableTotalHistoryCard] = useState(false)
   const [willAddFuelToTransactionList, setWillAddFuelToTransactionList] = useState(false)
@@ -33,6 +34,12 @@ export function SettingsContextProvider(props) {
           },
         },
       ])
+  }
+
+  const handleSetIsShowLabelOnNavigation = async (value) => {
+    setIsShowLabelOnNavigation(value)
+    await AsyncStorage.setItem('@IsShowLabelOnNavigation', JSON.stringify(value))
+    await updateStorageContext()
   }
 
   const handleSetmarketSimplifiedItems = async (value) => {
@@ -79,6 +86,7 @@ export function SettingsContextProvider(props) {
 
   const updateStorageContext = async () => {
     try {
+      await loadIsShowLabelOnNavigation();
       await loadIsEnableTitheCard();
       await loadIsEnableTotalHistoryCard();
       await loadWillAddFuelToTransactionList();
@@ -88,6 +96,16 @@ export function SettingsContextProvider(props) {
       await loadMarketSimplifiedItems();
     } catch (error) {
       console.log(error)
+    }
+  }
+
+  const loadIsShowLabelOnNavigation = async () => {
+    const value = await AsyncStorage.getItem('@IsShowLabelOnNavigation');
+    if (value !== null) {
+      setIsShowLabelOnNavigation(JSON.parse(value))
+    } else {
+      setIsShowLabelOnNavigation(isShowLabelOnNavigation)
+      await AsyncStorage.setItem('@IsShowLabelOnNavigation', JSON.stringify(isShowLabelOnNavigation))
     }
   }
 
@@ -163,6 +181,7 @@ export function SettingsContextProvider(props) {
 
   const loadData = useCallback(async () => {
     try {
+      await loadIsShowLabelOnNavigation();
       await loadIsEnableTitheCard();
       await loadIsEnableTotalHistoryCard();
       await loadWillAddFuelToTransactionList();
@@ -198,7 +217,10 @@ export function SettingsContextProvider(props) {
         handleSetSimpleFinancesItem,
         marketSimplifiedItems,
         setMarketSimplifiedItems,
-        handleSetmarketSimplifiedItems
+        handleSetmarketSimplifiedItems,
+        isShowLabelOnNavigation,
+        setIsShowLabelOnNavigation,
+        handleSetIsShowLabelOnNavigation
       }}
     >
       {props.children}

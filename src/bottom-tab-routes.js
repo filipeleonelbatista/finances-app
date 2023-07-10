@@ -11,11 +11,13 @@ import Runs from "./pages/Runs";
 import { Text, useColorModeValue, useTheme } from "native-base";
 import ActionSheet from "./pages/ActionSheet";
 import AddButton from "./components/AddButtton";
+import { useSettings } from "./hooks/useSettings";
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabRoutes() {
   const theme = useTheme();
+  const { isShowLabelOnNavigation } = useSettings();
 
   const bg = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[900]);
   const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
@@ -26,9 +28,10 @@ export default function BottomTabRoutes() {
       screenOptions={{
         tabBarHideOnKeyboard: true,
         headerShown: false,
+        tabBarShowLabel: isShowLabelOnNavigation,
         tabBarStyle: {
           backgroundColor: bg,
-          height: 60,
+          height: isShowLabelOnNavigation ? 60 : 50,
           position: 'relative'
         }
       }}

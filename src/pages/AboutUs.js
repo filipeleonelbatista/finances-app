@@ -1,9 +1,9 @@
 import { Feather } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { IconButton, VStack, useColorMode, useColorModeValue, useTheme } from 'native-base';
+import { Box, Button, Divider, HStack, IconButton, Image, Input, Text, VStack, useColorMode, useColorModeValue, useTheme } from 'native-base';
 import React from 'react';
-import { Alert, BackHandler, Dimensions, Image, KeyboardAvoidingView, Linking, StyleSheet, Switch, Text, TextInput, ToastAndroid, View } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { Alert, BackHandler, Linking, Switch, ToastAndroid } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -11,7 +11,6 @@ import * as MediaLibrary from 'expo-media-library';
 import * as DocumentPicker from 'expo-document-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useHeaderHeight } from '@react-navigation/elements';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { jsonToCSV, readString } from 'react-native-csv';
 import { v4 } from 'uuid';
@@ -29,12 +28,12 @@ export default function AboutUs() {
     const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
 
     const navigation = useNavigation();
+
     const {
         colorMode,
         toggleColorMode
     } = useColorMode();
 
-    const height = useHeaderHeight()
 
     const {
         transactionsList,
@@ -62,7 +61,9 @@ export default function AboutUs() {
         simpleFinancesItem,
         handleSetSimpleFinancesItem,
         marketSimplifiedItems,
-        handleSetmarketSimplifiedItems
+        handleSetmarketSimplifiedItems,
+        isShowLabelOnNavigation,
+        handleSetIsShowLabelOnNavigation
     } = useSettings();
 
     const { handleAddFinances } = useMarket();
@@ -293,497 +294,369 @@ export default function AboutUs() {
     })
 
     return (
-        <VStack>
-            <KeyboardAvoidingView
-                behavior={'padding'}
-                keyboardVerticalOffset={height + 48}
-                enabled
-            >
-                <ScrollView
-                    style={styles.ScrollViewContainer}
-                >
-                    <Header
-                        isLeft
-                        title="Configuraçõe"
-                        iconComponent={
-                            <IconButton
-                                size={10}
-                                borderRadius='full'
-                                icon={<Feather name="arrow-left" size={20} color={headerText} />}
-                                onPress={() => navigation.goBack()}
-                                _pressed={{
-                                    color: theme.colors.purple[300]
-                                }}
-                            />
-                        }
-                    />
-                    <View style={styles.imageContainer}>
-                        <View style={styles.imageBorder} >
-                            <View style={{ ...styles.imageBackgroundWhite, backgroundColor: colorMode === 'dark' ? '#1c1e21' : '#FFF' }}>
-                                <Image source={userImg} style={styles.image} />
-                            </View>
-                        </View>
-                    </View>
-                    <View style={{ height: 8 }} />
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
-                        <Switch
-                            trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={colorMode === 'dark' ? "#9c44dc" : "#3e3e3e"}
-                            ios_backgroundColor="#3e3e3e"
-                            onValueChange={toggleColorMode}
-                            value={colorMode === 'dark'}
+        <VStack flex={1} bg={bg}>
+            <ScrollView flex={1} w={'100%'} h={'100%'}>
+                <Header
+                    isLeft
+                    title="Configuraçõe"
+                    iconComponent={
+                        <IconButton
+                            size={10}
+                            borderRadius='full'
+                            icon={<Feather name="arrow-left" size={20} color={headerText} />}
+                            onPress={() => navigation.goBack()}
+                            _pressed={{
+                                bgColor: theme.colors.purple[300]
+                            }}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
-                            Habilitar Tema Escuro
-                        </Text>
-                    </View>
-                    <View style={{ width: '100%', alignItems: 'center' }}>
-                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: colorMode === 'dark' ? '#FFF' : '#1c1e21' }} />
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
-                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
-                            Finanças
-                        </Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                    }
+                />
+
+                <VStack alignItems={"center"} mt={-16}>
+                    <Box
+                        borderRadius={'full'}
+                        w={32}
+                        h={32}
+                        borderWidth={6}
+                        borderColor={theme.colors.purple[900]}
+                        bg={bg}
+                        alignItems={'center'}
+                        justifyContent={'center'}
+                    >
+                        <Image
+                            alt="logo"
+                            source={userImg}
+                            borderRadius={'full'}
+                            size={105}
+                        />
+                    </Box>
+                </VStack>
+
+                <HStack
+                    px={4}
+                    alignItems={"center"}
+                >
+                    <Switch
+                        trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                        thumbColor={colorMode === 'dark' ? theme.colors.purple[600] : theme.colors.gray[600]}
+                        ios_backgroundColor={theme.colors.gray[600]}
+                        onValueChange={toggleColorMode}
+                        value={colorMode === 'dark'}
+                    />
+                    <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
+                        Habilitar Tema Escuro
+                    </Text>
+                </HStack>
+
+                <HStack
+                    px={4}
+                    alignItems={"center"}
+                >
+                    <Switch
+                        trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                        thumbColor={isShowLabelOnNavigation ? theme.colors.purple[600] : theme.colors.gray[600]}
+                        ios_backgroundColor={theme.colors.gray[600]}
+                        onValueChange={handleSetIsShowLabelOnNavigation}
+                        value={isShowLabelOnNavigation}
+                    />
+                    <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
+                        Somente icones na navegação
+                    </Text>
+                </HStack>
+
+                <HStack
+                    px={4}
+                    my={2}
+                >
+                    <Divider />
+                </HStack>
+
+                <VStack space={2} px={4}>
+                    <Text color={text} bold fontSize={22}>
+                        Finanças
+                    </Text>
+                    <HStack alignItems={"center"}>
                         <Switch
-                            trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={simpleFinancesItem ? "#9c44dc" : "#3e3e3e"}
-                            ios_backgroundColor="#3e3e3e"
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={simpleFinancesItem ? theme.colors.purple[600] : theme.colors.gray[600]}
+                            ios_backgroundColor={theme.colors.gray[600]}
                             onValueChange={handleSetSimpleFinancesItem}
                             value={simpleFinancesItem}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
                             Usar formulário simplificado de itens
                         </Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                    </HStack>
+                    <HStack alignItems={"center"}>
                         <Switch
-                            trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={isEnableTotalHistoryCard ? "#9c44dc" : "#3e3e3e"}
-                            ios_backgroundColor="#3e3e3e"
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={isEnableTotalHistoryCard ? theme.colors.purple[600] : theme.colors.gray[600]}
+                            ios_backgroundColor={theme.colors.gray[600]}
                             onValueChange={handleSwitchViewTotalHistoryCard}
                             value={isEnableTotalHistoryCard}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar card de Saldo</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>Habilitar card de Saldo</Text>
+                    </HStack>
+                    <HStack alignItems={"center"}>
                         <Switch
-                            trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={isEnableTitheCard ? "#9c44dc" : "#3e3e3e"}
-                            ios_backgroundColor="#3e3e3e"
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={isEnableTitheCard ? theme.colors.purple[600] : theme.colors.gray[600]}
+                            ios_backgroundColor={theme.colors.gray[600]}
                             onValueChange={handleSwitchViewTitheCard}
                             value={isEnableTitheCard}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>Habilitar card de Dízimo</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>Habilitar card de Dízimo</Text>
+                    </HStack>
+                    <HStack alignItems={"center"}>
                         <Switch
-                            trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={willUsePrefixToRemoveTihteSum ? "#9c44dc" : "#3e3e3e"}
-                            ios_backgroundColor="#3e3e3e"
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={willUsePrefixToRemoveTihteSum ? theme.colors.purple[600] : theme.colors.gray[600]}
+                            ios_backgroundColor={theme.colors.gray[600]}
                             onValueChange={handleWillRemovePrefixToRemove}
                             value={willUsePrefixToRemoveTihteSum}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>Remover itens com o prefixo da soma do Dízimo</Text>
-                    </View>
-                    <View style={{ paddingHorizontal: 24 }}>
-                        <Text style={{ ...styles.label, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>Prefixo</Text>
-                        <TextInput
+                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>Remover itens com o prefixo da soma do Dízimo</Text>
+                    </HStack>
 
-                            placeholderTextColor={colorMode === 'dark' ? '#FFF' : '#1c1e21'}
-                            style={{
-                                ...styles.input,
-                                backgroundColor: !willUsePrefixToRemoveTihteSum ? colorMode === 'dark' ? '#333' : '#DDD' : colorMode === 'dark' ? '#1c1e21' : '#FFF',
-                                color: colorMode === 'dark' ? '#FFF' : '#1c1e21',
-                                marginBottom: 4
-                            }}
+                    <VStack space={2}>
+                        <Text color={text} fontSize={16}>
+                            Prefixo
+                        </Text>
+                        <Input
+                            keyboardType="decimal-pad"
                             placeholder="Prefixo"
                             onChangeText={handleSetPrefixTithe}
                             value={prefixTithe}
                             editable={willUsePrefixToRemoveTihteSum}
                         />
-                        <Text style={{ ...styles.helperText, color: colorMode === 'dark' ? "#CCC" : "#666" }}>Se o título da transação tiver este prefixo não será contado na soma do dízimo</Text>
-                    </View>
-
-                    <RectButton onPress={handleGenerateCSV} style={styles.button}>
-                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Exportar finanças
+                        <Text color="gray.400">
+                            Se o título da transação tiver este prefixo não será contado na soma do dízimo
                         </Text>
-                    </RectButton>
-                    <RectButton onPress={handleImportCSV} style={styles.button}>
-                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Importar finanças
-                        </Text>
-                    </RectButton>
+                    </VStack>
+                </VStack>
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
-                        Use um arquivo <Text style={{ color: colorMode === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
+                <VStack px={4} space={2} my={2}>
+                    <Button
+                        onPress={handleGenerateCSV}
+                        shadow={2}
+                        colorScheme={"purple"}
+                        borderRadius={'full'}
+                        leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+                        _text={{
+                            color: 'white',
+                            fontSize: 16
+                        }}
+                    >
+                        Exportar finanças
+                    </Button>
+                    <Button
+                        onPress={handleImportCSV}
+                        shadow={2}
+                        colorScheme={"purple"}
+                        borderRadius={'full'}
+                        leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+                        _text={{
+                            color: 'white',
+                            fontSize: 16
+                        }}
+                    >
+                        Importar finanças
+                    </Button>
+
+                    <Text color={text}>
+                        Use um arquivo <Text color={text} bold fontSize={16} >.csv </Text>
                         gerado pelo sistema para importar os dados de um amigo ou familiar.
                     </Text>
 
-                    <RectButton onPress={handleClearFinances} style={styles.button}>
-                        <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Apagar Finanças
-                        </Text>
-                    </RectButton>
+                    <Button
+                        onPress={handleClearFinances}
+                        shadow={2}
+                        colorScheme={"purple"}
+                        borderRadius={'full'}
+                        leftIcon={<Feather name="trash" size={24} color="#FFF" />}
+                        _text={{
+                            color: 'white',
+                            fontSize: 16
+                        }}
+                    >
+                        Importar finanças
+                    </Button>
+                </VStack>
 
-                    <View style={{ width: '100%', alignItems: 'center' }}>
-                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: colorMode === 'dark' ? '#FFF' : '#1c1e21' }} />
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
-                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
-                            Combustível
-                        </Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                <HStack
+                    px={4}
+                    my={2}
+                >
+                    <Divider />
+                </HStack>
+
+                <VStack space={2} px={4} py={2}>
+                    <Text color={text} bold fontSize={22}>
+                        Combustível
+                    </Text>
+                    <HStack alignItems={"center"}>
                         <Switch
-                            trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={willAddFuelToTransactionList ? "#9c44dc" : "#3e3e3e"}
-                            ios_backgroundColor="#3e3e3e"
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={willAddFuelToTransactionList ? theme.colors.purple[600] : theme.colors.gray[600]}
+                            ios_backgroundColor={theme.colors.gray[600]}
                             onValueChange={handleToggleWillAddFuel}
                             value={willAddFuelToTransactionList}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
                             Habilitar adicionar abastecimento automaticamente em finanças
                         </Text>
-                    </View>
-                    <RectButton onPress={handleClearRuns} style={styles.button}>
-                        <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Apagar Combustível
-                        </Text>
-                    </RectButton>
+                    </HStack>
+                    <Button
+                        onPress={handleClearRuns}
+                        shadow={2}
+                        colorScheme={"purple"}
+                        borderRadius={'full'}
+                        leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+                        _text={{
+                            color: 'white',
+                            fontSize: 16
+                        }}
+                    >
+                        Apagar Combustível
+                    </Button>
+                </VStack>
 
-                    {/* <RectButton onPress={handleExportRuns} style={styles.button}>
-                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Exportar Abastecimentos
-                        </Text>
-                    </RectButton>
-                    <RectButton onPress={handleImportRuns} style={styles.button}>
-                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Importar Abastecimentos
-                        </Text>
-                    </RectButton>
+                <HStack
+                    px={4}
+                    my={2}
+                >
+                    <Divider />
+                </HStack>
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
-                        Use um arquivo <Text style={{ color: colorMode === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
-                        para importar dados com as colunas Local do abastecimento, Data do abasatecimento, Tipo, Valor Litro, Valor pago, Km Atual.
-                    </Text> */}
-                    <View style={{ width: '100%', alignItems: 'center' }}>
-                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: colorMode === 'dark' ? '#FFF' : '#1c1e21' }} />
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
-                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
-                            Mercado
-                        </Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
+                <VStack space={2} px={4} py={2}>
+                    <Text color={text} bold fontSize={22}>
+                        Mercado
+                    </Text>
+                    <HStack alignItems={"center"}>
                         <Switch
-                            trackColor={{ false: "#767577", true: "#767577" }}
-                            thumbColor={marketSimplifiedItems ? "#9c44dc" : "#3e3e3e"}
-                            ios_backgroundColor="#3e3e3e"
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={marketSimplifiedItems ? theme.colors.purple[600] : theme.colors.gray[600]}
+                            ios_backgroundColor={theme.colors.gray[600]}
                             onValueChange={handleSetmarketSimplifiedItems}
                             value={marketSimplifiedItems}
                         />
-                        <Text style={{ ...styles.labelSwitch, color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
+                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
                             Usar formulário simplificado de itens
                         </Text>
-                    </View>
-                    <RectButton onPress={handleClearMarket} style={styles.button}>
-                        <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Apagar Compras
-                        </Text>
-                    </RectButton>
-                    <RectButton onPress={handleAddFinances} style={styles.button}>
-                        <Feather name="dollar-sign" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Add Total em Finanças
-                        </Text>
-                    </RectButton>
+                    </HStack>
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
+                    <Button
+                        onPress={handleClearMarket}
+                        shadow={2}
+                        colorScheme={"purple"}
+                        borderRadius={'full'}
+                        leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+                        _text={{
+                            color: 'white',
+                            fontSize: 16
+                        }}
+                    >
+                        Apagar Compras
+                    </Button>
+
+                    <Button
+                        onPress={handleAddFinances}
+                        shadow={2}
+                        colorScheme={"purple"}
+                        borderRadius={'full'}
+                        leftIcon={<Feather name="dollar-sign" size={24} color="#FFF" />}
+                        _text={{
+                            color: 'white',
+                            fontSize: 16
+                        }}
+                    >
+                        Add Total em Finanças
+                    </Button>
+
+                    <Text color={text}>
                         Para remover basta clicar no item em Finanças e excluir.
                     </Text>
 
-                    {/* <RectButton onPress={handleExportMarket} style={styles.button}>
-                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Exportar compras
-                        </Text>
-                    </RectButton>
-                    <RectButton onPress={handleImportMarket} style={styles.button}>
-                        <Feather name="file-text" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Importar compras
-                        </Text>
-                    </RectButton>
+                </VStack>
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
-                        Use um arquivo <Text style={{ color: colorMode === 'dark' ? "#FFF" : "#333", fontWeight: 'bold', fontSize: 16 }} >.csv </Text>
-                        para importar dados com as colunas Produto, Categoria, Quantidade, Valor.
-                    </Text> */}
-                    <View style={{ width: '100%', alignItems: 'center' }}>
-                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: colorMode === 'dark' ? '#FFF' : '#1c1e21' }} />
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 4 }}>
-                        <Text style={{ ...styles.labelSwitch, marginBottom: 8, fontSize: 22, fontWeight: 'bold', color: colorMode === 'dark' ? '#FFF' : '#1c1e21' }}>
-                            Geral
-                        </Text>
-                    </View>
+                <HStack
+                    px={4}
+                    my={2}
+                >
+                    <Divider />
+                </HStack>
 
-                    <RectButton onPress={handleResetSettings} style={styles.button}>
-                        <Feather name="settings" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Redefinir configurações
-                        </Text>
-                    </RectButton>
+                <VStack space={2} px={4} py={2}>
+                    <Text color={text} bold fontSize={22}>
+                        Geral
+                    </Text>
 
-                    <RectButton onPress={handleCleanAsyncStorage} style={styles.button}>
-                        <Feather name="trash" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Apagar tabelas
-                        </Text>
-                    </RectButton>
+                    <Button
+                        onPress={handleResetSettings}
+                        shadow={2}
+                        colorScheme={"purple"}
+                        borderRadius={'full'}
+                        leftIcon={<Feather name="settings" size={24} color="#FFF" />}
+                        _text={{
+                            color: 'white',
+                            fontSize: 16
+                        }}
+                    >
+                        Redefinir configurações
+                    </Button>
 
-                    <Text style={{ ...styles.helperText, marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
+                    <Button
+                        onPress={handleCleanAsyncStorage}
+                        shadow={2}
+                        colorScheme={"purple"}
+                        borderRadius={'full'}
+                        leftIcon={<Feather name="trash" size={24} color="#FFF" />}
+                        _text={{
+                            color: 'white',
+                            fontSize: 16
+                        }}
+                    >
+                        Apagar tabelas
+                    </Button>
+
+                    <Text color={text}>
                         Essa opção apagará todos os registros do app.
                     </Text>
+                </VStack>
 
-                    <View style={{ width: '100%', alignItems: 'center' }}>
-                        <View style={{ marginTop: 8, height: 1, width: '90%', backgroundColor: colorMode === 'dark' ? '#FFF' : '#1c1e21' }} />
-                    </View>
+                <HStack
+                    px={4}
+                    my={2}
+                >
+                    <Divider />
+                </HStack>
 
-                    <RectButton onPress={() => { Linking.openURL("https://filipeleonelbatista.vercel.app/") }} style={styles.button}>
-                        <Feather name="globe" size={24} style={{ marginRight: 6 }} color="#FFF" />
-                        <Text style={styles.buttonText} >
-                            Sobre o desenvolvedor
-                        </Text>
-                    </RectButton>
+                <VStack space={2} px={4} py={2}>
 
-                    <Text style={{ ...styles.helperText, textAlign: 'center', marginBottom: 8, marginHorizontal: 48, color: colorMode === 'dark' ? "#CCC" : "#666", }}>
+                    <Button
+                        onPress={() => { Linking.openURL("https://filipeleonelbatista.vercel.app/") }}
+                        shadow={2}
+                        colorScheme={"purple"}
+                        borderRadius={'full'}
+                        leftIcon={<Feather name="globe" size={24} color="#FFF" />}
+                        _text={{
+                            color: 'white',
+                            fontSize: 16
+                        }}
+                    >
+                        Sobre o desenvolvedor
+                    </Button>
+
+                    <Text
+                        textAlign={"center"}
+                        fontSize={12}
+                        color={text}
+                        my={6}
+                    >
                         Versão {Constants.manifest.version}
                     </Text>
-                    <View style={{ height: 32 }} />
-                </ScrollView>
-            </KeyboardAvoidingView>
+                </VStack>
+            </ScrollView>
         </VStack>
     );
 }
-
-const styles = StyleSheet.create({
-    imageContainer: {
-        width: '100%',
-        height: 'auto',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: -70,
-    },
-    dev: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#363f5f'
-    },
-    subtitle: {
-        fontSize: 16,
-        fontFamily: 'Poppins_400Regular',
-        color: '#363f5f'
-    },
-    contentImg: {
-        width: '100%',
-        height: 'auto',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginVertical: 12
-    },
-    content: {
-        width: '100%',
-        height: 'auto',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginVertical: 20,
-    },
-    imageBorder: {
-        width: 128,
-        height: 128,
-        borderRadius: 64,
-        backgroundColor: '#543b6c',
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 6,
-    },
-    imageBackgroundWhite: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: '#FFF',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    image: {
-        width: 112,
-        height: 112,
-        borderRadius: 56,
-        backgroundColor: '#FFF',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    techs: {
-        width: 32,
-        height: 32,
-        borderRadius: 8,
-        marginHorizontal: 4,
-    },
-    container: {
-        flex: 1,
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height,
-        backgroundColor: '#f0f2f5',
-    },
-    title: {
-        textAlign: 'center',
-        fontSize: 32,
-        fontFamily: 'Poppins_400Regular',
-        color: '#f0f2f5',
-        marginVertical: 24,
-    },
-    ScrollViewContainer: {
-        width: '100%',
-        height: 'auto',
-        paddingBottom: 16,
-        marginBottom: 48,
-    },
-    header: {
-        height: 130,
-        width: '100%',
-        backgroundColor: '#9c44dc',
-    },
-    headerItens: {
-        marginHorizontal: 24,
-        marginTop: 16,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    headerEmpty: {
-        width: 48,
-        height: 48,
-        borderRadius: 32,
-    },
-    headerButton: {
-        width: 48,
-        height: 48,
-        borderRadius: 32,
-        backgroundColor: '#9c44dc',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    headerButtonText: {
-        fontSize: 24,
-        fontFamily: 'Poppins_400Regular',
-        color: '#f0f2f5',
-    },
-    cardWite: {
-        flexDirection: 'column',
-        borderRadius: 4,
-        marginHorizontal: 24,
-        marginVertical: 6,
-        backgroundColor: '#FFF',
-        paddingHorizontal: 48,
-        paddingVertical: 24,
-    },
-    cardGreen: {
-        borderRadius: 4,
-        marginHorizontal: 24,
-        marginVertical: 6,
-        backgroundColor: '#9c44dc',
-        paddingHorizontal: 48,
-        paddingVertical: 24,
-    },
-    cardTextGreen: {
-        fontSize: 18,
-        fontFamily: 'Poppins_400Regular',
-        color: '#f0f2f5',
-        marginBottom: 24,
-        marginBottom: 12,
-    },
-    cardValueGreen: {
-        fontSize: 32,
-        fontFamily: 'Poppins_400Regular',
-        color: '#f0f2f5'
-    },
-    cardText: {
-        fontSize: 18,
-        fontFamily: 'Poppins_400Regular',
-        marginBottom: 24,
-        marginBottom: 12,
-    },
-    cardValue: {
-        fontSize: 32,
-        fontFamily: 'Poppins_400Regular',
-        color: '#363f5f'
-    },
-    cardTitleOrientation: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    },
-    statusBar: {
-        height: 24,
-        width: '100%',
-        backgroundColor: '#2D4A22',
-    },
-    button: {
-        borderRadius: 48,
-        marginHorizontal: 24,
-        marginVertical: 8,
-        backgroundColor: '#9c44dc',
-        paddingHorizontal: 48,
-        paddingVertical: 12,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 4,
-    },
-    buttonText: {
-        fontSize: 18,
-        fontFamily: 'Poppins_400Regular',
-        color: '#f0f2f5',
-        textAlign: 'center',
-    },
-    labelSwitch: {
-        width: '80%',
-        fontSize: 16,
-        color: '#363f5f',
-        fontFamily: 'Poppins_400Regular',
-    },
-    label: {
-        marginTop: 18,
-        fontSize: 18,
-        color: '#363f5f',
-        fontFamily: 'Poppins_400Regular',
-    },
-    input: {
-        marginTop: 6,
-        paddingHorizontal: 12,
-        backgroundColor: '#FFF',
-        borderColor: "#CCC",
-        borderRadius: 4,
-        width: '100%',
-        height: 48,
-        borderWidth: 1
-    },
-    helperText: {
-        fontFamily: 'Poppins_400Regular',
-        fontSize: 12,
-        color: '#666',
-        textAlign: 'left',
-    },
-})

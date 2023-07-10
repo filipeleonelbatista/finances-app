@@ -1,31 +1,52 @@
+import { Actionsheet, Button, Divider, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
 import React, { useMemo, useState } from 'react';
-
-import { Dimensions, FlatList, ImageBackground, StyleSheet, Text, View } from 'react-native';
-import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { FlatList, View } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { Feather } from '@expo/vector-icons';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { differenceInCalendarDays } from 'date-fns';
-import { VStack } from 'native-base';
-import { TextInput, useWindowDimensions } from 'react-native';
+import { useEffect } from 'react';
+import { useWindowDimensions } from 'react-native';
 import { PieChart } from "react-native-chart-kit";
 import * as Progress from 'react-native-progress';
-import bgImg from '../assets/images/background.png';
-import AddGoalForm from '../components/AddGoalForm';
 import EditGoalForm from '../components/EditGoalForm';
 import EmptyMessage from '../components/EmptyMessage';
-import Modal from '../components/Modal';
+import Header from '../components/Header';
 import { useGoals } from '../hooks/useGoals';
+import { usePages } from '../hooks/usePages';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
-import { useTheme } from '../hooks/useTheme';
 
 export default function Reports() {
-  const { width } = useWindowDimensions();
+  const theme = useTheme();
+
+  const bg = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[900]);
+  const bgCard = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[800]);
+  const headerText = useColorModeValue('white', theme.colors.gray[800]);
+  const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
+
+  const { setSelectedSheet } = usePages();
+
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (isFocused) {
+      setSelectedSheet('Relatórios')
+    }
+  }, [isFocused])
+
   const {
-    currentTheme
-  } = useTheme();
+    isOpen,
+    onOpen,
+    onClose
+  } = useDisclose();
+
+  const navigation = useNavigation();
+
+  const { width, height } = useWindowDimensions();
 
   const {
     simpleFinancesItem
@@ -53,8 +74,6 @@ export default function Reports() {
   } = useGoals();
 
   const [openFilter, setOpenFilter] = useState(false);
-  const [openModalAddTransaction, setOpenModalAddTransaction] = useState(false);
-  const [openModalSeeTransaction, setOpenModalSeeTransaction] = useState(false);
 
   const formatCurrency = (value) => {
     return value
@@ -85,84 +104,84 @@ export default function Reports() {
         name: "Cartão",
         population: getSum("Cartão"),
         color: "#2D0D45",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "Moradia",
         population: getSum("Moradia"),
         color: "#391056",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "Vestuário",
         population: getSum("Vestuário"),
         color: "#4F1778",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "Streaming",
         population: getSum("Streaming"),
         color: "#661D9A",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "Estudos",
         population: getSum("Estudos"),
         color: "#7D24BC",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "Beleza",
         population: getSum("Beleza"),
         color: "#9231D8",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "Emergência",
         population: getSum("Emergência"),
         color: "#9C44DC",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "Outros",
         population: getSum("Outros"),
         color: "#AA5DE0",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "Mercado",
         population: getSum("Mercado"),
         color: "#B16BE3",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "TV/Internet/Telefone",
         population: getSum("TV/Internet/Telefone"),
         color: "#C693EA",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "Transporte",
         population: getSum("Transporte"),
         color: "#D4AEF0",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
       {
         name: "Saúde",
         population: getSum("Saúde"),
         color: "#DBBCF2",
-        legendFontColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+        legendFontColor: text,
         legendFontSize: 14
       },
     ]
@@ -192,111 +211,92 @@ export default function Reports() {
   };
 
   return (
-    <VStack>
-      <Modal currentTheme={currentTheme} open={openModalSeeTransaction} onClose={() => setOpenModalSeeTransaction(false)}>
-        <EditGoalForm onClose={() => setOpenModalSeeTransaction(false)} selectedTransaction={selectedTransaction} />
-      </Modal>
-      <Modal currentTheme={currentTheme} open={openModalAddTransaction} onClose={() => setOpenModalAddTransaction(false)}>
-        <AddGoalForm onClose={() => setOpenModalAddTransaction(false)} />
-      </Modal>
+    <VStack flex={1} bg={bg}>
+      <ScrollView flex={1} w={'100%'} h={'100%'}>
+        <Header
+          title="Relatório"
+          iconComponent={
+            <IconButton
+              size={10}
+              borderRadius='full'
+              icon={<Feather name="settings" size={20} color={headerText} />}
+              onPress={() => navigation.navigate("Configuracoes")}
+              _pressed={{
+                bgColor: theme.colors.purple[300]
+              }}
+            />
+          }
+        />
 
-      <RectButton onPress={() => setOpenModalAddTransaction(true)} style={styles.headerButton}>
-        <Feather name="plus" size={24} color="#FFF" />
-      </RectButton>
+        <VStack space={4} px={4}>
 
-      <ScrollView style={styles.container}>
-        <ImageBackground source={bgImg} style={styles.header}>
-          <View style={styles.headerItens}>
-            <View style={styles.headerEmpty} />
-            <Text style={{
-              fontFamily: 'Poppins_600SemiBold',
-              fontSize: 28,
-              color: currentTheme === 'dark' ? '#1c1e21' : '#FFF'
-            }}>
-              Relatório<Text style={{ color: '#543b6c' }}>$</Text>
-            </Text>
-            <View style={styles.headerEmpty} />
-          </View>
-        </ImageBackground>
-
-        <View paddingHorizontal={22} style={{ alignItems: 'center' }}>
-
-          <View style={{
-            flexDirection: 'column',
-            borderRadius: 4,
-            marginHorizontal: 6,
-            backgroundColor: '#FFF',
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            elevation: 4,
-            width: '100%',
-            marginTop: -50,
-            marginBottom: 22,
-            backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF'
-          }}>
+          <VStack
+            borderRadius={4}
+            bg={bgCard}
+            py={2}
+            px={4}
+            mt={-50}
+            shadow={2}
+          >
             {
               filteredList.length === 0 ? (
-                <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                <VStack alignItems='center' justifyContent='center'>
+                  <Text color={text} fontSize={20}>
                     Sem dados para analisar
                   </Text>
-                  <Text style={{ marginBottom: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21', textAlign: 'center' }}>
+                  <Text color={text}>
                     Adicione e atualize os dados em finanças para ver o relatório aqui.
                   </Text>
-                </View>
+                </VStack>
               ) : (
-                <>
-                  <View marginBottom={16}>
-                    <View style={styles.listRow}>
-                      <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                        Saúde das finanças
-                      </Text>
-                    </View>
+                <VStack space={2}>
+                  <Text bold color={text} fontSize={20}>
+                    Saúde das finanças
+                  </Text>
 
-                    <View marginBottom={8} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <Feather name="arrow-up-circle" size={36} color={"#12a454"} />
-                        <View>
-                          <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                            Ganhos
-                          </Text>
-                          <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontWeight: 'bold', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                            {formatCurrency(Incomings)}
-                          </Text>
-                        </View>
-                      </View>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <View>
-                          <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                            Despesas
-                          </Text>
-                          <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontWeight: 'bold', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
-                            {formatCurrency(Expenses)}
-                          </Text>
-                        </View>
-                        <Feather name="arrow-down-circle" size={36} color={"#e83e5a"} />
-                      </View>
-                    </View>
-                    <Progress.Bar
-                      progress={
-                        (((Incomings * 100) / (Incomings + Expenses)) / 100) >= 1 ? 1 : ((Incomings * 100) / (Incomings + Expenses)) / 100
-                      }
-                      width={width * 0.81}
-                      height={14}
-                      borderRadius={16}
-                      color={"#12a454"}
-                      unfilledColor={"#e83e5a"}
-                      borderWidth={0}
-                    />
-                  </View>
-                </>
+                  <HStack alignItems={"center"} justifyContent={"space-between"}>
+                    <HStack alignItems={"center"} space={2}>
+                      <Feather name="arrow-up-circle" size={36} color={"#12a454"} />
+                      <VStack alignItems={"flex-start"}>
+                        <Text color={text} fontSize={18}>
+                          Ganhos
+                        </Text>
+                        <Text color={text} fontSize={18} bold>
+                          {formatCurrency(Incomings)}
+                        </Text>
+                      </VStack>
+                    </HStack>
+                    <HStack alignItems={"center"} space={2}>
+                      <VStack alignItems={'flex-end'}>
+                        <Text color={text} fontSize={18}>
+                          Despesas
+                        </Text>
+                        <Text color={text} fontSize={18} bold>
+                          {formatCurrency(Expenses)}
+                        </Text>
+                      </VStack>
+                      <Feather name="arrow-down-circle" size={36} color={"#e83e5a"} />
+                    </HStack>
+                  </HStack>
+                  <Progress.Bar
+                    progress={
+                      (((Incomings * 100) / (Incomings + Expenses)) / 100) >= 1 ? 1 : ((Incomings * 100) / (Incomings + Expenses)) / 100
+                    }
+                    width={width * 0.81}
+                    height={14}
+                    borderRadius={16}
+                    color={theme.colors.green[600]}
+                    unfilledColor={theme.colors.red[600]}
+                    borderWidth={0}
+                  />
+                </VStack>
               )
             }
 
             {
               expensesByCatData.length > 0 && (
-                <View position="relative">
-                  <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+                <VStack space={2} position="relative" mt={2}>
+                  <Text color={text} fontSize={18} bold>
                     Gastos por categoria
                   </Text>
                   <PieChart
@@ -312,302 +312,296 @@ export default function Reports() {
                     backgroundColor={"transparent"}
                     paddingLeft={"15"}
                   />
-                </View>
+                </VStack>
               )
             }
-          </View>
+          </VStack>
 
 
-          <View style={styles.listRow}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Relatório</Text>
-
-            <TouchableOpacity
-              onPress={() => {
-                setOpenFilter(!openFilter)
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingHorizontal: 28,
-                paddingVertical: 6,
-                borderWidth: 1,
-                borderRadius: 20,
-                backgroundColor: 'transparent',
-                borderColor: '#9c44dc',
-              }}
+          <VStack mt={-2} space={4}>
+            <Text
+              fontSize={14}
+              color={text}
             >
-              <Text style={{ fontSize: 16, color: "#9c44dc" }}><Feather name="filter" size={18} color="#9c44dc" /> Filtros</Text>
-            </TouchableOpacity>
-          </View>
-          {
-            openFilter && (
-              <>
-                <View style={styles.listRow}>
-                  <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                    Entradas/Saídas
-                  </Text>
-                  <Picker
-                    selectedValue={selectedtypeofpayment}
-                    onValueChange={(itemValue, itemIndex) =>
-                      setselectedtypeofpayment(itemValue)
-                    }
-                    mode='dropdown'
-                    dropdownIconColor={'#9c44dc'}
-                    dropdownIconRippleColor={'#9c44dc'}
-                    enabled
-                    style={{
-                      width: '50%',
-                      borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
-                    }}
-                  >
-                    <Picker.Item label="Todas" value="0" />
-                    <Picker.Item label="Entradas" value="1" />
-                    <Picker.Item label="Saídas" value="2" />
-                  </Picker>
-                </View>
+              * Totais apenas dos itens do período selecionado
+            </Text>
+            <HStack justifyContent="space-between">
+              <Text
+                bold
+                fontSize={20}
+                color={text}
+              >
+                Relatórios
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setOpenFilter(!openFilter)
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 28,
+                  paddingVertical: 6,
+                  borderWidth: 1,
+                  borderRadius: 20,
+                  backgroundColor: 'transparent',
+                  borderColor: '#9c44dc',
+                }}
+              >
+                <Text fontSize={16} color={theme.colors.purple[600]}><Feather name="filter" size={18} color={theme.colors.purple[600]} /> Filtros</Text>
+              </TouchableOpacity>
+            </HStack>
+            {
+              openFilter && (
+                <VStack space={2}>
+                  <VStack space={2}>
+                    <Text color={text} fontSize={16} bold>
+                      Filtrar por período
+                    </Text>
+                    <HStack w={"100%"} space={2}>
+                      <Input
+                        flex={1}
+                        type={"text"}
+                        py="0"
+                        placeholder="Data inicio"
+                        value={startDate}
+                        editable={false}
+                        InputRightElement={
+                          <Button
+                            size="xs"
+                            rounded="none"
+                            w="1/4"
+                            p={0}
+                            h="full"
+                            bgColor={theme.colors.purple[600]}
+                            onPress={() => {
+                              DateTimePickerAndroid.open({
+                                value: new Date(Date.now()),
+                                onChange: onChangeStartDate,
+                                mode: 'date',
+                                is24Hour: false,
+                              });
+                            }}
+                          >
+                            <Feather name="calendar" size={24} color="#FFF" />
+                          </Button>}
+                      />
+                      <Input
+                        flex={1}
+                        type={"text"}
+                        py="0"
+                        placeholder="Data Fim"
+                        value={endDate}
+                        editable={false}
+                        InputRightElement={
+                          <Button
+                            size="xs"
+                            rounded="none"
+                            w="1/4"
+                            p={2}
+                            h="full"
+                            bgColor={theme.colors.purple[600]}
+                            onPress={() => {
+                              DateTimePickerAndroid.open({
+                                value: new Date(Date.now()),
+                                onChange: onChangeEndDate,
+                                mode: 'date',
+                                is24Hour: false,
+                              });
+                            }}
+                          >
+                            <Feather name="calendar" size={24} color="#FFF" />
+                          </Button>}
+                      />
+                    </HStack>
+                  </VStack>
 
-
-                <View style={styles.listRow}>
-                  <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                    Filtrar por período
-                  </Text>
-                </View>
-                <View style={{ ...styles.listRow, alignItems: 'center', marginHorizontal: 2 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TextInput
-                      placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Text color={text} fontSize={16} bold>
+                      Entradas/Saídas
+                    </Text>
+                    <Picker
+                      selectedValue={selectedtypeofpayment}
+                      onValueChange={(itemValue, itemIndex) =>
+                        setselectedtypeofpayment(itemValue)
+                      }
+                      mode='dropdown'
+                      dropdownIconColor={theme.colors.purple[600]}
+                      dropdownIconRippleColor={theme.colors.purple[600]}
+                      enabled
                       style={{
-                        ...styles.input,
-                        width: width * 0.32,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
+                        width: '50%',
+                        borderRadius: 4,
+                        color: text
                       }}
-                      placeholder="Data inicio"
-                      value={startDate}
-                      editable={false}
-                    />
-                    <TouchableOpacity onPress={() => {
-                      DateTimePickerAndroid.open({
-                        themeVariant: currentTheme,
-                        value: new Date(Date.now()),
-                        onChange: onChangeStartDate,
-                        mode: 'date',
-                        is24Hour: false,
-                      });
-                    }} style={styles.buttonInputGroup}>
-                      <Feather name="calendar" size={24} color="#FFF" />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TextInput
-                      placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                      style={{
-                        ...styles.input,
-                        width: width * 0.32,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                      }}
-                      placeholder="Data Fim"
-                      value={endDate}
-                      editable={false}
-                    />
-                    <TouchableOpacity onPress={() => {
-                      DateTimePickerAndroid.open({
-                        themeVariant: currentTheme,
-                        value: new Date(Date.now()),
-                        onChange: onChangeEndDate,
-                        mode: 'date',
-                        is24Hour: false,
-                      });
-                    }} style={styles.buttonInputGroup}>
-                      <Feather name="calendar" size={24} color="#FFF" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                    >
+                      <Picker.Item label="Todas" value="0" />
+                      <Picker.Item label="Entradas" value="1" />
+                      <Picker.Item label="Saídas" value="2" />
+                    </Picker>
+                  </HStack>
+                  {
+                    !simpleFinancesItem && (
+                      <>
+                        <HStack justifyContent="space-between" alignItems="center">
+                          <Text color={text} fontSize={16} bold>
+                            Categoria de gastos
+                          </Text>
+                          <Picker
+                            selectedValue={selectedPaymentCategory}
+                            onValueChange={(itemValue, itemIndex) =>
+                              setSelectedPaymentCategory(itemValue)
+                            }
+                            mode='dropdown'
+                            dropdownIconColor={theme.colors.purple[600]}
+                            dropdownIconRippleColor={theme.colors.purple[600]}
+                            enabled
+                            style={{
+                              width: '50%',
+                              borderRadius: 4, color: text
+                            }}
+                          >
+                            {
+                              categoriesList.map((cat, index) => (
+                                <Picker.Item key={index} label={cat} value={cat} />
+                              ))
+                            }
+                          </Picker>
+                        </HStack>
 
-                {
-                  !simpleFinancesItem && (
-                    <>
-                      <View style={styles.listRow}>
-                        <Text style={{ ...styles.listTitle, fontSize: 15, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                          Categoria de gastos
-                        </Text>
-                        <Picker
-                          selectedValue={selectedPaymentCategory}
-                          onValueChange={(itemValue, itemIndex) =>
-                            setSelectedPaymentCategory(itemValue)
-                          }
-                          mode='dropdown'
-                          dropdownIconColor={'#9c44dc'}
-                          dropdownIconRippleColor={'#9c44dc'}
-                          enabled
+                        <VStack space={2}>
+                          <Text color={text} fontSize={16} bold>
+                            Status de pagamento
+                          </Text>
+                          <FlatList
+                            showsHorizontalScrollIndicator={false}
+                            horizontal
+                            ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                            data={pamentStatusLabel}
+                            renderItem={({ item }) => (
+                              <TouchableOpacity
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  paddingHorizontal: 8,
+                                  paddingVertical: 4,
+                                  borderWidth: 1,
+                                  borderRadius: 16,
+                                  backgroundColor: 'transparent',
+                                  borderColor: item === selectedPaymentStatus ? theme.colors.purple[600] : text,
+                                }}
+                                onPress={() => setSelectedPaymentStatus(item)}
+                              >
+                                <Text color={item === selectedPaymentStatus ? theme.colors.purple[600] : text}>
+                                  {item}
+                                </Text>
+                              </TouchableOpacity>
+                            )}
+                          />
+                        </VStack>
+                      </>
+                    )
+                  }
+
+                  <VStack>
+                    <Text color={text} fontSize={16} bold>
+                      Favoritos
+                    </Text>
+                    <FlatList
+                      showsHorizontalScrollIndicator={false}
+                      horizontal
+                      ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                      data={favoritedFilterLabel}
+                      renderItem={({ item }) => (
+                        <TouchableOpacity
                           style={{
-                            width: '50%',
-                            borderRadius: 4, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21'
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            paddingHorizontal: 8,
+                            paddingVertical: 4,
+                            borderWidth: 1,
+                            borderRadius: 16,
+                            backgroundColor: 'transparent',
+                            borderColor: item === selectedFavoritedFilter ? theme.colors.purple[600] : text,
                           }}
+                          onPress={() => setSelectedFavoritedFilter(item)}
                         >
-                          {
-                            categoriesList.map((cat, index) => (
-                              <Picker.Item key={index} label={cat} value={cat} />
-                            ))
-                          }
-                        </Picker>
-                      </View>
-                      <View style={styles.listRow}>
-                        <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Filtrar por Status de pagamento</Text>
-                      </View>
-                      <View style={styles.listRow}>
-                        <FlatList
-                          showsHorizontalScrollIndicator={false}
-                          horizontal
-                          ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                          data={pamentStatusLabel}
-                          renderItem={({ item }) => (
-                            <TouchableOpacity
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingHorizontal: 8,
-                                paddingVertical: 4,
-                                borderWidth: 1,
-                                borderRadius: 16,
-                                backgroundColor: 'transparent',
-                                borderColor: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}
-                              onPress={() => setSelectedPaymentStatus(item)}
-                            >
-                              <Text style={{
-                                color: item === selectedPaymentStatus ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}>
-                                {item}
-                              </Text>
-                            </TouchableOpacity>
-                          )}
-                        />
-                      </View>
-                      <View style={styles.listRow}>
-                        <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                          Ordenar por data
-                        </Text>
-                      </View>
-                      <View style={styles.listRow}>
-                        <FlatList
-                          showsHorizontalScrollIndicator={false}
-                          horizontal
-                          ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                          data={dateOrderOptions}
-                          renderItem={({ item }) => (
-                            <TouchableOpacity
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingHorizontal: 8,
-                                paddingVertical: 4,
-                                borderWidth: 1,
-                                borderRadius: 16,
-                                backgroundColor: 'transparent',
-                                borderColor: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}
-                              onPress={() => setSelectedDateOrderFilter(item)}
-                            >
-                              <Text style={{
-                                color: item === selectedDateOrderFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                              }}>
-                                {item}
-                              </Text>
-                            </TouchableOpacity>
-                          )}
-                        />
-                      </View>
-                    </>
-                  )
-                }
+                          <Text color={item === selectedFavoritedFilter ? theme.colors.purple[600] : text}>
+                            {item}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    />
+                  </VStack>
+                </VStack>
+              )}
+          </VStack>
 
-                <View style={styles.listRow}>
-                  <Text style={{ marginBottom: 4, fontWeight: 'bold', color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
-                    Favoritos
-                  </Text>
-                </View>
-                <View style={styles.listRow}>
-                  <FlatList
-                    showsHorizontalScrollIndicator={false}
-                    horizontal
-                    ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-                    data={favoritedFilterLabel}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          borderWidth: 1,
-                          borderRadius: 16,
-                          backgroundColor: 'transparent',
-                          borderColor: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}
-                        onPress={() => setSelectedFavoritedFilter(item)}
-                      >
-                        <Text style={{
-                          color: item === selectedFavoritedFilter ? '#9c44dc' : currentTheme === 'dark' ? '#FFF' : '#666',
-                        }}>
-                          {item}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  />
-                </View>
+          <Divider />
 
-              </>
-            )
-          }
-
-          <View style={{ marginVertical: 16, height: 1, width: '100%', backgroundColor: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} />
-          <View style={styles.listRow}>
-            <Text style={{ ...styles.listTitle, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Minhas metas</Text>
-          </View>
-          <View style={styles.listRow}>
-            <Text style={{ marginBottom: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+          <VStack space={2}>
+            <Text
+              bold
+              fontSize={20}
+              color={text}
+            >
+              Minhas metas
+            </Text>
+            <Text
+              fontSize={14}
+              color={text}
+            >
               Adicione e atualize suas metas financeiras.
             </Text>
-          </View>
+          </VStack>
 
           {
             goalsList.length === 0 && <EmptyMessage />
           }
+
           {
             goalsList.map((goal) => (
-              <RectButton
+              <Pressable
                 key={goal.id}
                 onPress={() => {
                   setSelectedTransaction(goal)
-                  setOpenModalSeeTransaction(true)
+                  onOpen()
                 }}
-                style={{ ...styles.listCardItem, backgroundColor: currentTheme === 'dark' ? '#3a3d42' : '#FFF', marginBottom: 8, position: 'relative' }}
               >
-                <View style={{ flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%' }}>
-                  <View style={{
-                    flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", gap: 4, width: '100%',
-                  }}>
-                    <Text style={{ ...styles.cardTextListItem, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                <VStack alignItems={"center"} bg={bgCard} shadow={2} borderRadius={2} px={4} py={2}>
+                  <HStack
+                    alignItems={"center"}
+                    justifyContent={"space-between"}
+                    space={2}
+                    w={'100%'}
+                  >
+                    <Text color={text} fontSize={18} >
                       {goal.description}
                     </Text>
-                    <Text style={{ ...styles.cardTextListItem, fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                    <Text color={text} fontSize={12} >
                       {"Prazo: "}
                       {new Date(goal.date).toLocaleDateString('pt-BR')}
                     </Text>
-                  </View>
-                  <View style={{
-                    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%',
-                  }}>
-                    <View style={{
-                      flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 4,
-                    }}>
-                      <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontSize: 12, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                  </HStack>
+                  <HStack
+                    alignItems={"center"}
+                    justifyContent={"space-between"}
+                    space={2}
+                    w={'100%'}
+                    mb={1}
+                  >
+                    <HStack
+                      alignItems={"center"}
+                      justifyContent={"space-between"}
+                    >
+                      <Text
+                        color={text}
+                        fontSize={14}
+                        textAlign={"right"}
+                      >
                         {goal.amount.toLocaleString('pt-BR', {
                           style: 'currency',
                           currency: 'BRL',
@@ -616,7 +610,12 @@ export default function Reports() {
                           useGrouping: true,
                         })}{" /"}
                       </Text>
-                      <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontWeight: 'bold', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                      <Text
+                        color={text}
+                        fontSize={16}
+                        bold
+                        textAlign={"right"}
+                      >
                         {goal.currentAmount.toLocaleString('pt-BR', {
                           style: 'currency',
                           currency: 'BRL',
@@ -625,231 +624,44 @@ export default function Reports() {
                           useGrouping: true,
                         })}
                       </Text>
-                    </View>
+                    </HStack>
                     {differenceInCalendarDays(goal.date, Date.now()) <= 30 && (
-                      <Text style={{ ...styles.cardTextListItem, textAlign: 'right', fontWeight: 'bold', fontSize: 16, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }} >
+                      <Text
+                        color={text}
+                        fontSize={16}
+                        bold
+                        textAlign={"left"}
+                      >
                         Restam {differenceInCalendarDays(goal.date, Date.now())} dias
                       </Text>
                     )}
-                  </View>
+                  </HStack>
                   <Progress.Bar
                     progress={(((goal.currentAmount * 100) / goal.amount) / 100) >= 1 ? 1 : ((goal.currentAmount * 100) / goal.amount) / 100}
-                    width={width * 0.81}
+                    width={width * 0.85}
                     height={14}
                     borderRadius={16}
-                    color={(((goal.currentAmount * 100) / goal.amount) / 100) >= 1 ? "#12a454" : "#9c44dc"}
-                    unfilledColor={(((goal.currentAmount * 100) / goal.amount) / 100) >= 1 ? "#12a45466" : "#9c44dc66"}
+                    color={(((goal.currentAmount * 100) / goal.amount) / 100) >= 1 ? theme.colors.purple[200] : theme.colors.purple[600]}
+                    unfilledColor={(((goal.currentAmount * 100) / goal.amount) / 100) >= 1 ? theme.colors.purple[200] + "66" : theme.colors.purple[600] + "66"}
                     borderWidth={0}
                   />
-                </View>
-              </RectButton>
+                </VStack>
+              </Pressable>
             ))
           }
-        </View>
-        <View style={{ height: 80 }} />
+        </VStack>
+        <View style={{ height: 40 }} />
       </ScrollView >
+
+      <KeyboardAvoidingView
+        behavior={"height"}
+      >
+        <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
+          <Actionsheet.Content minH={height * 0.8}>
+            <EditGoalForm onClose={onClose} selectedTransaction={selectedTransaction} />
+          </Actionsheet.Content>
+        </Actionsheet>
+      </KeyboardAvoidingView>
     </VStack >
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  },
-  title: {
-    textAlign: 'center',
-    fontSize: 32,
-    color: '#f0f2f5',
-    marginVertical: 24,
-  },
-  ScrollViewContainer: {
-    width: '100%',
-    marginTop: -50,
-    height: 115,
-  },
-  header: {
-    paddingTop: 12,
-    height: 130,
-    width: '100%',
-    backgroundColor: '#9c44dc',
-  },
-  headerItens: {
-    marginHorizontal: 24,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  headerEmpty: {
-    width: 48,
-    height: 48,
-    borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  headerButton: {
-    width: 62,
-    height: 62,
-    borderRadius: 32,
-    backgroundColor: '#543b6c',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    right: 20,
-    bottom: 90,
-    zIndex: 50,
-    elevation: 6,
-  },
-  imageHeader: {
-    width: 130,
-    height: 30,
-  },
-  headerButtonText: {
-    fontSize: 24,
-    color: '#f0f2f5',
-  },
-  cardWite: {
-    flexDirection: 'column',
-    borderRadius: 4,
-    marginHorizontal: 6,
-    height: 110,
-    width: 180,
-    backgroundColor: '#FFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    elevation: 4,
-  },
-  cardGreen: {
-    flexDirection: 'column',
-    borderRadius: 4,
-    marginHorizontal: 6,
-    height: 110,
-    width: 180,
-    backgroundColor: '#543b6c',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    elevation: 4,
-  },
-  cardTextGreen: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-    color: '#f0f2f5',
-    marginBottom: 24,
-    marginBottom: 12,
-  },
-  cardValueGreen: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 22,
-    color: '#f0f2f5'
-  },
-  cardText: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-    marginBottom: 24,
-    marginBottom: 12,
-  },
-  cardValue: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 22,
-    color: '#363f5f'
-  },
-  cardTitleOrientation: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  statusBar: {
-    height: 24,
-    width: '100%',
-    backgroundColor: '#9c44dc',
-  },
-  button: {
-    borderRadius: 48,
-    marginHorizontal: 24,
-    marginVertical: 6,
-    backgroundColor: '#543b6c',
-    paddingHorizontal: 48,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-    color: '#f0f2f5',
-    textAlign: 'center',
-  },
-  list: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    marginTop: 16,
-    gap: 8,
-  },
-  listRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: "100%",
-  },
-  listCardItem: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 4,
-    backgroundColor: '#FFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    elevation: 4,
-  },
-  cardTextListItem: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 18,
-  },
-  listTitle: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 18,
-  },
-  listButtonFilter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 8
-  },
-  listButtonFilterText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 16,
-    color: '#543b6c',
-  },
-  input: {
-    paddingHorizontal: 12,
-    backgroundColor: '#FFF',
-    borderColor: "#CCC",
-    borderRadius: 4,
-    width: '100%',
-    height: 48,
-    borderWidth: 1,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 0,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 0,
-  },
-  buttonInputGroup: {
-    width: 47,
-    height: 47,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#9c44dc',
-    borderColor: "#9c44dc",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 8,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 8,
-  },
-})

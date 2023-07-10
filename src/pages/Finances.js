@@ -78,10 +78,6 @@ export default function Finances() {
     simpleFinancesItem
   } = useSettings();
 
-  const {
-    currentTheme
-  } = useTheme();
-
   const formatCurrency = (value) => {
     return value
       .toLocaleString('pt-BR', {
@@ -294,7 +290,6 @@ export default function Finances() {
                           bgColor={theme.colors.purple[600]}
                           onPress={() => {
                             DateTimePickerAndroid.open({
-                              themeVariant: currentTheme,
                               value: new Date(Date.now()),
                               onChange: onChangeStartDate,
                               mode: 'date',
@@ -322,7 +317,6 @@ export default function Finances() {
                           bgColor={theme.colors.purple[600]}
                           onPress={() => {
                             DateTimePickerAndroid.open({
-                              themeVariant: currentTheme,
                               value: new Date(Date.now()),
                               onChange: onChangeEndDate,
                               mode: 'date',
@@ -622,7 +616,6 @@ export default function Finances() {
                   </Pressable>
                 ))
               }
-
 
               <HStack justifyContent="space-between">
                 <Text color={text} fontSize={18} bold >Total</Text>

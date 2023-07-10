@@ -1,26 +1,20 @@
 import React, { useMemo, useState } from 'react';
 
-import { Dimensions, ImageBackground, StyleSheet, View } from 'react-native';
-import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
-
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { VStack, useColorModeValue, useDisclose, useTheme, ScrollView, Text, IconButton, Pressable, HStack, Input, Button, KeyboardAvoidingView, Actionsheet } from 'native-base';
+import { Actionsheet, Button, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
 
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import { TextInput, useWindowDimensions } from 'react-native';
-import bgImg from '../assets/images/background.png';
-import AddFuelForm from '../components/AddFuelForm';
+import { useEffect } from 'react';
+import { useWindowDimensions } from 'react-native';
 import AutonomyForm from '../components/AutonomyForm';
 import EmptyMessage from '../components/EmptyMessage';
-import Modal from '../components/Modal';
-import { useRuns } from '../hooks/useRuns';
-import { usePages } from '../hooks/usePages';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
-import { useEffect } from 'react';
 import Header from '../components/Header';
+import { usePages } from '../hooks/usePages';
+import { useRuns } from '../hooks/useRuns';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -115,8 +109,6 @@ export default function Runs() {
   const onChangeEndDate = (_, selectedDate) => {
     setEndDate(dayjs(selectedDate).format("DD/MM/YYYY"))
   };
-
-  const currentTheme = "light"
 
   return (
     <VStack flex={1} bg={bg}>
@@ -227,7 +219,6 @@ export default function Runs() {
                     bgColor={theme.colors.purple[600]}
                     onPress={() => {
                       DateTimePickerAndroid.open({
-                        themeVariant: currentTheme,
                         value: new Date(Date.now()),
                         onChange: onChangeStartDate,
                         mode: 'date',
@@ -255,7 +246,6 @@ export default function Runs() {
                     bgColor={theme.colors.purple[600]}
                     onPress={() => {
                       DateTimePickerAndroid.open({
-                        themeVariant: currentTheme,
                         value: new Date(Date.now()),
                         onChange: onChangeEndDate,
                         mode: 'date',
