@@ -15,6 +15,7 @@ import EmptyMessage from '../components/EmptyMessage';
 import Header from '../components/Header';
 import { usePages } from '../hooks/usePages';
 import { useRuns } from '../hooks/useRuns';
+import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -36,6 +37,8 @@ export default function Runs() {
       setSelectedSheet('Combustível')
     }
   }, [isFocused])
+
+  const isKeyboardOpen = useIsKeyboardOpen();
 
   const {
     isOpen,
@@ -345,15 +348,12 @@ export default function Runs() {
         </VStack>
       </ScrollView >
 
-      <KeyboardAvoidingView
-        behavior={"height"}
-      >
-        <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
-          <Actionsheet.Content minH={height * 0.8}>
-            <AutonomyForm onClose={onClose} />
-          </Actionsheet.Content>
-        </Actionsheet>
-      </KeyboardAvoidingView>
+      <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
+        <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
+          <AutonomyForm onClose={onClose} />
+        </Actionsheet.Content>
+      </Actionsheet>
+
     </VStack >
   );
 }

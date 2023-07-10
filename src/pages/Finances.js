@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Actionsheet, Box, Button, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
+import { Actionsheet, Box, Button, HStack, IconButton, Input, Pressable, ScrollView, Text, useColorModeValue, useDisclose, useTheme, VStack } from 'native-base';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 
 import { Feather, FontAwesome, Fontisto, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -16,6 +16,7 @@ import { useWindowDimensions } from 'react-native';
 import EditItemForm from '../components/EditItemForm';
 import EmptyMessage from '../components/EmptyMessage';
 import Header from '../components/Header';
+import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
 import { usePages } from '../hooks/usePages';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
@@ -40,6 +41,8 @@ export default function Finances() {
       setSelectedSheet('Finanças')
     }
   }, [isFocused])
+
+  const isKeyboardOpen = useIsKeyboardOpen();
 
   const {
     isOpen,
@@ -634,15 +637,11 @@ export default function Finances() {
         }
       </ScrollView >
 
-      <KeyboardAvoidingView
-        behavior={"height"}
-      >
-        <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
-          <Actionsheet.Content minH={height * 0.8}>
-            <EditItemForm onClose={onClose} selectedTransaction={selectedTransaction} />
-          </Actionsheet.Content>
-        </Actionsheet>
-      </KeyboardAvoidingView>
+      <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
+        <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
+          <EditItemForm onClose={onClose} selectedTransaction={selectedTransaction} />
+        </Actionsheet.Content>
+      </Actionsheet>
     </VStack >
   );
 }

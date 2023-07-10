@@ -8,10 +8,12 @@ import AddShoppingCartItem from './AddShoppingCartItem';
 import AddGoalForm from './AddGoalForm';
 import ErrorSheet from './ErrorSheet';
 import { useMemo } from 'react';
+import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
 
 export default function AddButton() {
   const theme = useTheme();
   const { height } = useWindowDimensions();
+  const isKeyboardOpen = useIsKeyboardOpen();
 
   const {
     isOpen,
@@ -50,8 +52,8 @@ export default function AddButton() {
       }}
       icon={<Feather name="plus" size={26} color={theme.colors.white} />}
     />
-    <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
-      <Actionsheet.Content minH={height * 0.8}>
+    <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
+      <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
         {
           selectedComponent
         }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { Feather, FontAwesome } from '@expo/vector-icons';
-import { Actionsheet, Box, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
+import { Actionsheet, Box, HStack, IconButton, Input, Pressable, ScrollView, Text, useColorModeValue, useDisclose, useTheme, VStack } from 'native-base';
 
 import { Picker } from '@react-native-picker/picker';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -18,6 +18,7 @@ import Header from '../components/Header';
 import { useMarket } from '../hooks/useMarket';
 import { usePages } from '../hooks/usePages';
 import { useSettings } from '../hooks/useSettings';
+import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -39,6 +40,8 @@ export default function Market() {
       setSelectedSheet('Mercado')
     }
   }, [isFocused])
+
+  const isKeyboardOpen = useIsKeyboardOpen();
 
   const {
     isOpen,
@@ -387,21 +390,19 @@ export default function Market() {
         }
 
       </ScrollView>
-      <KeyboardAvoidingView
-        behavior={"height"}
-      >
-        <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
-          <Actionsheet.Content minH={height * 0.8}>
-            {
-              selectedSheetOpen === 'editar'
-                ? <EditShoppingCartItem onClose={onClose} selectedTransaction={selectedTransaction} />
-                : selectedSheetOpen === 'estimativa'
-                  ? <EstimativeForm onClose={onClose} />
-                  : <ErrorSheet />
-            }
-          </Actionsheet.Content>
-        </Actionsheet>
-      </KeyboardAvoidingView>
+
+      <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
+        <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
+          {
+            selectedSheetOpen === 'editar'
+              ? <EditShoppingCartItem onClose={onClose} selectedTransaction={selectedTransaction} />
+              : selectedSheetOpen === 'estimativa'
+                ? <EstimativeForm onClose={onClose} />
+                : <ErrorSheet />
+          }
+        </Actionsheet.Content>
+      </Actionsheet>
+
     </VStack >
   );
 }

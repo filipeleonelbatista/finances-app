@@ -1,4 +1,4 @@
-import { Actionsheet, Button, Divider, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
+import { Actionsheet, Button, Divider, HStack, IconButton, Input, Pressable, ScrollView, Text, useColorModeValue, useDisclose, useTheme, VStack } from 'native-base';
 import React, { useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -19,6 +19,7 @@ import { useGoals } from '../hooks/useGoals';
 import { usePages } from '../hooks/usePages';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
+import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
 
 export default function Reports() {
   const theme = useTheme();
@@ -37,6 +38,8 @@ export default function Reports() {
       setSelectedSheet('Relatórios')
     }
   }, [isFocused])
+
+  const isKeyboardOpen = useIsKeyboardOpen();
 
   const {
     isOpen,
@@ -660,15 +663,11 @@ export default function Reports() {
         <View style={{ height: 40 }} />
       </ScrollView >
 
-      <KeyboardAvoidingView
-        behavior={"height"}
-      >
-        <Actionsheet isOpen={isOpen} onClose={onClose} size="full">
-          <Actionsheet.Content minH={height * 0.8}>
-            <EditGoalForm onClose={onClose} selectedTransaction={selectedTransaction} />
-          </Actionsheet.Content>
-        </Actionsheet>
-      </KeyboardAvoidingView>
+      <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
+        <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
+          <EditGoalForm onClose={onClose} selectedTransaction={selectedTransaction} />
+        </Actionsheet.Content>
+      </Actionsheet>
     </VStack >
   );
 }

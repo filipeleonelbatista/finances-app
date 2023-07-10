@@ -12,12 +12,15 @@ import { Text, useColorModeValue, useTheme } from "native-base";
 import ActionSheet from "./pages/ActionSheet";
 import AddButton from "./components/AddButtton";
 import { useSettings } from "./hooks/useSettings";
+import { useIsKeyboardOpen } from "./hooks/useIsKeyboardOpen";
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabRoutes() {
   const theme = useTheme();
   const { isShowLabelOnNavigation } = useSettings();
+
+  const isKeyboardOpen = useIsKeyboardOpen();
 
   const bg = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[900]);
   const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
