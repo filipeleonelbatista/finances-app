@@ -400,6 +400,7 @@ export default function Market() {
                 ? <EstimativeForm onClose={onClose} />
                 : <ErrorSheet />
           }
+          <Box h={16} w={'100%'} />
         </Actionsheet.Content>
       </Actionsheet>
 

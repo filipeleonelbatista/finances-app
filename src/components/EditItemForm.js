@@ -325,7 +325,7 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
                 </Button>
             )}
 
-            <View style={{ height: 32 }} />
+            <Box h={16} w={'100%'} />
         </ScrollView>
     );
 }

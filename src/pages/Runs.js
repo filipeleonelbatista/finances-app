@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Actionsheet, Button, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme } from 'native-base';
+import { Actionsheet, Button, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, ScrollView, Text, VStack, useColorModeValue, useDisclose, useTheme, Box } from 'native-base';
 
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -351,6 +351,7 @@ export default function Runs() {
       <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
           <AutonomyForm onClose={onClose} />
+          <Box h={16} w={'100%'} />
         </Actionsheet.Content>
       </Actionsheet>
 

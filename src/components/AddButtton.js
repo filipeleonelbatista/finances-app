@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import { Actionsheet, IconButton, useDisclose, useTheme } from 'native-base';
+import { Actionsheet, Box, IconButton, useDisclose, useTheme } from 'native-base';
 import { useWindowDimensions } from 'react-native';
 import { usePages } from '../hooks/usePages';
 import AddItemForm from './AddItemForm';
@@ -57,6 +57,7 @@ export default function AddButton() {
         {
           selectedComponent
         }
+        <Box h={16} w={'100%'} />
       </Actionsheet.Content>
     </Actionsheet>
   </>;

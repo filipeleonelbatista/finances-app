@@ -1,4 +1,4 @@
-import { Actionsheet, Button, Divider, HStack, IconButton, Input, Pressable, ScrollView, Text, useColorModeValue, useDisclose, useTheme, VStack } from 'native-base';
+import { Actionsheet, Box, Button, Divider, HStack, IconButton, Input, Pressable, ScrollView, Text, useColorModeValue, useDisclose, useTheme, VStack } from 'native-base';
 import React, { useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -487,7 +487,7 @@ export default function Reports() {
                           <FlatList
                             showsHorizontalScrollIndicator={false}
                             horizontal
-                            ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                            ItemSeparatorComponent={() => <Box w={2} h={'100%'} />}
                             data={pamentStatusLabel}
                             renderItem={({ item }) => (
                               <TouchableOpacity
@@ -522,7 +522,7 @@ export default function Reports() {
                     <FlatList
                       showsHorizontalScrollIndicator={false}
                       horizontal
-                      ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                      ItemSeparatorComponent={() => <Box w={2} h={'100%'} />}
                       data={favoritedFilterLabel}
                       renderItem={({ item }) => (
                         <TouchableOpacity
@@ -660,12 +660,13 @@ export default function Reports() {
             ))
           }
         </VStack>
-        <View style={{ height: 40 }} />
+        <Box h={4} w={'100%'} />
       </ScrollView >
 
       <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
           <EditGoalForm onClose={onClose} selectedTransaction={selectedTransaction} />
+          <Box h={16} w={'100%'} />
         </Actionsheet.Content>
       </Actionsheet>
     </VStack >

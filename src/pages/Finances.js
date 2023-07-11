@@ -393,7 +393,7 @@ export default function Finances() {
                         <FlatList
                           showsHorizontalScrollIndicator={false}
                           horizontal
-                          ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                          ItemSeparatorComponent={() => <Box w={2} h={'100%'} />}
                           data={pamentStatusLabel}
                           renderItem={({ item }) => (
                             <TouchableOpacity
@@ -428,7 +428,7 @@ export default function Finances() {
                   <FlatList
                     showsHorizontalScrollIndicator={false}
                     horizontal
-                    ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                    ItemSeparatorComponent={() => <Box w={2} h={'100%'} />}
                     data={favoritedFilterLabel}
                     renderItem={({ item }) => (
                       <TouchableOpacity
@@ -640,6 +640,7 @@ export default function Finances() {
       <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
           <EditItemForm onClose={onClose} selectedTransaction={selectedTransaction} />
+        <Box h={16} w={'100%'} />
         </Actionsheet.Content>
       </Actionsheet>
     </VStack >

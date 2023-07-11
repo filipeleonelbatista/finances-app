@@ -487,7 +487,7 @@ export default function AboutUs() {
                             bgColor: theme.colors.purple[900]
                         }}
                     >
-                        Importar finanças
+                        Apagar finanças
                     </Button>
                 </VStack>
 
