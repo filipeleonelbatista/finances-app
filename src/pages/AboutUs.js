@@ -62,7 +62,9 @@ export default function AboutUs() {
         handleSetmarketSimplifiedItems,
         isShowLabelOnNavigation,
         handleSetIsShowLabelOnNavigation,
-        handleToggleTheme
+        handleToggleTheme,
+        handleSetIsAiEnabled,
+        isAiEnabled
     } = useSettings();
 
     const { handleAddFinances } = useMarket();
@@ -344,6 +346,22 @@ export default function AboutUs() {
                     />
                     <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
                         Habilitar Tema Escuro
+                    </Text>
+                </HStack>
+
+                <HStack
+                    px={4}
+                    alignItems={"center"}
+                >
+                    <Switch
+                        trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                        thumbColor={isAiEnabled ? theme.colors.purple[600] : theme.colors.gray[600]}
+                        ios_backgroundColor={theme.colors.gray[600]}
+                        onValueChange={handleSetIsAiEnabled}
+                        value={isAiEnabled}
+                    />
+                    <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
+                        Habilitar Inteligência artificial (Beta)
                     </Text>
                 </HStack>
 

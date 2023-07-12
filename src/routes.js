@@ -7,6 +7,7 @@ import Onboarding from "./pages/Onboarding";
 import BottomTabRoutes from "./bottom-tab-routes";
 import AboutUs from "./pages/AboutUs";
 import { useColorMode } from "native-base";
+import IAPage from "./pages/IAPage";
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,10 @@ export default function Routes() {
         <Stack.Screen
           name="Configuracoes"
           component={AboutUs}
+        />
+        <Stack.Screen
+          name="IAPage"
+          component={IAPage}
         />
         <Stack.Screen
           name="TabNavigator"

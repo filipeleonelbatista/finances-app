@@ -19,6 +19,7 @@ import { useMarket } from '../hooks/useMarket';
 import { usePages } from '../hooks/usePages';
 import { useSettings } from '../hooks/useSettings';
 import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
+import AIComponent from '../components/AIComponent';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -390,6 +391,8 @@ export default function Market() {
         }
 
       </ScrollView>
+
+      <AIComponent />
 
       <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>

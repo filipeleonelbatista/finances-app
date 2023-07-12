@@ -20,6 +20,7 @@ import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
 import { usePages } from '../hooks/usePages';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
+import AIComponent from '../components/AIComponent';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -636,6 +637,8 @@ export default function Finances() {
           )
         }
       </ScrollView >
+
+      <AIComponent />
 
       <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
