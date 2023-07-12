@@ -1,6 +1,6 @@
 import { Feather, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Box, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, Text, useColorModeValue, useTheme, VStack } from 'native-base';
-import React from 'react';
+import React, { useRef } from 'react';
 import { BackHandler } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -15,6 +15,8 @@ export default function IAPage() {
     const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
 
     const navigation = useNavigation();
+
+    const scrollViewRef = useRef();
 
     useFocusEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -44,7 +46,16 @@ export default function IAPage() {
                         />
                     }
                 />
-                <ScrollView flex={1} w={'100%'} h={'100%'}>
+                <ScrollView
+                    ref={scrollViewRef}
+                    nestedScrollEnabled={true}
+                    onContentSizeChange={(contentWidth, contentHeight) => {
+                        scrollViewRef.current?.scrollTo({ y: contentHeight });
+                    }}
+                    flex={1}
+                    w={'100%'}
+                    h={'100%'}
+                >
                     {/* 
                         <VStack w={'100%'} space={4} px={4} alignItems={"center"} justifyContent={"center"} flex={1} mt={10}>
                                 <Text color={text} fontSize={18} lineHeight={24} textAlign="center" maxW="80%" my={6}>
