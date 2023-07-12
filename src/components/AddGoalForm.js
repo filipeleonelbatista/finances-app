@@ -1,23 +1,21 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { Feather } from '@expo/vector-icons';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useFormik } from 'formik';
-import { Dimensions, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Button, Input, ScrollView, Text, VStack, useColorModeValue, useTheme } from 'native-base';
+import { useCallback } from 'react';
 import * as Yup from 'yup';
 import { useGoals } from '../hooks/useGoals';
-import { useTheme } from '../hooks/useTheme';
 
 export default function AddGoalForm({ onClose }) {
+    const theme = useTheme();
+    const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
+
     const { addTrasaction } = useGoals();
 
-    const {
-        currentTheme
-    } = useTheme();
-
-    const formSchema = useMemo(() => {
+    const formSchema = useCallback(() => {
         return Yup.object().shape({
             description: Yup.string().required("O campo Descrição é obrigatório"),
             amount: Yup.string().required("O campo Valor é obrigatório"),
@@ -66,327 +64,115 @@ export default function AddGoalForm({ onClose }) {
 
 
     return (
-        <>
-            <Text style={{ ...styles.label, fontSize: 20, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+        <ScrollView
+            w={'100%'}
+            px={4}
+        >
+            <Text bold fontSize={24} color={text}>
                 Adicionar Meta
             </Text>
-            <Text style={{ ...styles.label, fontSize: 14, marginTop: 0, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>
+            <Text color={text} mb={4}>
                 Adicione sua meta para acompanhar em suas finanças.
             </Text>
 
-            <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Descrição</Text>
-                <TextInput
-                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                    style={{
-                        ...styles.input,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                    }}
+            <VStack space={2}>
+                <Text color={text}>
+                    Descrição
+                </Text>
+                <Input
+                    errors={!!formik.errors.description}
+                    helperText={formik.errors.description}
                     placeholder="Descrição"
                     onChangeText={(text) => formik.setFieldValue('description', text)}
                     value={formik.values.description}
                 />
                 {formik.errors.description && (
-                    <Text style={styles.helperText}>{formik.errors.description}</Text>
+                    <Text color="red.600">{formik.errors.description}</Text>
                 )}
-            </View>
-            <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor da meta</Text>
-                <TextInput
-                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                    style={{
-                        ...styles.input,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                    }}
+            </VStack>
+            <VStack space={2}>
+                <Text color={text}>
+                    Valor da meta
+                </Text>
+                <Input
+                    errors={!!formik.errors.amount}
+                    helperText={formik.errors.amount}
                     keyboardType="decimal-pad"
                     placeholder="Valor da meta"
                     onChangeText={(text) => formik.setFieldValue('amount', moeda(text))}
                     value={formik.values.amount}
                 />
-            </View>
-            {formik.errors.amount && (
-                <Text style={styles.helperText}>{formik.errors.amount}</Text>
-            )}
-            <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Valor alcançado</Text>
-                <TextInput
-                    placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                    style={{
-                        ...styles.input,
-                        backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                        color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                    }}
+                {formik.errors.amount && (
+                    <Text color="red.600">{formik.errors.amount}</Text>
+                )}
+            </VStack>
+            <VStack space={2}>
+                <Text color={text}>
+                    Valor alcançado
+                </Text>
+                <Input
+                    errors={!!formik.errors.currentAmount}
+                    helperText={formik.errors.currentAmount}
                     keyboardType="decimal-pad"
                     placeholder="Valor alcançado"
                     onChangeText={(text) => formik.setFieldValue('currentAmount', moeda(text))}
                     value={formik.values.currentAmount}
                 />
-            </View>
-            <View>
-                <Text style={{ ...styles.label, color: currentTheme === 'dark' ? '#FFF' : '#1c1e21' }}>Data da meta</Text>
-                <View style={styles.inputGroup}>
-                    <Pressable
-                        onPress={() => {
-                            DateTimePickerAndroid.open({
-                                themeVariant: currentTheme,
-                                value: new Date(Date.now()),
-                                onChange,
-                                mode: 'date',
-                                is24Hour: false,
-                            });
-                        }}
-                        style={{
-                            width: '82%',
-                        }}
-                    >
-                        <View
-                            style={{
-                                width: '100%',
-                            }}
-                            pointerEvents='none'
-                        >
-                            <TextInput
-                                placeholder="dd/mm/aaaa"
-                                keyboardType="decimal-pad"
-                                maxLength={10}
-                                value={formik.values.date}
-
-                                placeholderTextColor={currentTheme === 'dark' ? '#FFF' : '#1c1e21'}
-                                style={{
-                                    ...styles.inputInputGroup,
-                                    width: '100%',
-                                    backgroundColor: currentTheme === 'dark' ? '#1c1e21' : '#FFF',
-                                    color: currentTheme === 'dark' ? '#FFF' : '#1c1e21',
-                                }}
-                            />
-                        </View>
-                    </Pressable>
-                    <TouchableOpacity onPress={() => {
-                        DateTimePickerAndroid.open({
-                            themeVariant: currentTheme,
-                            value: new Date(Date.now()),
-                            onChange,
-                            mode: 'date',
-                            is24Hour: false,
-                        });
-                    }} style={styles.buttonInputGroup}>
-                        <Feather name="calendar" size={24} color="#FFF" />
-                    </TouchableOpacity>
-                </View>
-
-                {formik.errors.date && (
-                    <Text style={styles.helperText}>{formik.errors.date}</Text>
+                {formik.errors.currentAmount && (
+                    <Text color="red.600">{formik.errors.currentAmount}</Text>
                 )}
-            </View>
+            </VStack>
 
-            <TouchableOpacity onPress={formik.submitForm} style={styles.buttonSave}>
-                <Text style={styles.buttonText}>Adicionar</Text>
-            </TouchableOpacity>
-        </>
+            <VStack space={2}>
+                <Text color={text}>
+                    Data da meta
+                </Text>
+                <Input
+                    errors={!!formik.errors.date}
+                    helperText={formik.errors.date}
+                    placeholder="DD/MM/AAAA"
+                    value={formik.values.date}
+                    editable={false}
+                    rightElement={
+                        <Button
+                            size="xs"
+                            rounded="none"
+                            w="1/4"
+                            p={0}
+                            h="full"
+                            bgColor={theme.colors.purple[600]}
+                            onPress={() => {
+                                DateTimePickerAndroid.open({
+                                    value: new Date(Date.now()),
+                                    onChange,
+                                    mode: 'date',
+                                    is24Hour: false,
+                                });
+                            }}
+                        >
+                            <Feather name="calendar" size={24} color="#FFF" />
+                        </Button>
+                    }
+                />
+                {formik.errors.date && (
+                    <Text color="red.600">{formik.errors.date}</Text>
+                )}
+            </VStack>
+
+            <Button
+                onPress={formik.submitForm}
+                colorScheme="purple"
+                mt={2}
+                mb={8}
+                _text={{
+                    color: "white",
+                }}
+                _pressed={{
+                    bgColor: theme.colors.purple[900]
+                }}
+            >
+                Adicionar
+            </Button>
+        </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height,
-        backgroundColor: '#f0f2f5',
-    },
-    inputGroup: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 18,
-    },
-    inputInputGroup: {
-        marginTop: 6,
-        paddingHorizontal: 12,
-        backgroundColor: '#FFF',
-        borderColor: "#CCC",
-        borderTopLeftRadius: 8,
-        borderTopRightRadius: 0,
-        borderBottomLeftRadius: 8,
-        borderBottomRightRadius: 0,
-        width: '81%',
-        height: 48,
-        borderWidth: 1
-    },
-    buttonInputGroup: {
-        marginTop: 6,
-        width: 48,
-        height: 48,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#9c44dc',
-        borderColor: "#9c44dc",
-        borderWidth: 1,
-        borderTopLeftRadius: 0,
-        borderTopRightRadius: 8,
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 8,
-    },
-    buttonCancel: {
-        borderRadius: 4,
-        marginVertical: 6,
-        backgroundColor: '#FFF',
-        borderColor: "#F00",
-        borderWidth: 1,
-        paddingHorizontal: 48,
-        paddingVertical: 12,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonSave: {
-        borderRadius: 4,
-        marginVertical: 6,
-        backgroundColor: '#9c44dc',
-        paddingHorizontal: 48,
-        paddingVertical: 12,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    subtitle: {
-        fontFamily: 'Poppins_400Regular',
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#363f5f'
-    },
-    label: {
-        marginTop: 18,
-        fontSize: 18,
-        color: '#363f5f',
-        fontFamily: 'Poppins_400Regular',
-    },
-    labelSwitch: {
-        fontSize: 18,
-        color: '#363f5f',
-        fontFamily: 'Poppins_400Regular',
-    },
-    input: {
-        marginTop: 6,
-        paddingHorizontal: 12,
-        backgroundColor: '#FFF',
-        borderColor: "#CCC",
-        borderRadius: 4,
-        width: '100%',
-        height: 48,
-        borderWidth: 1
-    },
-    title: {
-        fontFamily: 'Poppins_400Regular',
-        textAlign: 'center',
-        fontSize: 32,
-        color: '#f0f2f5',
-        marginVertical: 24,
-    },
-    ScrollViewContainer: {
-        width: '100%',
-        height: 'auto',
-        marginTop: -108,
-    },
-    header: {
-        paddingTop: 12,
-        height: 192,
-        width: '100%',
-        backgroundColor: '#2D4A22',
-    },
-    headerItens: {
-        marginHorizontal: 24,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    headerEmpty: {
-        width: 48,
-        height: 48,
-        borderRadius: 32,
-    },
-    headerButton: {
-        width: 48,
-        height: 48,
-        borderRadius: 32,
-        backgroundColor: '#49AA26',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    headerButtonText: {
-        fontSize: 24,
-        fontWeight: '600',
-        color: '#f0f2f5',
-    },
-    cardWite: {
-        marginTop: -100,
-        borderRadius: 4,
-        marginHorizontal: 24,
-        marginVertical: 6,
-        backgroundColor: '#FFF',
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-    },
-    cardGreen: {
-        borderRadius: 4,
-        marginHorizontal: 24,
-        marginVertical: 6,
-        backgroundColor: '#49AA26',
-        paddingHorizontal: 48,
-        paddingVertical: 24,
-    },
-    cardTextGreen: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#f0f2f5',
-        marginBottom: 24,
-    },
-    cardValueGreen: {
-        fontSize: 32,
-        fontWeight: '600',
-        color: '#f0f2f5'
-    },
-    cardText: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#363f5f',
-        marginBottom: 24,
-    },
-    cardValue: {
-        fontSize: 32,
-        fontWeight: '600',
-        color: '#363f5f'
-    },
-    statusBar: {
-        height: 24,
-        width: '100%',
-        backgroundColor: '#2D4A22',
-    },
-    button: {
-        borderRadius: 48,
-        marginHorizontal: 24,
-        marginVertical: 12,
-        backgroundColor: '#49AA26',
-        paddingHorizontal: 48,
-        paddingVertical: 24,
-    },
-    buttonText: {
-        fontFamily: 'Poppins_400Regular',
-        fontSize: 18,
-        color: '#f0f2f5',
-        textAlign: 'center',
-    },
-    buttonTextCancel: {
-        fontFamily: 'Poppins_400Regular',
-        fontSize: 18,
-        color: '#F00',
-        textAlign: 'center',
-    },
-    helperText: {
-        fontFamily: 'Poppins_400Regular',
-        fontSize: 14,
-        color: 'red',
-        textAlign: 'center',
-    },
-})

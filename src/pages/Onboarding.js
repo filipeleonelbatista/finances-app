@@ -3,12 +3,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import * as FileSystem from 'expo-file-system';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, StyleSheet, Text, ToastAndroid, View, useWindowDimensions } from "react-native";
-import { FlatList, RectButton } from "react-native-gesture-handler";
+import { VStack, Image, Text, FlatList, Button, useTheme } from 'native-base';
+import { ActivityIndicator, Alert, StyleSheet, ToastAndroid, View, useWindowDimensions } from "react-native";
 import logo from '../assets/icon.png';
 
 export default function Onboarding() {
-  const { width, height } = useWindowDimensions();
+  const theme = useTheme();
+
+  const { width } = useWindowDimensions();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
 
@@ -68,7 +70,7 @@ export default function Onboarding() {
     try {
       await AsyncStorage.setItem('@onboarding', 'true');
       setIsOnboardingPassed("passed")
-      navigation.navigate('Finanças')
+      navigation.navigate('TabNavigator', { screen: 'Finanças' })
     } catch (e) {
       console.error(e)
     }
@@ -82,7 +84,7 @@ export default function Onboarding() {
           if (value !== null) {
             if (JSON.parse(value)) {
               setIsOnboardingPassed("passed")
-              navigation.navigate('Finanças');
+              navigation.navigate('TabNavigator', { screen: 'Finanças' });
             }
           } else {
             setIsOnboardingPassed("no-passed")
@@ -98,22 +100,21 @@ export default function Onboarding() {
 
   if (isOnboardingPassed === 'waiting') {
     return (
-      <View style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#442c61"
-      }}>
+      <VStack
+        flex={1}
+        alignItems="center"
+        justifyContent="center"
+        bg={theme.colors.purple[900]}
+      >
         <Image
+          alt={'logo'}
           source={logo}
-          style={{
-            width: 100,
-            height: 100,
-            marginBottom: 24,
-          }}
+          size={100}
+          mb={24}
         />
-        <ActivityIndicator color={"#FFF"} />
-      </View>)
+        <ActivityIndicator size={24} color={"#FFF"} />
+      </VStack>
+    )
   }
 
   return (
@@ -123,81 +124,57 @@ export default function Onboarding() {
       data={slides}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <View key={item.id} style={{
-          width: width,
-          height: height,
-          backgroundColor: '#442c61',
-          alignItems: "center",
-          justifyContent: 'center',
-          paddingHorizontal: 24,
-        }}>
+        <VStack
+          key={item.id}
+          bg={theme.colors.purple[900]}
+          width={width}
+          height={'100%'}
+          alignItems={"center"}
+          justifyContent={'center'}
+          paddingHorizontal={4}
+          space={4}
+        >
           <Image
+            alt={item.title}
             source={item.image}
-            style={{
-              width: width * 0.8,
-              height: width * 0.8,
-              borderRadius: 16,
-            }}
+            size={width * 0.8}
+            borderRadius={2}
           />
           <Text
-            style={{
-              fontSize: 24,
-              fontFamily: 'Poppins_600SemiBold',
-              color: '#f0f2f5',
-              textAlign: 'center',
-              marginBottom: 18,
-            }}
+            fontSize={18}
+            color={'#F0F2F5'}
+            textAlign={"center"}
           >
             {item.title}
           </Text>
           <Text
-            style={{
-              fontSize: 18,
-              fontFamily: 'Poppins_400Regular',
-              color: '#f0f2f5',
-              textAlign: 'center',
-              marginBottom: 18,
-            }}
+            fontSize={14}
+            color={'#F0F2F5'}
+            textAlign={"center"}
           >
             {item.subtitle}
           </Text>
 
           {
             item.show && (
-              <RectButton onPress={preleavingOnboarding} style={styles.button}>
-                <Text style={styles.buttonText} >
-                  Vamos comecar?!
-                </Text>
-                <Feather name="arrow-right" size={24} style={{ marginLeft: 6 }} color="#FFF" />
-              </RectButton>
+              <Button
+                onPress={preleavingOnboarding}
+                shadow={2}
+                colorScheme={"purple"}
+                borderRadius={'full'}
+                w={'70%'}
+                rightIcon={<Feather name="arrow-right" size={24} color="#FFF" />}
+                _text={{
+                  color: 'white',
+                  fontSize: 16
+                }}
+              >
+                Vamos comecar?!
+              </Button>
             )
           }
-        </View>
+        </VStack>
       )}
     />
   )
 }
-
-
-const styles = StyleSheet.create({
-  button: {
-    borderRadius: 48,
-    marginHorizontal: 24,
-    marginVertical: 8,
-    backgroundColor: '#9c44dc',
-    paddingHorizontal: 48,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
-  },
-  buttonText: {
-    marginTop: 6,
-    lineHeight: 20,
-    fontSize: 18,
-    fontFamily: 'Poppins_400Regular',
-    color: '#f0f2f5',
-    textAlign: 'center',
-  },
-})

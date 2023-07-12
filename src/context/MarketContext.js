@@ -72,6 +72,24 @@ export function MarketContextProvider(props) {
     }
   }
 
+  async function updateStock(currentTransaction, isAdd = false) {
+    const index = MarketList.findIndex(item => item.id === currentTransaction.id)
+    if (index !== -1) {
+      const newTransactionList = MarketList;
+
+      const newTransaction = currentTransaction;
+      newTransaction.quantity = isAdd ? newTransaction.quantity + 1 : newTransaction.quantity - 1;
+
+      newTransactionList[index] = newTransaction;
+
+      await AsyncStorage.setItem('market', JSON.stringify(newTransactionList));
+
+      loadTransactions()
+
+      ToastAndroid.show('Item atualizado com sucesso', ToastAndroid.SHORT);
+    }
+  }
+
   async function importMarket(importedList) {
     const newTransactionList = [
       ...MarketList,
@@ -174,6 +192,7 @@ export function MarketContextProvider(props) {
         setEstimativeValue,
         importMarket,
         search, setSearch,
+        updateStock
       }}
     >
       {props.children}

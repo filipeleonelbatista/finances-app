@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useColorMode } from "native-base";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { Alert, DevSettings, ToastAndroid } from "react-native";
 
@@ -6,6 +7,18 @@ export const SettingsContext = createContext({});
 
 export function SettingsContextProvider(props) {
 
+  const {
+    colorMode,
+    toggleColorMode,
+    setColorMode,
+  } = useColorMode();
+
+  const handleToggleTheme = async () => {
+    await AsyncStorage.setItem('@Theme', colorMode === 'dark' ? 'light' : 'dark')
+    toggleColorMode()
+  }
+
+  const [isShowLabelOnNavigation, setIsShowLabelOnNavigation] = useState(false)
   const [isEnableTitheCard, setIsEnableTitheCard] = useState(false)
   const [isEnableTotalHistoryCard, setIsEnableTotalHistoryCard] = useState(false)
   const [willAddFuelToTransactionList, setWillAddFuelToTransactionList] = useState(false)
@@ -33,6 +46,12 @@ export function SettingsContextProvider(props) {
           },
         },
       ])
+  }
+
+  const handleSetIsShowLabelOnNavigation = async (value) => {
+    setIsShowLabelOnNavigation(value)
+    await AsyncStorage.setItem('@IsShowLabelOnNavigation', JSON.stringify(value))
+    await updateStorageContext()
   }
 
   const handleSetmarketSimplifiedItems = async (value) => {
@@ -79,6 +98,8 @@ export function SettingsContextProvider(props) {
 
   const updateStorageContext = async () => {
     try {
+      await loadThemeFromStorage();
+      await loadIsShowLabelOnNavigation();
       await loadIsEnableTitheCard();
       await loadIsEnableTotalHistoryCard();
       await loadWillAddFuelToTransactionList();
@@ -88,6 +109,26 @@ export function SettingsContextProvider(props) {
       await loadMarketSimplifiedItems();
     } catch (error) {
       console.log(error)
+    }
+  }
+
+  const loadThemeFromStorage = async () => {
+    const value = await AsyncStorage.getItem('@Theme');
+    if (value !== null) {
+      setColorMode(value)
+    } else {
+      setColorMode(colorMode)
+      await AsyncStorage.setItem('@Theme', colorMode)
+    }
+  }
+
+  const loadIsShowLabelOnNavigation = async () => {
+    const value = await AsyncStorage.getItem('@IsShowLabelOnNavigation');
+    if (value !== null) {
+      setIsShowLabelOnNavigation(JSON.parse(value))
+    } else {
+      setIsShowLabelOnNavigation(isShowLabelOnNavigation)
+      await AsyncStorage.setItem('@IsShowLabelOnNavigation', JSON.stringify(isShowLabelOnNavigation))
     }
   }
 
@@ -163,6 +204,8 @@ export function SettingsContextProvider(props) {
 
   const loadData = useCallback(async () => {
     try {
+      await loadThemeFromStorage();
+      await loadIsShowLabelOnNavigation();
       await loadIsEnableTitheCard();
       await loadIsEnableTotalHistoryCard();
       await loadWillAddFuelToTransactionList();
@@ -198,7 +241,11 @@ export function SettingsContextProvider(props) {
         handleSetSimpleFinancesItem,
         marketSimplifiedItems,
         setMarketSimplifiedItems,
-        handleSetmarketSimplifiedItems
+        handleSetmarketSimplifiedItems,
+        isShowLabelOnNavigation,
+        setIsShowLabelOnNavigation,
+        handleSetIsShowLabelOnNavigation,
+        handleToggleTheme
       }}
     >
       {props.children}
