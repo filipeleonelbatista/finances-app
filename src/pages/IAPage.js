@@ -1,12 +1,13 @@
 import { Feather, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Box, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, Text, useColorModeValue, useTheme, VStack } from 'native-base';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { BackHandler } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import LoadingDots from 'react-native-loading-dots';
+import { openai } from '../services/openai';
 
 export default function IAPage() {
     const theme = useTheme();
@@ -18,6 +19,41 @@ export default function IAPage() {
     const navigation = useNavigation();
 
     const scrollViewRef = useRef();
+
+
+    const [data, setData] = useState([]);
+    const [error, setError] = useState(null);
+    const [inputText, setInputText] = useState('');
+    const [isLoading, setIsLoading] = useState(false)
+
+    const handleAskToAi = async () => {
+        try {
+            setIsLoading(true)
+
+            const result = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: inputText }],
+                temperature: 1,
+                max_tokens: 256,
+                top_p: 1,
+                frequency_penalty: 0,
+                presence_penalty: 0
+            });
+
+            setData([
+                ...data,
+                { type: 'user', text: inputText },
+                { type: 'assistant', text: result.data.choices[0].message.content }
+            ])
+            
+            setInputText('')
+        } catch (error) {
+            console.log("Erro: ", error)
+            setError(error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     useFocusEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -58,177 +94,204 @@ export default function IAPage() {
                     h={'100%'}
                 >
 
-                    <VStack w={'100%'} space={4} px={4} alignItems={"center"} justifyContent={"center"} flex={1} mt={10}>
-                        <Text color={text} fontSize={18} lineHeight={24} textAlign="center" maxW="80%" my={6}>
-                            Converse com um assistente baseado em Inteligência Artificial.
-                        </Text>
-
-                        <Pressable
-                            bgColor={bgCard}
-                            shadow={2}
-                            borderRadius={4}
-                            w={'90%'}
-                            px={4}
-                            py={2}
-                            _pressed={{
-                                bgColor: 'gray.300'
-                            }}
-                        >
-                            <HStack
-                                position={'relative'}
-                                alignItems="center"
-                                space={4}
-                            >
-                                <Feather name={"dollar-sign"} size={20} color={text} />
-                                <Text color={text} maxW={"90%"}>
-                                    Analise meus gastos e sugira pontos onde eu posso melhorar.
+                    {
+                        data.length === 0 ? (
+                            <VStack w={'100%'} space={4} px={4} alignItems={"center"} justifyContent={"center"} flex={1} mt={10}>
+                                <Text color={text} fontSize={18} lineHeight={24} textAlign="center" maxW="80%" my={6}>
+                                    Converse com um assistente baseado em Inteligência Artificial.
                                 </Text>
-                            </HStack>
-                        </Pressable>
 
-                        <Pressable
-                            bgColor={bgCard}
-                            shadow={2}
-                            borderRadius={4}
-                            w={'90%'}
-                            px={4}
-                            py={2}
-                            _pressed={{
-                                bgColor: 'gray.300'
-                            }}
-                        >
-                            <HStack
-                                position={'relative'}
-                                alignItems="center"
-                                space={4}
-                            >
-                                <Feather name={"droplet"} size={20} color={text} />
-                                <Text color={text} maxW={"90%"}>
-                                    Analise como posso melhorar meus gastos com combustível.
+                                <Pressable
+                                    bgColor={bgCard}
+                                    shadow={2}
+                                    borderRadius={4}
+                                    w={'90%'}
+                                    px={4}
+                                    py={2}
+                                    _pressed={{
+                                        bgColor: 'gray.300'
+                                    }}
+                                >
+                                    <HStack
+                                        position={'relative'}
+                                        alignItems="center"
+                                        space={4}
+                                    >
+                                        <Feather name={"dollar-sign"} size={20} color={text} />
+                                        <Text color={text} maxW={"90%"}>
+                                            Analise meus gastos e sugira pontos onde eu posso melhorar.
+                                        </Text>
+                                    </HStack>
+                                </Pressable>
+
+                                <Pressable
+                                    bgColor={bgCard}
+                                    shadow={2}
+                                    borderRadius={4}
+                                    w={'90%'}
+                                    px={4}
+                                    py={2}
+                                    _pressed={{
+                                        bgColor: 'gray.300'
+                                    }}
+                                >
+                                    <HStack
+                                        position={'relative'}
+                                        alignItems="center"
+                                        space={4}
+                                    >
+                                        <Feather name={"droplet"} size={20} color={text} />
+                                        <Text color={text} maxW={"90%"}>
+                                            Analise como posso melhorar meus gastos com combustível.
+                                        </Text>
+                                    </HStack>
+                                </Pressable>
+
+                                <Pressable
+                                    bgColor={bgCard}
+                                    shadow={2}
+                                    borderRadius={4}
+                                    w={'90%'}
+                                    px={4}
+                                    py={2}
+                                    _pressed={{
+                                        bgColor: 'gray.300'
+                                    }}
+                                >
+                                    <HStack
+                                        position={'relative'}
+                                        alignItems="center"
+                                        space={4}
+                                    >
+                                        <Feather name={"shopping-cart"} size={20} color={text} />
+                                        <Text color={text} maxW={"90%"}>
+                                            Analise meus gastos com mercado e sugira pontos onde eu posso melhorar a alimentação.
+                                        </Text>
+                                    </HStack>
+                                </Pressable>
+
+                                <Text color={text} fontSize={14} lineHeight={16} textAlign="center" maxW="80%" mt={6}>
+                                    ou digite seu texto para iniciar a conversa.
                                 </Text>
-                            </HStack>
-                        </Pressable>
+                            </VStack>
+                        ) :
+                            (
 
-                        <Pressable
-                            bgColor={bgCard}
-                            shadow={2}
-                            borderRadius={4}
-                            w={'90%'}
-                            px={4}
-                            py={2}
-                            _pressed={{
-                                bgColor: 'gray.300'
-                            }}
-                        >
-                            <HStack
-                                position={'relative'}
-                                alignItems="center"
-                                space={4}
-                            >
-                                <Feather name={"shopping-cart"} size={20} color={text} />
-                                <Text color={text} maxW={"90%"}>
-                                    Analise meus gastos com mercado e sugira pontos onde eu posso melhorar a alimentação.
-                                </Text>
-                            </HStack>
-                        </Pressable>
+                                <VStack alignItems={"center"} justifyContent="center" w={'100%'} space={4}>
+                                    {data.map((mensagem, index) => (
+                                        <HStack
+                                            space={4}
+                                            my={2}
+                                            w={'100%'}
+                                            px={4}
+                                            flexDirection={mensagem.type === 'user' ? 'row' : 'row-reverse'}
+                                            justifyContent={"flex-end"}
+                                        >
+                                            <Box
+                                                w={'75%'}
+                                                px={4}
+                                                py={2}
+                                                bgColor={mensagem.type === 'user' ? "purple.500" : bgCard}
+                                                shadow={2}
+                                                borderRadius={4}
+                                                position={'relative'}
+                                            >
+                                                <Text color={"white"}>
+                                                    {mensagem.text}
+                                                </Text>
+                                            </Box>
+                                            <Box
+                                                w={10}
+                                                h={10}
+                                                borderRadius={"full"}
+                                                alignItems="center"
+                                                justifyContent="center"
+                                                shadow={2}
+                                                bgColor={theme.colors.purple[300]}
+                                            >
+                                                <MaterialCommunityIcons name={mensagem.type === 'user' ? "account" : "robot-outline"} size={20} color={headerText} />
+                                            </Box>
+                                        </HStack>
+                                    ))}
+                                    {
+                                        isLoading && (
+                                            <HStack
+                                                space={4}
+                                                my={2}
+                                                w={'100%'}
+                                                px={4}
+                                                flexDirection={'row-reverse'}
+                                                justifyContent={"flex-end"}
+                                            >
+                                                <Box
+                                                    px={4}
+                                                    py={2}
+                                                    bgColor={bgCard}
+                                                    shadow={2}
+                                                    borderRadius={4}
+                                                    position={'relative'}
+                                                >
+                                                    <Text color={"white"}>
+                                                        <LoadingDots dots={3} colors={[text, text, text]} size={8} bounceHeight={3} />
+                                                    </Text>
+                                                </Box>
+                                                <Box
+                                                    w={10}
+                                                    h={10}
+                                                    borderRadius={"full"}
+                                                    alignItems="center"
+                                                    justifyContent="center"
+                                                    shadow={2}
+                                                    bgColor={theme.colors.purple[300]}
+                                                >
+                                                    <MaterialCommunityIcons name={"robot-outline"} size={20} color={headerText} />
+                                                </Box>
+                                            </HStack>
+                                        )
+                                    }
+                                </VStack>
+                            )
+                    }
 
-                        <Text color={text} fontSize={14} lineHeight={16} textAlign="center" maxW="80%" mt={6}>
-                            ou digite seu texto para iniciar a conversa.
-                        </Text>
-                    </VStack>
 
 
-                    {/* <VStack alignItems={"center"} justifyContent="flex-end" w={'100%'}>
-                        <HStack space={4} my={2} w={'100%'} px={4} justifyContent={'flex-end'}>
-                            <Box
-                                w={'75%'}
-                                px={4}
-                                py={2}
-                                bgColor={"purple.500"}
-                                shadow={2}
-                                borderRadius={4}
-                                position={'relative'}
-                            >
-                                <Text color={"white"}>
-                                    De acordo com os gastos que tive esse mês, quais gastos poderiam ser melhorados?
-                                </Text>
-                            </Box>
-                            <Box
-                                w={10}
-                                h={10}
-                                borderRadius={"full"}
-                                alignItems="center"
-                                justifyContent="center"
-                                shadow={2}
-                                bgColor={theme.colors.purple[300]}
-                            >
-                                <MaterialCommunityIcons name={"account"} size={20} color={headerText} />
-                            </Box>
-                        </HStack>
 
-                        <HStack space={4} my={2} w={'100%'} px={4} justifyContent={'flex-start'}>
-                            <Box
-                                w={10}
-                                h={10}
-                                borderRadius={"full"}
-                                alignItems="center"
-                                justifyContent="center"
-                                shadow={2}
-                                bgColor={theme.colors.purple[300]}
-                            >
-                                <MaterialCommunityIcons name={"robot-outline"} size={20} color={headerText} />
-                            </Box>
-                            <Box
-                                w={'75%'}
-                                px={4}
-                                py={2}
-                                bgColor={bgCard}
-                                shadow={2}
-                                borderRadius={4}
-                                position={'relative'}
-                            >
-                                <Text color={text}>
-                                    Análisando os dados que você tem cadastrado segue umas dicas: {'\n'}{'\n'}
-                                    1. Verifique as descrições e categorias de cada transação para identificar os principais itens em que você gastou dinheiro.
-                                    Por exemplo, você pode observar que gastou muito em "Cartão" ou "Vestuário".{'\n'}
-                                    2. Cartão Lisandra 1/2 e Cartão Filipe: Avalie a natureza dessas despesas e considere se há maneiras de reduzir os gastos com cartão de crédito. Isso pode envolver limitar os gastos discricionários ou revisar seu plano de pagamento para evitar juros elevados.{'\n'}
-                                    3. Luz: Verifique se há oportunidades de economizar energia em sua moradia, como desligar luzes desnecessárias, trocar lâmpadas por versões mais eficientes ou adotar hábitos que levem a um consumo menor de energia.{'\n'}
-                                    4. Internet: Considere comparar preços de provedores de serviços de internet para garantir que você esteja obtendo a melhor oferta. Você também pode entrar em contato com seu provedor atual para avaliar se há opções de planos mais econômicos.{'\n'}
-                                    5. Celulares 3/10: Avalie se você realmente precisa de tantos celulares e considere se é possível reduzir o número de linhas ou procurar planos mais econômicos.{'\n'}
-                                    6. Avon: Verifique se há itens que você não precisa comprar com frequência ou se é possível encontrar alternativas mais acessíveis.{'\n'}
-                                    7. Pompéia 2/5, 3/4, 2/5, 4/5 e 5/5: Considere avaliar seu orçamento para roupas e ver se é possível reduzir os gastos com vestuário.{'\n'}
-                                    8. Dentista Lisandra: Verifique se o valor gasto no dentista é justificado ou se você pode procurar alternativas mais acessíveis.{'\n'}{'\n'}
-                                    Essas são apenas sugestões com base nos dados fornecidos. Lembre-se de que é importante analisar cuidadosamente suas despesas pessoais e identificar áreas específicas em que você pode reduzir ou otimizar gastos com base em suas prioridades e metas financeiras.
-                                </Text>
-                            </Box>
-                        </HStack>
-                    </VStack> */}
-
-                    <Box w={'100%'} h={82} />
+                    <Box w={'100%'} h={92} />
                 </ScrollView>
                 <VStack bg={bg} shadow={4} space={1} position="absolute" bottom={0} w={'100%'} px={4} py={4}>
-                    <HStack space={2} pl={2}>
-                        <LoadingDots dots={3} colors={[text, text, text]} size={8} bounceHeight={3} />
-                        <Text color={text} fontSize={12}>Estamos analisando os dados...</Text>
-                    </HStack>
+
+                    {
+                        isLoading && (
+                            <HStack space={2} pl={2}>
+                                <LoadingDots dots={3} colors={[text, text, text]} size={8} bounceHeight={3} />
+                                <Text color={text} fontSize={12}>Estou digitando...</Text>
+                            </HStack>
+                        )
+                    }
                     <HStack space={2}>
                         <Input
                             flex={1}
                             placeholder="Digite sua pergunta aqui..."
-                            _pressed={{
-                                bgColor: 'purple.900'
-                            }}
+                            onChangeText={(text) => setInputText(text)}
+                            value={inputText}
                         />
                         <IconButton
                             w={12}
                             bg={theme.colors.purple[600]}
-                            onPress={() => { }}
+                            onPress={handleAskToAi}
                             icon={<Octicons name="paper-airplane" size={20} color={headerText} />}
+                            _pressed={{
+                                bgColor: 'purple.900'
+                            }}
                         />
                     </HStack>
-                    <Text color="red.500" >
-                        <Feather name="alert-circle" size={14} /> Quando ouver um erro.
-                    </Text>
+                    {
+                        error && (
+                            <Text color="red.500" >
+                                <Feather name="alert-circle" size={14} /> {error}
+                            </Text>
+                        )
+                    }
                 </VStack>
             </VStack >
         </KeyboardAvoidingView >
