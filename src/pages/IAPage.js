@@ -1,5 +1,5 @@
 import { Feather, MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
-import { Actionsheet, Box, Button, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, Spinner, Text, useColorModeValue, useTheme, VStack } from 'native-base';
+import { Actionsheet, Box, Button, HStack, IconButton, Input, KeyboardAvoidingView, Link, Pressable, Spinner, Text, useColorModeValue, useTheme, VStack } from 'native-base';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -551,6 +551,10 @@ export default function IAPage() {
                                 value={inputTextApiKey}
                             />
                         </VStack>
+
+                        <Link href={"https://platform.openai.com/account/api-keys"} color="purple.500">
+                            Clique aqui para obter uma Chave de API OpenAi
+                        </Link>
 
                         <Button
                             onPress={() => {

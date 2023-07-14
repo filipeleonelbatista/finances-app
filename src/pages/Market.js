@@ -234,8 +234,8 @@ export default function Market() {
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
             <>
-              <VStack space={4} px={4} mt={2} mb={6}>
-                <Text color={text}>
+              <VStack space={2} px={4} mt={2} mb={6}>
+                <Text color={text} mb={4}>
                   Toque no item para visualizar e depois editar ou excluir.
                 </Text>
                 {

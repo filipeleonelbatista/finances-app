@@ -193,7 +193,7 @@ export default function Runs() {
 
         </ScrollView>
 
-        <VStack px={4} mt={-36} space={4}>
+        <VStack px={4} mt={-36} space={2}>
           <Text
             fontSize={14}
             color={text}
