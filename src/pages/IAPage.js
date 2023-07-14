@@ -220,11 +220,11 @@ export default function IAPage() {
         try {
             setIsLoading(true)
 
-            console.log("CONTEUDO", [...data, { role: "user", content: inputText }])
+            const newDataForConversation = data.map(item => ({ role: item.type, content: item.text }))
 
             const result = await openai.createChatCompletion({
                 model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: inputText }],
+                messages: [...newDataForConversation, { role: "user", content: inputText }],
                 temperature: 1,
                 max_tokens: 2048, //256,
                 top_p: 1,
@@ -498,13 +498,22 @@ export default function IAPage() {
                         <Input
                             flex={1}
                             placeholder="Digite sua pergunta aqui..."
-                            onChangeText={(text) => setInputText(text)}
+                            onChangeText={(text) => {
+                                setInputText(text)
+                            }}
                             value={inputText}
                         />
                         <IconButton
                             w={12}
                             bg={theme.colors.purple[600]}
-                            onPress={handleAskToAi}
+                            onPress={() => {
+                                if (inputText.length === 0) {
+                                    setError("Digite uma mensagem para continuar")
+                                } else {
+                                    setError(null)
+                                    handleAskToAi()
+                                }
+                            }}
                             icon={<Octicons name="paper-airplane" size={20} color={headerText} />}
                             _pressed={{
                                 bgColor: 'purple.900'
