@@ -1,13 +1,19 @@
-import { Feather, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Box, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, Text, useColorModeValue, useTheme, VStack } from 'native-base';
-import React, { useRef, useState } from 'react';
+import { Feather, MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
+import { Actionsheet, Box, Button, HStack, IconButton, Input, KeyboardAvoidingView, Pressable, Spinner, Text, useColorModeValue, useTheme, VStack } from 'native-base';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import Header from '../components/Header';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
+import { useWindowDimensions } from 'react-native';
 import LoadingDots from 'react-native-loading-dots';
-import { openai } from '../services/openai';
+import Header from '../components/Header';
+import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
+import { useMarket } from '../hooks/useMarket';
+import { useOpenAi } from '../hooks/useOpenAi';
+import { usePayments } from '../hooks/usePayments';
+import { useRuns } from '../hooks/useRuns';
+import { Configuration, OpenAIApi } from 'openai';
 
 export default function IAPage() {
     const theme = useTheme();
@@ -20,21 +26,207 @@ export default function IAPage() {
 
     const scrollViewRef = useRef();
 
+    const { filteredList } = usePayments();
+    const { FuelList, autonomy } = useRuns();
+    const { filteredList: MarketList } = useMarket();
+
+    const { checkIfApiKeyExists, openaiErrorHandler, handleSaveApiKey, apiKey } = useOpenAi();
+
+    const configuration = new Configuration({
+        apiKey: apiKey, //process.env.OPENAI_API_KEY,
+    });
+
+    const openai = new OpenAIApi(configuration);
+
+    const isFocused = useIsFocused();
+    const [inputTextApiKey, setInputTextApiKey] = useState('');
+
+    const isKeyboardOpen = useIsKeyboardOpen();
+    const { height } = useWindowDimensions();
 
     const [data, setData] = useState([]);
     const [error, setError] = useState(null);
     const [inputText, setInputText] = useState('');
     const [isLoading, setIsLoading] = useState(false)
+    const [open, setOpen] = useState(false)
+
+    const financesList = useMemo(() => {
+        const headers = "valor;vencimento;data de vencimento;data de pagamento;descrição;categorias;pago"
+        const data = filteredList.map(item =>
+            [
+                item.amount,
+                new Date(item.date).toLocaleDateString('pt-BR'),
+                new Date(item.paymentDate).toLocaleDateString('pt-BR'),
+                item.description,
+                item.category,
+                item.paymentStatus ? "Pago" : "Não pago"
+            ]
+        ).join("\n").replaceAll(",", ";")
+
+        return headers + "\n" + data;
+    }, [filteredList])
+
+    const fuelCostsList = useMemo(() => {
+        const headers = "valor pago;valor do litro do combustível;data de abastecimento;local do abastecimento;tipo de combustivel;Kilometragem do veiculo no abastecimento"
+        const data = FuelList.map(item =>
+            [
+                item.amount,
+                item.unityAmount,
+                new Date(item.date).toLocaleDateString('pt-BR'),
+                item.location,
+                item.type,
+                item.currentDistance,
+            ]
+        ).join("\n").replaceAll(",", ";")
+
+        return headers + "\n" + data + "\n\n" + "Autonomia do veículo: " + autonomy ?? 0;
+    }, [FuelList])
+
+    const marketCostsList = useMemo(() => {
+        const headers = "valor unitário;quantidade;produto;categoria"
+        const data = MarketList.map(item =>
+            [
+                item.amount,
+                item.quantity,
+                item.description,
+                item.category,
+            ]
+        ).join("\n").replaceAll(",", ";")
+
+        return headers + "\n" + data;
+    }, [MarketList])
+
+    const handleAskForFinancialTips = async () => {
+        try {
+            setInputText('De acordo com os gastos que tive esse mês, quais gastos poderiam ser melhorados?')
+            setIsLoading(true)
+
+            const userMessage = `
+                Use esses dados para analisar e depois me responda:
+
+                ${financesList}
+
+                De acordo com os gastos que tive esse mês, quais gastos poderiam ser melhorados?
+
+                Limite-se a criar um texto em no máximo 1000 caracteres.
+                `;
+
+            const result = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: userMessage.replaceAll("                ", "") }],
+                temperature: 1,
+                max_tokens: 2048, //256,
+                top_p: 1,
+                frequency_penalty: 0,
+                presence_penalty: 0
+            });
+
+            setData([
+                ...data,
+                { type: 'user', text: 'De acordo com os gastos que tive esse mês, quais gastos poderiam ser melhorados?' },
+                { type: 'assistant', text: result.data.choices[0].message.content }
+            ])
+
+            setInputText('')
+        } catch (error) {
+            console.log("Erro: ", error.response)
+            setError(openaiErrorHandler(error))
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleAskForFuelCostsTips = async () => {
+        try {
+            setInputText('De acordo com os abastecimentos que tive esse mês, o que posso melhorar para evitar gastos?')
+            setIsLoading(true)
+
+            const userMessage = `
+                Use esses dados para analisar e depois me responda:
+
+                ${fuelCostsList}
+
+                De acordo com os abastecimentos que tive esse mês, o que posso melhorar para evitar gastos?
+
+                Limite-se a criar um texto em no máximo 1000 caracteres.
+                `;
+
+            const result = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: userMessage }],
+                temperature: 1,
+                max_tokens: 2048, //256,
+                top_p: 1,
+                frequency_penalty: 0,
+                presence_penalty: 0
+            });
+
+            setData([
+                ...data,
+                { type: 'user', text: 'De acordo com os abastecimentos que tive esse mês, o que posso melhorar para evitar gastos?' },
+                { type: 'assistant', text: result.data.choices[0].message.content }
+            ])
+
+            setInputText('')
+        } catch (error) {
+            console.log("Erro: ", error)
+            setError(openaiErrorHandler(error))
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleAskForMarketCostsTips = async () => {
+        try {
+            setInputText('De acordo com as compras de mercado que tive esse mês, quais gastos poderiam ser melhorados?')
+            setIsLoading(true)
+
+            const userMessage = `
+                Use esses dados para analisar e depois me responda:
+
+                ${marketCostsList}
+
+                De acordo com as compras de mercado que tive esse mês, quais gastos poderiam ser melhorados?
+
+                Limite-se a criar um texto em no máximo 1000 caracteres.
+                `;
+
+            const result = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: userMessage }],
+                temperature: 1,
+                max_tokens: 2048, //256,
+                top_p: 1,
+                frequency_penalty: 0,
+                presence_penalty: 0
+            });
+
+            setData([
+                ...data,
+                { type: 'user', text: 'De acordo com as compras de mercado que tive esse mês, quais gastos poderiam ser melhorados?' },
+                { type: 'assistant', text: result.data.choices[0].message.content }
+            ])
+
+            setInputText('')
+        } catch (error) {
+            console.log("Erro: ", error)
+            setError(openaiErrorHandler(error))
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     const handleAskToAi = async () => {
         try {
             setIsLoading(true)
 
+            console.log("CONTEUDO", [...data, { role: "user", content: inputText }])
+
             const result = await openai.createChatCompletion({
                 model: "gpt-3.5-turbo",
                 messages: [{ role: "user", content: inputText }],
                 temperature: 1,
-                max_tokens: 256,
+                max_tokens: 2048, //256,
                 top_p: 1,
                 frequency_penalty: 0,
                 presence_penalty: 0
@@ -45,15 +237,28 @@ export default function IAPage() {
                 { type: 'user', text: inputText },
                 { type: 'assistant', text: result.data.choices[0].message.content }
             ])
-            
+
             setInputText('')
         } catch (error) {
-            console.log("Erro: ", error)
-            setError(error)
+            setError(openaiErrorHandler(error))
         } finally {
             setIsLoading(false)
         }
     }
+
+    useEffect(() => {
+        if (isFocused) {
+            async function executeAsync() {
+                const existsApi = await checkIfApiKeyExists()
+                if (existsApi) {
+                    setOpen(false)
+                } else {
+                    setOpen(true)
+                }
+            }
+            executeAsync();
+        }
+    }, [isFocused, checkIfApiKeyExists])
 
     useFocusEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -66,7 +271,24 @@ export default function IAPage() {
 
     return (
         <KeyboardAvoidingView flex={1}>
+
             <VStack flex={1} bg={bg} position="relative">
+                {
+                    openai === null && (
+                        <VStack
+                            flex={1}
+                            bgColor={"#000000AA"}
+                            position={'absolute'}
+                            zIndex={1000}
+                            width={'100%'}
+                            alignItems={"center"}
+                            justifyContent={"center"}
+                            h={height + 10}
+                        >
+                            <Spinner color={bg} size={60} />
+                        </VStack>
+                    )
+                }
                 <Header
                     isShort
                     isLeft
@@ -95,7 +317,7 @@ export default function IAPage() {
                 >
 
                     {
-                        data.length === 0 ? (
+                        data.length === 0 && !isLoading ? (
                             <VStack w={'100%'} space={4} px={4} alignItems={"center"} justifyContent={"center"} flex={1} mt={10}>
                                 <Text color={text} fontSize={18} lineHeight={24} textAlign="center" maxW="80%" my={6}>
                                     Converse com um assistente baseado em Inteligência Artificial.
@@ -108,6 +330,7 @@ export default function IAPage() {
                                     w={'90%'}
                                     px={4}
                                     py={2}
+                                    onPress={handleAskForFinancialTips}
                                     _pressed={{
                                         bgColor: 'gray.300'
                                     }}
@@ -131,6 +354,7 @@ export default function IAPage() {
                                     w={'90%'}
                                     px={4}
                                     py={2}
+                                    onPress={handleAskForFuelCostsTips}
                                     _pressed={{
                                         bgColor: 'gray.300'
                                     }}
@@ -154,6 +378,7 @@ export default function IAPage() {
                                     w={'90%'}
                                     px={4}
                                     py={2}
+                                    onPress={handleAskForMarketCostsTips}
                                     _pressed={{
                                         bgColor: 'gray.300'
                                     }}
@@ -180,6 +405,7 @@ export default function IAPage() {
                                 <VStack alignItems={"center"} justifyContent="center" w={'100%'} space={4}>
                                     {data.map((mensagem, index) => (
                                         <HStack
+                                            key={index}
                                             space={4}
                                             my={2}
                                             w={'100%'}
@@ -196,7 +422,7 @@ export default function IAPage() {
                                                 borderRadius={4}
                                                 position={'relative'}
                                             >
-                                                <Text color={"white"}>
+                                                <Text color={mensagem.type === 'user' ? "white" : text}>
                                                     {mensagem.text}
                                                 </Text>
                                             </Box>
@@ -294,6 +520,66 @@ export default function IAPage() {
                     }
                 </VStack>
             </VStack >
+
+            <Actionsheet isOpen={open} onClose={() => setOpen(false)} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
+                <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
+                    <VStack space={4} p={4}>
+                        <Text color={text} textAlign="center" bold fontSize={22}>
+                            Chave de api necessária
+                        </Text>
+                        <Text color={text} textAlign="center">
+                            Como é um recurso limitado e a idéia do aplicativo é ser gratuito,
+                            é necessario entrar no site da OpenAI e solicitar a Chave de API e
+                            que você tenha créditos de uso lá para poder usar neste app.
+                        </Text>
+                        <VStack space={2}>
+                            <Text color={text}>
+                                Cole sua chave de api aqui.
+                            </Text>
+                            <Input
+                                placeholder="Chave de api"
+                                onChangeText={(text) => setInputTextApiKey(text)}
+                                value={inputTextApiKey}
+                            />
+                        </VStack>
+
+                        <Button
+                            onPress={() => {
+                                handleSaveApiKey(inputTextApiKey)
+                                setOpen(false)
+                            }}
+                            colorScheme="purple"
+                            _text={{
+                                color: "white",
+                            }}
+                            _pressed={{
+                                bgColor: theme.colors.purple[900]
+                            }}
+                        >
+                            Salvar
+                        </Button>
+
+
+                        <Button
+                            onPress={() => {
+                                setOpen(false)
+                                navigation.goBack()
+                            }}
+                            borderColor="purple.600"
+                            variant={"outline"}
+                            _text={{
+                                color: "purple.600",
+                            }}
+                            _pressed={{
+                                bgColor: theme.colors.purple[900]
+                            }}
+                        >
+                            Voltar
+                        </Button>
+                    </VStack>
+                    <Box h={16} w={'100%'} />
+                </Actionsheet.Content>
+            </Actionsheet>
         </KeyboardAvoidingView >
     );
 }
