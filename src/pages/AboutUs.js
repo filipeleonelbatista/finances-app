@@ -11,7 +11,7 @@ import * as MediaLibrary from 'expo-media-library';
 import * as DocumentPicker from 'expo-document-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { jsonToCSV, readString } from 'react-native-csv';
 import { v4 } from 'uuid';
 import userImg from '../assets/icon.png';
@@ -22,6 +22,7 @@ import { useRuns } from '../hooks/useRuns';
 import { useSettings } from '../hooks/useSettings';
 import { useOpenAi } from '../hooks/useOpenAi';
 import { useState } from 'react';
+import { useEffect } from 'react';
 
 export default function AboutUs() {
     const theme = useTheme();
@@ -37,7 +38,8 @@ export default function AboutUs() {
 
     const { apiKey, handleSaveApiKey } = useOpenAi();
 
-    const [inputOpenAiText, setInputOpenAiText] = useState(apiKey ?? '');
+    const isFocused = useIsFocused();
+    const [inputOpenAiText, setInputOpenAiText] = useState('');
 
     const {
         transactionsList,
@@ -299,6 +301,12 @@ export default function AboutUs() {
 
         return () => backHandler.remove();
     })
+
+    useEffect(() => {
+        if (isFocused) {
+            setInputOpenAiText(apiKey)
+        }
+    }, [apiKey])
 
     return (
         <VStack flex={1} bg={bg}>

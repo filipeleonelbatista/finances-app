@@ -441,38 +441,74 @@ export default function IAPage() {
                                     ))}
                                     {
                                         isLoading && (
-                                            <HStack
-                                                space={4}
-                                                my={2}
-                                                w={'100%'}
-                                                px={4}
-                                                flexDirection={'row-reverse'}
-                                                justifyContent={"flex-end"}
-                                            >
-                                                <Box
+                                            <>
+                                                <HStack
+                                                    space={4}
+                                                    my={2}
+                                                    w={'100%'}
                                                     px={4}
-                                                    py={2}
-                                                    bgColor={bgCard}
-                                                    shadow={2}
-                                                    borderRadius={4}
-                                                    position={'relative'}
+                                                    flexDirection={'row'}
+                                                    justifyContent={"flex-end"}
                                                 >
-                                                    <Text color={"white"}>
-                                                        <LoadingDots dots={3} colors={[text, text, text]} size={8} bounceHeight={3} />
-                                                    </Text>
-                                                </Box>
-                                                <Box
-                                                    w={10}
-                                                    h={10}
-                                                    borderRadius={"full"}
-                                                    alignItems="center"
-                                                    justifyContent="center"
-                                                    shadow={2}
-                                                    bgColor={theme.colors.purple[300]}
+                                                    <Box
+                                                        w={'75%'}
+                                                        px={4}
+                                                        py={2}
+                                                        bgColor={"purple.500"}
+                                                        shadow={2}
+                                                        borderRadius={4}
+                                                        position={'relative'}
+                                                    >
+                                                        <Text color={"white"}>
+                                                            {inputText}
+                                                        </Text>
+                                                    </Box>
+                                                    <Box
+                                                        w={10}
+                                                        h={10}
+                                                        borderRadius={"full"}
+                                                        alignItems="center"
+                                                        justifyContent="center"
+                                                        shadow={2}
+                                                        bgColor={theme.colors.purple[300]}
+                                                    >
+                                                        <MaterialCommunityIcons name={"account"} size={20} color={headerText} />
+                                                    </Box>
+                                                </HStack>
+
+                                                <HStack
+                                                    space={4}
+                                                    my={2}
+                                                    w={'100%'}
+                                                    px={4}
+                                                    flexDirection={'row-reverse'}
+                                                    justifyContent={"flex-end"}
                                                 >
-                                                    <MaterialCommunityIcons name={"robot-outline"} size={20} color={headerText} />
-                                                </Box>
-                                            </HStack>
+                                                    <Box
+                                                        px={4}
+                                                        py={2}
+                                                        bgColor={bgCard}
+                                                        shadow={2}
+                                                        borderRadius={4}
+                                                        position={'relative'}
+                                                    >
+                                                        <Text color={"white"}>
+                                                            <LoadingDots dots={3} colors={[text, text, text]} size={8} bounceHeight={3} />
+                                                        </Text>
+                                                    </Box>
+                                                    <Box
+                                                        w={10}
+                                                        h={10}
+                                                        borderRadius={"full"}
+                                                        alignItems="center"
+                                                        justifyContent="center"
+                                                        shadow={2}
+                                                        bgColor={theme.colors.purple[300]}
+                                                    >
+                                                        <MaterialCommunityIcons name={"robot-outline"} size={20} color={headerText} />
+                                                    </Box>
+                                                </HStack>
+                                            </>
                                         )
                                     }
                                 </VStack>
