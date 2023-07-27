@@ -20,7 +20,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.finances",
-      "buildNumber": "2.0.2",
+      "buildNumber": "2.0.4",
       "usesIcloudStorage": true,
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Permitir que $(PRODUCT_NAME) acesse suas fotos.",
@@ -38,7 +38,7 @@
         "backgroundColor": "#9c44dc"
       },
       "package": "com.finances",
-      "versionCode": 202
+      "versionCode": 204
     },
     "web": {
       "favicon": "./assets/favicon.png"

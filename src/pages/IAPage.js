@@ -552,7 +552,7 @@ export default function IAPage() {
                             />
                         </VStack>
 
-                        <Link href={"https://platform.openai.com/account/api-keys"} color="purple.500">
+                        <Link href={"https://platform.openai.com/account/api-keys"} _text={{ color: 'purple.500' }}>
                             Clique aqui para obter uma Chave de API OpenAi
                         </Link>
 
