@@ -20,6 +20,7 @@ import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
 import { usePages } from '../hooks/usePages';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
+import AIComponent from '../components/AIComponent';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -270,7 +271,7 @@ export default function Finances() {
           </HStack>
           {
             openFilter && (
-              <VStack space={2}>
+              <VStack space={2} mb={2}>
                 <VStack space={2}>
                   <Text color={text} fontSize={16} bold>
                     Filtrar por período
@@ -471,8 +472,8 @@ export default function Finances() {
 
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
-            <VStack space={4} px={4} mt={2} mb={6}>
-              <Text color={text}>
+            <VStack space={2} px={4} mt={2} mb={6}>
+              <Text color={text} mb={2}>
                 Toque no item para visualizar e depois editar ou excluir.{'\n'}Segure para adicionar/remover dos favoritos
               </Text>
 
@@ -637,10 +638,12 @@ export default function Finances() {
         }
       </ScrollView >
 
+      <AIComponent />
+
       <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
           <EditItemForm onClose={onClose} selectedTransaction={selectedTransaction} />
-        <Box h={16} w={'100%'} />
+          <Box h={16} w={'100%'} />
         </Actionsheet.Content>
       </Actionsheet>
     </VStack >

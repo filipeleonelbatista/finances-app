@@ -1,3 +1,5 @@
+
+import "react-native-url-polyfill/auto"
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { ActivityIndicator, StatusBar as RNStatusBar, View } from 'react-native';

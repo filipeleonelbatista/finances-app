@@ -18,6 +18,7 @@ export function SettingsContextProvider(props) {
     toggleColorMode()
   }
 
+  const [isAiEnabled, setIsAiEnabled] = useState(false)
   const [isShowLabelOnNavigation, setIsShowLabelOnNavigation] = useState(false)
   const [isEnableTitheCard, setIsEnableTitheCard] = useState(false)
   const [isEnableTotalHistoryCard, setIsEnableTotalHistoryCard] = useState(false)
@@ -46,6 +47,12 @@ export function SettingsContextProvider(props) {
           },
         },
       ])
+  }
+
+  const handleSetIsAiEnabled = async (value) => {
+    setIsAiEnabled(value)
+    await AsyncStorage.setItem('@IsAiEnabled', JSON.stringify(value))
+    await updateStorageContext()
   }
 
   const handleSetIsShowLabelOnNavigation = async (value) => {
@@ -98,6 +105,7 @@ export function SettingsContextProvider(props) {
 
   const updateStorageContext = async () => {
     try {
+      await loadAiConfigFromStorage();
       await loadThemeFromStorage();
       await loadIsShowLabelOnNavigation();
       await loadIsEnableTitheCard();
@@ -109,6 +117,16 @@ export function SettingsContextProvider(props) {
       await loadMarketSimplifiedItems();
     } catch (error) {
       console.log(error)
+    }
+  }
+
+  const loadAiConfigFromStorage = async () => {
+    const value = await AsyncStorage.getItem('@IsAiEnabled');
+    if (value !== null) {
+      setIsAiEnabled(JSON.parse(value))
+    } else {
+      setIsAiEnabled(isAiEnabled)
+      await AsyncStorage.setItem('@IsAiEnabled', JSON.stringify(isAiEnabled))
     }
   }
 
@@ -204,6 +222,7 @@ export function SettingsContextProvider(props) {
 
   const loadData = useCallback(async () => {
     try {
+      await loadAiConfigFromStorage();
       await loadThemeFromStorage();
       await loadIsShowLabelOnNavigation();
       await loadIsEnableTitheCard();
@@ -245,7 +264,9 @@ export function SettingsContextProvider(props) {
         isShowLabelOnNavigation,
         setIsShowLabelOnNavigation,
         handleSetIsShowLabelOnNavigation,
-        handleToggleTheme
+        handleToggleTheme,
+        handleSetIsAiEnabled,
+        isAiEnabled
       }}
     >
       {props.children}

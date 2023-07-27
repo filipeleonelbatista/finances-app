@@ -19,6 +19,7 @@ import { useMarket } from '../hooks/useMarket';
 import { usePages } from '../hooks/usePages';
 import { useSettings } from '../hooks/useSettings';
 import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
+import AIComponent from '../components/AIComponent';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -233,8 +234,8 @@ export default function Market() {
         {
           filteredList.length === 0 ? <EmptyMessage /> : (
             <>
-              <VStack space={4} px={4} mt={2} mb={6}>
-                <Text color={text}>
+              <VStack space={2} px={4} mt={2} mb={6}>
+                <Text color={text} mb={4}>
                   Toque no item para visualizar e depois editar ou excluir.
                 </Text>
                 {
@@ -390,6 +391,8 @@ export default function Market() {
         }
 
       </ScrollView>
+
+      <AIComponent />
 
       <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>

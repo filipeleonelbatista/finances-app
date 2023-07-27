@@ -5,7 +5,7 @@ import { ImageBackground, View } from 'react-native';
 
 import bgImg from '../assets/images/background.png';
 
-export default function Header({ title, iconComponent, isLeft = false }) {
+export default function Header({ title, iconComponent, isLeft = false, isShort = false }) {
   const theme = useTheme();
 
   const bg = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[900]);
@@ -13,7 +13,7 @@ export default function Header({ title, iconComponent, isLeft = false }) {
   return (
     <ImageBackground source={bgImg} style={{
       paddingTop: 12,
-      height: 130,
+      height: isShort ? 70 : 130,
       width: '100%',
       backgroundColor: theme.colors.purple[600],
     }}>

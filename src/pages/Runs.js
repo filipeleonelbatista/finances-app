@@ -16,6 +16,7 @@ import Header from '../components/Header';
 import { usePages } from '../hooks/usePages';
 import { useRuns } from '../hooks/useRuns';
 import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
+import AIComponent from '../components/AIComponent';
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -192,7 +193,7 @@ export default function Runs() {
 
         </ScrollView>
 
-        <VStack px={4} mt={-36} space={4}>
+        <VStack px={4} mt={-36} space={2}>
           <Text
             fontSize={14}
             color={text}
@@ -347,6 +348,8 @@ export default function Runs() {
           </HStack>
         </VStack>
       </ScrollView >
+
+      <AIComponent />
 
       <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>

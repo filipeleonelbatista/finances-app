@@ -20,6 +20,7 @@ import { usePages } from '../hooks/usePages';
 import { usePayments } from '../hooks/usePayments';
 import { useSettings } from '../hooks/useSettings';
 import { useIsKeyboardOpen } from '../hooks/useIsKeyboardOpen';
+import AIComponent from '../components/AIComponent';
 
 export default function Reports() {
   const theme = useTheme();
@@ -662,6 +663,8 @@ export default function Reports() {
         </VStack>
         <Box h={4} w={'100%'} />
       </ScrollView >
+
+      <AIComponent />
 
       <Actionsheet isOpen={isOpen} onClose={onClose} size="full" h={height * (isKeyboardOpen ? 0.9 : 1.09)}>
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>

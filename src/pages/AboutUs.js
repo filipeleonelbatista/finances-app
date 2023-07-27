@@ -62,7 +62,9 @@ export default function AboutUs() {
         handleSetmarketSimplifiedItems,
         isShowLabelOnNavigation,
         handleSetIsShowLabelOnNavigation,
-        handleToggleTheme
+        handleToggleTheme,
+        handleSetIsAiEnabled,
+        isAiEnabled
     } = useSettings();
 
     const { handleAddFinances } = useMarket();
@@ -330,45 +332,59 @@ export default function AboutUs() {
                         />
                     </Box>
                 </VStack>
+                <VStack space={2} px={4}>
 
-                <HStack
-                    px={4}
-                    alignItems={"center"}
-                >
-                    <Switch
-                        trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
-                        thumbColor={colorMode === 'dark' ? theme.colors.purple[600] : theme.colors.gray[600]}
-                        ios_backgroundColor={theme.colors.gray[600]}
-                        onValueChange={handleToggleTheme}
-                        value={colorMode === 'dark'}
-                    />
-                    <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
-                        Habilitar Tema Escuro
-                    </Text>
-                </HStack>
+                    <HStack
+                        alignItems={"center"}
+                    >
+                        <Switch
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={colorMode === 'dark' ? theme.colors.purple[600] : theme.colors.gray[600]}
+                            ios_backgroundColor={theme.colors.gray[600]}
+                            onValueChange={handleToggleTheme}
+                            value={colorMode === 'dark'}
+                        />
+                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
+                            Habilitar Tema Escuro
+                        </Text>
+                    </HStack>
 
-                <HStack
-                    px={4}
-                    alignItems={"center"}
-                >
-                    <Switch
-                        trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
-                        thumbColor={isShowLabelOnNavigation ? theme.colors.purple[600] : theme.colors.gray[600]}
-                        ios_backgroundColor={theme.colors.gray[600]}
-                        onValueChange={handleSetIsShowLabelOnNavigation}
-                        value={isShowLabelOnNavigation}
-                    />
-                    <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
-                        Titulos nos icones da navegação
-                    </Text>
-                </HStack>
+                    <HStack
+                        alignItems={"center"}
+                    >
+                        <Switch
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={isAiEnabled ? theme.colors.purple[600] : theme.colors.gray[600]}
+                            ios_backgroundColor={theme.colors.gray[600]}
+                            onValueChange={handleSetIsAiEnabled}
+                            value={isAiEnabled}
+                        />
+                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
+                            Habilitar Inteligência artificial (Beta)
+                        </Text>
+                    </HStack>
 
-                <HStack
-                    px={4}
-                    my={2}
-                >
-                    <Divider />
-                </HStack>
+                    <HStack
+                        alignItems={"center"}
+                    >
+                        <Switch
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={isShowLabelOnNavigation ? theme.colors.purple[600] : theme.colors.gray[600]}
+                            ios_backgroundColor={theme.colors.gray[600]}
+                            onValueChange={handleSetIsShowLabelOnNavigation}
+                            value={isShowLabelOnNavigation}
+                        />
+                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
+                            Titulos nos icones da navegação
+                        </Text>
+                    </HStack>
+
+                    <HStack
+                        my={2}
+                    >
+                        <Divider />
+                    </HStack>
+                </VStack>
 
                 <VStack space={2} px={4}>
                     <Text color={text} bold fontSize={22}>
