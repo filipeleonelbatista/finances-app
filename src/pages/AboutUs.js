@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { Box, Button, Divider, HStack, IconButton, Image, Input, Text, VStack, useColorMode, useColorModeValue, useTheme } from 'native-base';
+import { Box, Button, Divider, HStack, IconButton, Image, Input, Text, VStack, useColorMode, useColorModeValue, useTheme, Link } from 'native-base';
 import React from 'react';
 import { Alert, BackHandler, Linking, Switch, ToastAndroid } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -11,7 +11,7 @@ import * as MediaLibrary from 'expo-media-library';
 import * as DocumentPicker from 'expo-document-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { jsonToCSV, readString } from 'react-native-csv';
 import { v4 } from 'uuid';
 import userImg from '../assets/icon.png';
@@ -20,6 +20,9 @@ import { useMarket } from '../hooks/useMarket';
 import { usePayments } from '../hooks/usePayments';
 import { useRuns } from '../hooks/useRuns';
 import { useSettings } from '../hooks/useSettings';
+import { useOpenAi } from '../hooks/useOpenAi';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 export default function AboutUs() {
     const theme = useTheme();
@@ -32,6 +35,11 @@ export default function AboutUs() {
     const {
         colorMode,
     } = useColorMode();
+
+    const { apiKey, handleSaveApiKey } = useOpenAi();
+
+    const isFocused = useIsFocused();
+    const [inputOpenAiText, setInputOpenAiText] = useState('');
 
     const {
         transactionsList,
@@ -294,6 +302,12 @@ export default function AboutUs() {
         return () => backHandler.remove();
     })
 
+    useEffect(() => {
+        if (isFocused) {
+            setInputOpenAiText(apiKey)
+        }
+    }, [apiKey])
+
     return (
         <VStack flex={1} bg={bg}>
             <ScrollView flex={1} w={'100%'} h={'100%'}>
@@ -354,6 +368,20 @@ export default function AboutUs() {
                     >
                         <Switch
                             trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
+                            thumbColor={isShowLabelOnNavigation ? theme.colors.purple[600] : theme.colors.gray[600]}
+                            ios_backgroundColor={theme.colors.gray[600]}
+                            onValueChange={handleSetIsShowLabelOnNavigation}
+                            value={isShowLabelOnNavigation}
+                        />
+                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
+                            Titulos nos icones da navegação
+                        </Text>
+                    </HStack>
+                    <HStack
+                        alignItems={"center"}
+                    >
+                        <Switch
+                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
                             thumbColor={isAiEnabled ? theme.colors.purple[600] : theme.colors.gray[600]}
                             ios_backgroundColor={theme.colors.gray[600]}
                             onValueChange={handleSetIsAiEnabled}
@@ -364,20 +392,44 @@ export default function AboutUs() {
                         </Text>
                     </HStack>
 
-                    <HStack
-                        alignItems={"center"}
-                    >
-                        <Switch
-                            trackColor={{ false: theme.colors.gray[400], true: theme.colors.gray[400] }}
-                            thumbColor={isShowLabelOnNavigation ? theme.colors.purple[600] : theme.colors.gray[600]}
-                            ios_backgroundColor={theme.colors.gray[600]}
-                            onValueChange={handleSetIsShowLabelOnNavigation}
-                            value={isShowLabelOnNavigation}
-                        />
-                        <Text color={text} fontSize={16} maxW={'90%'} numberOfLines={2}>
-                            Titulos nos icones da navegação
-                        </Text>
-                    </HStack>
+                    {
+                        isAiEnabled && (
+                            <VStack space={1}>
+                                <Text color={text} fontSize={16}>
+                                    Chave de API
+                                </Text>
+                                <Input
+                                    placeholder="Chave de API"
+                                    onChangeText={(text) => {
+                                        setInputOpenAiText(text)
+                                    }}
+                                    value={inputOpenAiText}
+                                    editable={isAiEnabled}
+                                    rightElement={
+                                        <Button
+                                            size="xs"
+                                            rounded="none"
+                                            w="1/6"
+                                            p={0}
+                                            h="full"
+                                            bgColor={theme.colors.purple[600]}
+                                            onPress={() => {
+                                                handleSaveApiKey(inputOpenAiText)
+                                            }}
+                                        >
+                                            <Feather name="save" size={24} color="#FFF" />
+                                        </Button>
+                                    }
+                                />
+                                <Text color="gray.400">
+                                    Coloque aqui sua Chave de Api da OpenAI
+                                </Text>
+                                <Link href={"https://platform.openai.com/account/api-keys"} _text={{ color: 'purple.500' }}>
+                                    Toque aqui para obter uma Chave de API OpenAi
+                                </Link>
+                            </VStack>
+                        )
+                    }
 
                     <HStack
                         my={2}

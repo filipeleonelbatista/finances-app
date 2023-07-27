@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Configuration, OpenAIApi } from "openai";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from "react-native";
+import { Alert, ToastAndroid } from "react-native";
 
 export function useOpenAi() {
   const [apiKey, setApiKey] = useState('')
@@ -28,6 +28,8 @@ export function useOpenAi() {
       await AsyncStorage.setItem('@ApiKey', text);
       setOpenai(openai)
       setApiKey(text)
+
+      ToastAndroid.show('Chave de Api Adicionada', ToastAndroid.SHORT);
     } catch (error) {
       Alert.alert("Houve um erro", openaiErrorHandler(error))
     }
