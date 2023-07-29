@@ -14,9 +14,7 @@
       "resizeMode": "cover",
       "backgroundColor": "#442c61"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.finances",
@@ -44,6 +42,17 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "@morrowdigital/watermelondb-expo-plugin",
+        [
+          "expo-build-properties",
+          {
+            "android": {
+              "kotlinVersion": "1.6.10"
+            }
+          }
+        ]
+      ],
       [
         "expo-media-library",
         {

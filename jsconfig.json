@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "es2022", // Ou versão do ECMAScript desejada (ES6, ES7, etc.)
+    "experimentalDecorators": true, // Habilita o suporte a decorators
+    "jsx": "react-native", // Se você estiver usando React (opcional)
+    "module": "commonjs" // Ou "esnext" se estiver usando ECMAScript Modules (ESM)
+  },
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js"]
+}
+}
