@@ -26,6 +26,7 @@
       }
     },
     "android": {
+      "kotlinVersion": "1.6.0",
       "permissions": [
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
@@ -42,17 +43,6 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      [
-        "@morrowdigital/watermelondb-expo-plugin",
-        [
-          "expo-build-properties",
-          {
-            "android": {
-              "kotlinVersion": "1.6.10"
-            }
-          }
-        ]
-      ],
       [
         "expo-media-library",
         {

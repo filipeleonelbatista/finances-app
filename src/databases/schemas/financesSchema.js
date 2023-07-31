@@ -13,7 +13,7 @@ export const financesSchema = tableSchema({
     },
     {
       name: "category",
-      type: 'number',
+      type: 'string',
     },
     {
       name: "date",
@@ -26,11 +26,15 @@ export const financesSchema = tableSchema({
     },
     {
       name: "paymentStatus",
-      type: 'boolean',
+      type: 'number',
     },
     {
       name: "isEnabled",
-      type: 'boolean',
+      type: 'number',
+    },
+    {
+      name: "isFavorited",
+      type: 'number',
     },
   ]
 })

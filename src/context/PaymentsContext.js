@@ -1,144 +1,164 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Alert, ToastAndroid } from "react-native";
-import { v4 } from 'uuid';
 
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import { useSettings } from '../hooks/useSettings';
+import { database } from "../databases";
+import { useSettings } from "../hooks/useSettings";
 
-dayjs.extend(isSameOrAfter)
-dayjs.extend(isSameOrBefore)
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 export const PaymentsContext = createContext({});
 
 export function PaymentsContextProvider(props) {
-  const [transactionsList, setTransactionsList] = useState('');
+  const [transactionsList, setTransactionsList] = useState([]);
   const { willUsePrefixToRemoveTihteSum, prefixTithe } = useSettings();
-  const [selectedPaymentStatus, setSelectedPaymentStatus] = useState('Todos');
-  const [selectedDateOrderFilter, setSelectedDateOrderFilter] = useState('Vencimento');
-  const [selectedFavoritedFilter, setSelectedFavoritedFilter] = useState('Todos');
-  const [search, setSearch] = useState('');
-  const [startDate, setStartDate] = useState(dayjs().startOf('month').format("DD/MM/YYYY"));
-  const [endDate, setEndDate] = useState(dayjs().endOf('month').format("DD/MM/YYYY"));
+  const [selectedPaymentStatus, setSelectedPaymentStatus] = useState("Todos");
+  const [selectedDateOrderFilter, setSelectedDateOrderFilter] =
+    useState("Vencimento");
+  const [selectedFavoritedFilter, setSelectedFavoritedFilter] =
+    useState("Todos");
+  const [search, setSearch] = useState("");
+  const [startDate, setStartDate] = useState(
+    dayjs().startOf("month").format("DD/MM/YYYY")
+  );
+  const [endDate, setEndDate] = useState(
+    dayjs().endOf("month").format("DD/MM/YYYY")
+  );
 
-  const favoritedFilterLabel = [
-    'Todos',
-    'Favoritos',
-    'Não favoritados',
-  ]
+  const favoritedFilterLabel = ["Todos", "Favoritos", "Não favoritados"];
 
-  const pamentStatusLabel = [
-    'Todos',
-    'Pago',
-    'Não Pago',
-  ]
+  const pamentStatusLabel = ["Todos", "Pago", "Não Pago"];
 
-  const dateOrderOptions = [
-    'Vencimento',
-    'Pagamento',
-  ]
+  const dateOrderOptions = ["Vencimento", "Pagamento"];
 
   const filterLabels = [
-    'Este mês',
-    'Próximo mês',
-    'Esta semana',
-    'Próxima semana',
-    'Em duas semanas',
-    'Em três semanas',
-    'Em quatro semanas',
-    'Semana passada',
-    'Duas semanas atrás',
-    'Três semanas atrás',
-    'Quatro semanas atrás',
-    'Mês passado',
-    'Todos'
-  ]
+    "Este mês",
+    "Próximo mês",
+    "Esta semana",
+    "Próxima semana",
+    "Em duas semanas",
+    "Em três semanas",
+    "Em quatro semanas",
+    "Semana passada",
+    "Duas semanas atrás",
+    "Três semanas atrás",
+    "Quatro semanas atrás",
+    "Mês passado",
+    "Todos",
+  ];
 
   const categoriesList = [
-    'Todos',
-    'Outros',
-    'Bares e Restaurantes',
-    'Beleza',
-    'Cartão',
-    'Emergência',
-    'Estudos',
-    'Ganhos',
-    'Investimentos',
-    'Mercado',
-    'Moradia',
-    'Saúde',
-    'Streaming',
-    'TV/Internet/Telefone',
-    'Transporte',
-    'Vestuário',
-  ]
+    "Todos",
+    "Outros",
+    "Bares e Restaurantes",
+    "Beleza",
+    "Cartão",
+    "Emergência",
+    "Estudos",
+    "Ganhos",
+    "Investimentos",
+    "Mercado",
+    "Moradia",
+    "Saúde",
+    "Streaming",
+    "TV/Internet/Telefone",
+    "Transporte",
+    "Vestuário",
+  ];
 
   const [selectedTransaction, setSelectedTransaction] = useState();
 
-  const [selectedtypeofpayment, setselectedtypeofpayment] = useState('0');
-  const [selectedPeriod, setSelectedPeriod] = useState('Este mês');
-  const [selectedPaymentCategory, setSelectedPaymentCategory] = useState('Todos');
+  const [selectedtypeofpayment, setselectedtypeofpayment] = useState("0");
+  const [selectedPeriod, setSelectedPeriod] = useState("Este mês");
+  const [selectedPaymentCategory, setSelectedPaymentCategory] =
+    useState("Todos");
 
   const filteredList = useMemo(() => {
     if (transactionsList) {
-      const filteredType = transactionsList.filter(item => {
-        if (selectedtypeofpayment === '0') {
+      const filteredType = transactionsList.filter((item) => {
+        if (selectedtypeofpayment === "0") {
           return true;
         }
-        if (selectedtypeofpayment === '1' && !item.isEnabled) {
+        if (selectedtypeofpayment === "1" && !item.isEnabled) {
           return true;
         }
-        if (selectedtypeofpayment === '2' && item.isEnabled) {
+        if (selectedtypeofpayment === "2" && item.isEnabled) {
           return true;
         }
         return false;
-      })
+      });
 
-      const filteredWords = search === '' ? filteredType : filteredType.filter(item => item.description.includes(search))
+      const filteredWords =
+        search === ""
+          ? filteredType
+          : filteredType.filter((item) => item.description.includes(search));
 
-      const filteredByPeriod = filteredWords.filter(item => {
-        const itemDate = dayjs(item.date)
-        const currentStartDate = dayjs(`${startDate.split('/')[2]}-${startDate.split('/')[1]}-${startDate.split('/')[0]}`)
-        const currentEndDate = dayjs(`${endDate.split('/')[2]}-${endDate.split('/')[1]}-${endDate.split('/')[0]}`)
-        return itemDate.isSameOrAfter(currentStartDate) && itemDate.isSameOrBefore(currentEndDate)
-      })
+      const filteredByPeriod = filteredWords.filter((item) => {
+        const itemDate = dayjs(item.date);
+        const currentStartDate = dayjs(
+          `${startDate.split("/")[2]}-${startDate.split("/")[1]}-${
+            startDate.split("/")[0]
+          }`
+        );
+        const currentEndDate = dayjs(
+          `${endDate.split("/")[2]}-${endDate.split("/")[1]}-${
+            endDate.split("/")[0]
+          }`
+        );
+        return (
+          itemDate.isSameOrAfter(currentStartDate) &&
+          itemDate.isSameOrBefore(currentEndDate)
+        );
+      });
 
-      const filteredByPaymentCategory = filteredByPeriod.filter(item => {
+      const filteredByPaymentCategory = filteredByPeriod.filter((item) => {
         if (selectedPaymentCategory === "Todos") {
-          return true
+          return true;
         } else {
           return item.category === selectedPaymentCategory;
         }
-      })
+      });
 
-      const filteredByPaymentStatus = filteredByPaymentCategory.filter(item => {
-        if (selectedPaymentStatus === "Todos") {
-          return true
+      const filteredByPaymentStatus = filteredByPaymentCategory.filter(
+        (item) => {
+          if (selectedPaymentStatus === "Todos") {
+            return true;
+          }
+          if (selectedPaymentStatus === "Pago") {
+            return item.paymentStatus;
+          }
+          if (selectedPaymentStatus === "Não Pago") {
+            return !item.paymentStatus;
+          }
         }
-        if (selectedPaymentStatus === "Pago") {
-          return item.paymentStatus
-        }
-        if (selectedPaymentStatus === "Não Pago") {
-          return !item.paymentStatus
-        }
-      })
+      );
 
-      const filteredByFavoritedStatus = filteredByPaymentStatus.filter(item => {
-        if (selectedFavoritedFilter === "Todos") {
-          return true
+      const filteredByFavoritedStatus = filteredByPaymentStatus.filter(
+        (item) => {
+          if (selectedFavoritedFilter === "Todos") {
+            return true;
+          }
+          if (selectedFavoritedFilter === "Favoritos") {
+            return item.isFavorited;
+          }
+          if (selectedFavoritedFilter === "Não favoritados") {
+            return !item.isFavorited;
+          }
         }
-        if (selectedFavoritedFilter === "Favoritos") {
-          return item.isFavorited
-        }
-        if (selectedFavoritedFilter === "Não favoritados") {
-          return !item.isFavorited
-        }
-      })
+      );
 
       const sortedByDateArray = filteredByFavoritedStatus.sort((a, b) => {
-        if (selectedDateOrderFilter === 'Vencimento') {
+        if (selectedDateOrderFilter === "Vencimento") {
           const dateA = dayjs(a.date);
           const dateB = dayjs(b.date);
 
@@ -152,7 +172,7 @@ export function PaymentsContextProvider(props) {
 
           return 0;
         }
-        if (selectedDateOrderFilter === 'Pagamento') {
+        if (selectedDateOrderFilter === "Pagamento") {
           const dateA = dayjs(a.paymentDate);
           const dateB = dayjs(b.paymentDate);
 
@@ -167,8 +187,7 @@ export function PaymentsContextProvider(props) {
           return 0;
         }
         return 0;
-
-      })
+      });
 
       return sortedByDateArray;
     }
@@ -184,23 +203,23 @@ export function PaymentsContextProvider(props) {
     search,
     startDate,
     endDate,
-  ])
+  ]);
 
   const listTotal = useMemo(() => {
     let TotalList = 0.0;
 
     for (const item of filteredList) {
       if (item.isEnabled) {
-        TotalList = TotalList - item.amount
+        TotalList = TotalList - item.amount;
       } else {
-        TotalList = TotalList + item.amount
+        TotalList = TotalList + item.amount;
       }
     }
-    return TotalList
-  }, [filteredList])
+    return TotalList;
+  }, [filteredList]);
 
   const Saldo = useMemo(() => {
-    let soma = 0.0
+    let soma = 0.0;
     for (const item of transactionsList) {
       if (item.isEnabled) {
         soma = soma - parseFloat(item.amount);
@@ -209,30 +228,30 @@ export function PaymentsContextProvider(props) {
       }
     }
     return soma;
-  }, [transactionsList])
+  }, [transactionsList]);
 
   const Expenses = useMemo(() => {
-    let soma = 0.0
+    let soma = 0.0;
     for (const item of filteredList) {
       if (item.isEnabled) {
         soma = soma + parseFloat(item.amount);
       }
     }
     return soma;
-  }, [filteredList, selectedPeriod])
+  }, [filteredList, selectedPeriod]);
 
   const Incomings = useMemo(() => {
-    let soma = 0.0
+    let soma = 0.0;
     for (const item of filteredList) {
       if (!item.isEnabled) {
         soma = soma + parseFloat(item.amount);
       }
     }
     return soma;
-  }, [filteredList, selectedPeriod])
+  }, [filteredList, selectedPeriod]);
 
   const Total = useMemo(() => {
-    let soma = 0.0
+    let soma = 0.0;
     for (const item of filteredList) {
       if (item.isEnabled) {
         soma = soma - parseFloat(item.amount);
@@ -241,54 +260,89 @@ export function PaymentsContextProvider(props) {
       }
     }
     return soma;
-  }, [filteredList])
+  }, [filteredList]);
 
   const Tithe = useMemo(() => {
-    let soma = 0.0
+    let soma = 0.0;
     for (const item of filteredList) {
       if (!item.isEnabled) {
-        soma = soma + item.amount
+        soma = soma + item.amount;
       }
       if (item.isEnabled && willUsePrefixToRemoveTihteSum) {
         if (prefixTithe != "" && item.description.includes(prefixTithe)) {
-          soma = soma - item.amount
+          soma = soma - item.amount;
         }
       }
     }
 
     if (soma < 0) {
-      soma = 0.0
+      soma = 0.0;
     }
 
     return (soma * 10) / 100;
-  }, [selectedPeriod, prefixTithe, willUsePrefixToRemoveTihteSum, filteredList])
+  }, [
+    selectedPeriod,
+    prefixTithe,
+    willUsePrefixToRemoveTihteSum,
+    filteredList,
+  ]);
 
   async function handleFavorite(currentTransaction) {
-    const index = transactionsList.findIndex(item => item.id === currentTransaction.id)
-    if (index !== -1) {
-      const newTransactionList = transactionsList;
-      newTransactionList[index].isFavorited = !currentTransaction.isFavorited;
+    try {
+      const itemToUpdate = await database
+        .get("finances")
+        .find(currentTransaction.id);
 
-      await AsyncStorage.setItem('transactions', JSON.stringify(newTransactionList));
-
-      loadTransactions()
-
-      ToastAndroid.show((!currentTransaction.isFavorited ? 'Removido' : 'Adicionado') + ' aos favoritos', ToastAndroid.SHORT);
+      await database.write(async () => {
+        await itemToUpdate.update((data) => {
+          data._raw.description = currentTransaction.description;
+          data._raw.amount = currentTransaction.amount;
+          data._raw.category = currentTransaction.category;
+          data._raw.date = currentTransaction.date;
+          data._raw.paymentDate = currentTransaction.paymentDate;
+          data._raw.paymentStatus = currentTransaction.paymentStatus ? 1 : 0;
+          data._raw.isEnabled = currentTransaction.isEnabled ? 1 : 0;
+          data._raw.isFavorited = !currentTransaction.isFavorited ? 1 : 0;
+        });
+      });
+    } catch (error) {
+      console.log("ERROR", error);
     }
+
+    loadTransactions();
+
+    ToastAndroid.show(
+      (!currentTransaction.isFavorited ? "Removido" : "Adicionado") +
+        " aos favoritos",
+      ToastAndroid.SHORT
+    );
   }
 
   async function updateTransaction(currentTransaction) {
-    const index = transactionsList.findIndex(item => item.id === currentTransaction.id)
-    if (index !== -1) {
-      const newTransactionList = transactionsList;
-      newTransactionList[index] = currentTransaction;
+    try {
+      const itemToUpdate = await database
+        .get("finances")
+        .find(currentTransaction.id);
 
-      await AsyncStorage.setItem('transactions', JSON.stringify(newTransactionList));
-
-      loadTransactions()
-
-      ToastAndroid.show('Transação Atualizada', ToastAndroid.SHORT);
+      await database.write(async () => {
+        await itemToUpdate.update((data) => {
+          data._raw.description = currentTransaction.description;
+          data._raw.amount = currentTransaction.amount;
+          data._raw.category = currentTransaction.category;
+          data._raw.date = currentTransaction.date;
+          data._raw.paymentDate = currentTransaction.paymentDate;
+          data._raw.paymentStatus = currentTransaction.paymentStatus ? 1 : 0;
+          data._raw.isEnabled = currentTransaction.isEnabled ? 1 : 0;
+          data._raw.isFavorited = currentTransaction.isFavorited ? 1 : 0;
+        });
+      });
+    } catch (error) {
+      console.log("ERROR", error);
     }
+
+    loadTransactions();
+
+    ToastAndroid.show("Transação Atualizada", ToastAndroid.SHORT);
   }
 
   async function deleteTransaction(currentTransaction) {
@@ -297,71 +351,81 @@ export function PaymentsContextProvider(props) {
       "Esta ação é irreversível! Deseja continuar?",
       [
         {
-          text: 'Não',
-          style: 'cancel',
-          onPress: () => console.log('Não pressed'),
+          text: "Não",
+          style: "cancel",
+          onPress: () => console.log("Não pressed"),
         },
         {
-          text: 'Sim',
+          text: "Sim",
           onPress: async () => {
+            try {
+              const itemToDelete = await database
+                .get("finances")
+                .find(currentTransaction.id);
 
-            const newTransactionList = transactionsList.filter(item => item.id !== currentTransaction.id);
+              await database.write(async () => {
+                await itemToDelete.destroyPermanently();
+              });
+            } catch (error) {
+              console.log("deleteTransaction error", error);
+            }
 
-            await AsyncStorage.setItem('transactions', JSON.stringify(newTransactionList));
+            loadTransactions();
 
-            loadTransactions()
-
-            ToastAndroid.show('Transação Removida', ToastAndroid.SHORT);
+            ToastAndroid.show("Transação Removida", ToastAndroid.SHORT);
           },
         },
-      ])
+      ]
+    );
   }
+
   async function importTransactions(importedList) {
-    const newTransactionList = [
-      ...transactionsList,
-      ...importedList
-    ]
+    const newTransactionList = [...transactionsList, ...importedList];
 
-    await AsyncStorage.setItem('transactions', JSON.stringify(newTransactionList));
+    await AsyncStorage.setItem(
+      "transactions",
+      JSON.stringify(newTransactionList)
+    );
 
-    loadTransactions()
+    loadTransactions();
 
-    ToastAndroid.show('Importação feita com sucesso', ToastAndroid.SHORT);
+    ToastAndroid.show("Importação feita com sucesso", ToastAndroid.SHORT);
   }
 
   async function addTrasaction(newTransaction) {
+    try {
+      await database.write(async () => {
+        await database.get("finances").create((data) => {
+          data._raw.description = newTransaction.description;
+          data._raw.amount = newTransaction.amount;
+          data._raw.category = newTransaction.category;
+          data._raw.date = newTransaction.date;
+          data._raw.paymentDate = newTransaction.paymentDate;
+          data._raw.paymentStatus = newTransaction.paymentStatus ? 1 : 0;
+          data._raw.isEnabled = newTransaction.isEnabled ? 1 : 0;
+          data._raw.isFavorited = newTransaction.isFavorited ? 1 : 0;
+        });
+      });
+    } catch (error) {
+      console.log("addTrasaction error", error);
+    }
 
-    const newTransactionList = [
-      ...transactionsList,
-      {
-        id: v4(),
-        ...newTransaction
-      }
-    ]
+    loadTransactions();
 
-    await AsyncStorage.setItem('transactions', JSON.stringify(newTransactionList));
-
-    loadTransactions()
-
-    ToastAndroid.show('Transação Adicionada', ToastAndroid.SHORT);
+    ToastAndroid.show("Transação Adicionada", ToastAndroid.SHORT);
   }
 
   const loadTransactions = useCallback(async () => {
-    // await AsyncStorage.clear();
     try {
-      const value = await AsyncStorage.getItem('transactions');
-      if (value !== null) {
-        const valueArray = JSON.parse(value)
-        setTransactionsList(valueArray)
-      } else {
-        await AsyncStorage.setItem('transactions', JSON.stringify([]));
-      }
-    } catch (e) {
-      console.log(e)
+      const financesCollection = database.get("finances");
+      const response = await financesCollection.query().fetch();
+      const currentList = response.map((item) => item._raw);
+      setTransactionsList(currentList);
+    } catch (error) {
+      setTransactionsList([]);
     }
 
     return;
-
   }, [setTransactionsList]);
 
   useEffect(() => {
@@ -381,25 +445,35 @@ export function PaymentsContextProvider(props) {
         addTrasaction,
         updateTransaction,
         deleteTransaction,
-        selectedTransaction, setSelectedTransaction,
+        selectedTransaction,
+        setSelectedTransaction,
         filteredList,
         listTotal,
-        selectedtypeofpayment, setselectedtypeofpayment,
-        selectedPeriod, setSelectedPeriod,
+        selectedtypeofpayment,
+        setselectedtypeofpayment,
+        selectedPeriod,
+        setSelectedPeriod,
         filterLabels,
         importTransactions,
         pamentStatusLabel,
-        selectedPaymentStatus, setSelectedPaymentStatus,
-        selectedDateOrderFilter, setSelectedDateOrderFilter,
+        selectedPaymentStatus,
+        setSelectedPaymentStatus,
+        selectedDateOrderFilter,
+        setSelectedDateOrderFilter,
         dateOrderOptions,
         handleFavorite,
-        selectedFavoritedFilter, setSelectedFavoritedFilter,
+        selectedFavoritedFilter,
+        setSelectedFavoritedFilter,
         favoritedFilterLabel,
         categoriesList,
-        selectedPaymentCategory, setSelectedPaymentCategory,
-        search, setSearch,
-        startDate, setStartDate,
-        endDate, setEndDate,
+        selectedPaymentCategory,
+        setSelectedPaymentCategory,
+        search,
+        setSearch,
+        startDate,
+        setStartDate,
+        endDate,
+        setEndDate,
       }}
     >
       {props.children}
