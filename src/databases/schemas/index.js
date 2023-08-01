@@ -1,10 +1,9 @@
-import { appSchema } from '@nozbe/watermelondb';
+import { appSchema } from "@nozbe/watermelondb";
 
-import { financesSchema } from './financesSchema';
+import { financesSchema } from "./financesSchema";
+import { runsSchema } from "./runsSchema";
 
 export const schemas = appSchema({
-  version: 3,
-  tables: [
-    financesSchema,
-  ]
-})
+  version: 4,
+  tables: [financesSchema, runsSchema],
+});

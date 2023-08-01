@@ -213,7 +213,14 @@ export default function AboutUs() {
         {
           text: "Sim",
           onPress: async () => {
-            await AsyncStorage.setItem("runs", JSON.stringify([]));
+            await database.write(async () => {
+              const runsCollection = database.collections.get("runs");
+              const allRuns = await runsCollection.query().fetch();
+              for (const item of allRuns) {
+                await item.destroyPermanently();
+              }
+            });
+
             setFuelList([]);
 
             ToastAndroid.show(

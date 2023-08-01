@@ -1,5 +1,5 @@
 import React from "react";
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
@@ -22,8 +22,14 @@ export default function BottomTabRoutes() {
 
   const isKeyboardOpen = useIsKeyboardOpen();
 
-  const bg = useColorModeValue(theme.colors.warmGray[50], theme.colors.gray[900]);
-  const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
+  const bg = useColorModeValue(
+    theme.colors.warmGray[50],
+    theme.colors.gray[900]
+  );
+  const text = useColorModeValue(
+    theme.colors.gray[600],
+    theme.colors.gray[200]
+  );
 
   return (
     <Tab.Navigator
@@ -35,49 +41,89 @@ export default function BottomTabRoutes() {
         tabBarStyle: {
           backgroundColor: bg,
           height: isShowLabelOnNavigation ? 60 : 50,
-          position: 'relative'
-        }
+          position: "relative",
+        },
       }}
     >
       <Tab.Screen
         name="Finanças"
         component={Finances}
         options={{
-          tabBarLabel: ({ focused }) => <Text color={focused ? theme.colors.purple[600] : text}>Finanças</Text>,
-          tabBarIcon: ({ focused }) => <Feather name="dollar-sign" size={24} color={focused ? theme.colors.purple[600] : text} />,
+          tabBarLabel: ({ focused }) => (
+            <Text color={focused ? theme.colors.purple[600] : text}>
+              Finanças
+            </Text>
+          ),
+          tabBarIcon: ({ focused }) => (
+            <Feather
+              name="dollar-sign"
+              size={24}
+              color={focused ? theme.colors.purple[600] : text}
+            />
+          ),
         }}
       />
       <Tab.Screen
         name="Combustível"
         component={Runs}
         options={{
-          tabBarLabel: ({ focused }) => <Text color={focused ? theme.colors.purple[600] : text}>Combustível</Text>,
-          tabBarIcon: ({ focused }) => <Feather name="droplet" size={24} color={focused ? theme.colors.purple[600] : text} />,
+          tabBarLabel: ({ focused }) => (
+            <Text color={focused ? theme.colors.purple[600] : text}>
+              Combustível
+            </Text>
+          ),
+          tabBarIcon: ({ focused }) => (
+            <MaterialCommunityIcons
+              name={"fuel"}
+              size={26}
+              color={focused ? theme.colors.purple[600] : text}
+            />
+          ),
         }}
       />
       <Tab.Screen
         name="Adicionar"
         component={ActionSheet}
         options={{
-          tabBarButton: () => <AddButton />
+          tabBarButton: () => <AddButton />,
         }}
       />
       <Tab.Screen
         name="Mercado"
         component={Market}
         options={{
-          tabBarLabel: ({ focused }) => <Text color={focused ? theme.colors.purple[600] : text}>Mercado</Text>,
-          tabBarIcon: ({ focused }) => <Feather name="shopping-cart" size={24} color={focused ? theme.colors.purple[600] : text} />,
+          tabBarLabel: ({ focused }) => (
+            <Text color={focused ? theme.colors.purple[600] : text}>
+              Mercado
+            </Text>
+          ),
+          tabBarIcon: ({ focused }) => (
+            <Feather
+              name="shopping-cart"
+              size={24}
+              color={focused ? theme.colors.purple[600] : text}
+            />
+          ),
         }}
       />
       <Tab.Screen
         name="Relatórios"
         component={Reports}
         options={{
-          tabBarLabel: ({ focused }) => <Text color={focused ? theme.colors.purple[600] : text}>Relatórios</Text>,
-          tabBarIcon: ({ focused }) => <Feather name="pie-chart" size={24} color={focused ? theme.colors.purple[600] : text} />,
+          tabBarLabel: ({ focused }) => (
+            <Text color={focused ? theme.colors.purple[600] : text}>
+              Relatórios
+            </Text>
+          ),
+          tabBarIcon: ({ focused }) => (
+            <Feather
+              name="pie-chart"
+              size={24}
+              color={focused ? theme.colors.purple[600] : text}
+            />
+          ),
         }}
       />
     </Tab.Navigator>
-  )
+  );
 }

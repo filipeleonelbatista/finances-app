@@ -1,34 +1,35 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { Alert, ToastAndroid } from "react-native";
-import { v4 } from 'uuid';
-import { usePayments } from '../hooks/usePayments';
-import { useSettings } from '../hooks/useSettings';
+import { v4 } from "uuid";
+import { database } from "../databases";
+import { usePayments } from "../hooks/usePayments";
+import { useSettings } from "../hooks/useSettings";
 
 export const RunsContext = createContext({});
 
 export function RunsContextProvider(props) {
-  const { addTrasaction: addPaymentTransaction, deleteTransaction: deletePayentTransaction } = usePayments();
-  const { willAddFuelToTransactionList } = useSettings()
+  const {
+    addTrasaction: addPaymentTransaction,
+    deleteTransaction: deletePayentTransaction,
+  } = usePayments();
+  const { willAddFuelToTransactionList } = useSettings();
   const [FuelList, setFuelList] = useState([]);
   const [autonomy, setAutonomy] = useState(0);
 
   const setAutonomyValue = async (value) => {
-    setAutonomy(value)
-    await AsyncStorage.setItem('autonomy', JSON.stringify(value))
-  }
+    setAutonomy(value);
+    await AsyncStorage.setItem("autonomy", JSON.stringify(value));
+  };
 
   async function importRuns(importedList) {
-    const newTransactionList = [
-      ...FuelList,
-      ...importedList
-    ]
+    const newTransactionList = [...FuelList, ...importedList];
 
-    await AsyncStorage.setItem('runs', JSON.stringify(newTransactionList));
+    await AsyncStorage.setItem("runs", JSON.stringify(newTransactionList));
 
-    loadTransactions()
+    loadTransactions();
 
-    ToastAndroid.show('Importação feita com sucesso', ToastAndroid.SHORT);
+    ToastAndroid.show("Importação feita com sucesso", ToastAndroid.SHORT);
   }
 
   async function deleteTransaction(currentTransaction) {
@@ -37,81 +38,94 @@ export function RunsContextProvider(props) {
       "Esta ação é irreversível! Deseja continuar?",
       [
         {
-          text: 'Não',
-          style: 'cancel',
-          onPress: () => console.log('Não pressed'),
+          text: "Não",
+          style: "cancel",
+          onPress: () => console.log("Não pressed"),
         },
         {
-          text: 'Sim',
+          text: "Sim",
           onPress: async () => {
+            try {
+              const itemToDelete = await database
+                .get("runs")
+                .find(currentTransaction.id);
 
-            const newTransactionList = FuelList.filter(item => item.id !== currentTransaction.id);
+              await database.write(async () => {
+                await itemToDelete.destroyPermanently();
+              });
+            } catch (error) {
+              console.log("deleteTransaction error", error);
+            }
 
-            await AsyncStorage.setItem('runs', JSON.stringify(newTransactionList));
+            loadTransactions();
 
-            loadTransactions()
-
-            ToastAndroid.show('Abastecimento Removido', ToastAndroid.SHORT);
+            ToastAndroid.show("Abastecimento Removido", ToastAndroid.SHORT);
           },
         },
-      ])
+      ]
+    );
   }
 
   async function addTrasaction(newTransaction) {
-    const newTransactionList = [
-      ...FuelList,
-      {
-        id: v4(),
-        ...newTransaction
-      }
-    ]
+    try {
+      await database.write(async () => {
+        await database.get("runs").create((data) => {
+          data._raw.currentDistance = newTransaction.currentDistance;
+          data._raw.unityAmount = newTransaction.unityAmount;
+          data._raw.amount = newTransaction.amount;
+          data._raw.type = newTransaction.type;
+          data._raw.date = newTransaction.date;
+          data._raw.location = newTransaction.location;
+        });
+      });
+    } catch (error) {
+      console.log("addTrasaction error", error);
+    }
 
     if (willAddFuelToTransactionList) {
       const newPaymentTransaction = {
         description: `Abastecimento - ${newTransaction.location}`,
         amount: newTransaction.amount,
         date: newTransaction.date,
-        category: 'Transporte',
+        category: "Transporte",
         paymentDate: newTransaction.date,
         paymentStatus: true,
-        isEnabled: true
-      }
+        isEnabled: true,
+        isFavorited: false,
+      };
 
-      await addPaymentTransaction(newPaymentTransaction)
+      await addPaymentTransaction(newPaymentTransaction);
     }
 
-    await AsyncStorage.setItem('runs', JSON.stringify(newTransactionList));
+    loadTransactions();
 
-    loadTransactions()
-
-    ToastAndroid.show('Abastecimento Adicionado', ToastAndroid.SHORT);
-
+    ToastAndroid.show("Abastecimento Adicionado", ToastAndroid.SHORT);
   }
 
   const loadTransactions = useCallback(async () => {
     try {
-      const autonomyValue = await AsyncStorage.getItem('autonomy');
+      const fuelListCollection = database.get("runs");
+      const response = await fuelListCollection.query().fetch();
+      const currentList = response.map((item) => item._raw);
+      setFuelList(currentList);
+    } catch (error) {
+      setFuelList([]);
+    }
+
+    // TODO: autonomy vai vir da tabela application depois junto de veicle information
+    try {
+      const autonomyValue = await AsyncStorage.getItem("autonomy");
       if (autonomyValue !== null) {
-        const autonomyValueParsed = JSON.parse(autonomyValue ?? '0')
-        setAutonomy(autonomyValueParsed)
+        const autonomyValueParsed = JSON.parse(autonomyValue ?? "0");
+        setAutonomy(autonomyValueParsed);
       } else {
-        await AsyncStorage.setItem('autonomy', JSON.stringify(0));
+        await AsyncStorage.setItem("autonomy", JSON.stringify(0));
       }
-
-      const value = await AsyncStorage.getItem('runs');
-      if (value !== null) {
-        const valueArray = JSON.parse(value)
-        setFuelList(valueArray)
-      } else {
-        await AsyncStorage.setItem('runs', JSON.stringify([]));
-      }
-
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
 
     return;
-
   }, [setFuelList]);
 
   useEffect(() => {
@@ -127,7 +141,7 @@ export function RunsContextProvider(props) {
         setAutonomyValue,
         addTrasaction,
         deleteTransaction,
-        importRuns
+        importRuns,
       }}
     >
       {props.children}
