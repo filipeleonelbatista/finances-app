@@ -1,16 +1,13 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import {
-  StatusBar as RNStatusBar,
-  View
-} from "react-native";
+import { StatusBar as RNStatusBar, View } from "react-native";
 import "react-native-url-polyfill/auto";
 import Routes from "./src/routes";
 
 import {
   Poppins_400Regular,
   Poppins_600SemiBold,
-  useFonts
+  useFonts,
 } from "@expo-google-fonts/poppins";
 
 import { NativeBaseProvider } from "native-base";

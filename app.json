@@ -12,7 +12,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "cover",
-      "backgroundColor": "#442c61"
+      "backgroundColor": "#581C87"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
@@ -34,7 +34,7 @@
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#9c44dc"
+        "backgroundColor": "#581C87"
       },
       "package": "com.finances",
       "versionCode": 204

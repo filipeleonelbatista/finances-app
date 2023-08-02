@@ -337,7 +337,7 @@ export function PaymentsContextProvider(props) {
         });
       });
     } catch (error) {
-      console.log("ERROR", error);
+      console.log("updateTransaction error", error);
     }
 
     loadTransactions();
