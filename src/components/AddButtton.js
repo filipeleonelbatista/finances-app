@@ -33,6 +33,8 @@ export default function AddButton() {
         return <AddFuelForm onClose={onClose} />;
       case "Stock":
         return <AddShoppingCartItem onClose={onClose} />;
+      case "Lists":
+        return <AddShoppingCartItem onClose={onClose} />;
       case "List":
         return <AddShoppingCartItem onClose={onClose} />;
       case "Relatórios":

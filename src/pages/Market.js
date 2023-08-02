@@ -105,7 +105,7 @@ export default function Market() {
         zIndex={100}
         alignItems={"center"}
         justifyContent={"center"}
-        onPress={() => navigation.navigate("List")}
+        onPress={() => navigation.navigate("Lists")}
         borderRadius={"full"}
         shadow={4}
         _pressed={{

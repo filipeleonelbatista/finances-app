@@ -36,7 +36,7 @@ import { useSettings } from "../hooks/useSettings";
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
-export default function Lists() {
+export default function List() {
   const theme = useTheme();
 
   const bg = useColorModeValue(
@@ -59,7 +59,7 @@ export default function Lists() {
 
   useEffect(() => {
     if (isFocused) {
-      setSelectedSheet("Lists");
+      setSelectedSheet("List");
     }
   }, [isFocused]);
 
