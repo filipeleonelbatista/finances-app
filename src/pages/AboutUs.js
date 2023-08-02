@@ -262,10 +262,19 @@ export default function AboutUs() {
   };
 
   async function handleGenerateCSV() {
+    const currentDate = new Date();
     try {
       const CSV = jsonToCSV(transactionsList);
       const directoryUri = await AsyncStorage.getItem("@selectedFolderToSave");
-      const fileName = `financas-${Date.now()}.csv`;
+      const fileName = `financas-${
+        currentDate.getDate() < 10
+          ? "0" + currentDate.getDate()
+          : currentDate.getDate()
+      }-${
+        currentDate.getMonth() + 1 < 10
+          ? "0" + (currentDate.getMonth() + 1)
+          : currentDate.getMonth() + 1
+      }-${currentDate.getFullYear()}_${currentDate.getHours()}-${currentDate.getMinutes()}.csv`;
       const result = await checkPermissions();
       if (result) {
         const createdFile =
@@ -280,7 +289,6 @@ export default function AboutUs() {
             CSV,
             { encoding: "utf8" }
           );
-        console.log("writedFile", writedFile);
 
         ToastAndroid.show(
           "Finanças exportadas com sucesso para a pasta selecionada",
@@ -314,7 +322,6 @@ export default function AboutUs() {
       }
       newArray.push(newRowObject);
     }
-    newArray.pop();
 
     return newArray;
   }
@@ -327,7 +334,6 @@ export default function AboutUs() {
           copyToCacheDirectory: false,
           type: "text/*",
         });
-
         if (result.type === "success") {
           let fileContent = await FileSystem.readAsStringAsync(result.uri, {
             encoding: "utf8",

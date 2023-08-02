@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { Alert, ToastAndroid } from "react-native";
 import { database } from "../databases";
@@ -29,9 +28,7 @@ export function GoalsContextProvider(props) {
 
   async function updateTransaction(currentGoal) {
     try {
-      const itemToUpdate = await database
-        .get("goals")
-        .find(currentGoal.id);
+      const itemToUpdate = await database.get("goals").find(currentGoal.id);
 
       await database.write(async () => {
         await itemToUpdate.update((data) => {

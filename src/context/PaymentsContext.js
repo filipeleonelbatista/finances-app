@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
   createContext,
   useCallback,
@@ -380,12 +379,24 @@ export function PaymentsContextProvider(props) {
   }
 
   async function importTransactions(importedList) {
-    const newTransactionList = [...transactionsList, ...importedList];
-
-    await AsyncStorage.setItem(
-      "transactions",
-      JSON.stringify(newTransactionList)
-    );
+    for (const importedItem of importedList) {
+      try {
+        await database.write(async () => {
+          await database.get("finances").create((data) => {
+            data._raw.description = importedItem.description;
+            data._raw.amount = importedItem.amount;
+            data._raw.category = importedItem.category;
+            data._raw.date = importedItem.date;
+            data._raw.paymentDate = importedItem.paymentDate;
+            data._raw.paymentStatus = importedItem.paymentStatus ? 1 : 0;
+            data._raw.isEnabled = importedItem.isEnabled ? 1 : 0;
+            data._raw.isFavorited = importedItem.isFavorited ? 1 : 0;
+          });
+        });
+      } catch (error) {
+        console.log("importTransactions error", error);
+      }
+    }
 
     loadTransactions();
 

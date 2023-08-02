@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { Alert, ToastAndroid } from "react-native";
-import { v4 } from "uuid";
 import { database } from "../databases";
 import { usePayments } from "../hooks/usePayments";
 import { useSettings } from "../hooks/useSettings";

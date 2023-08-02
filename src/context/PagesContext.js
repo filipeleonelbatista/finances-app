@@ -8,7 +8,8 @@ export function PagesContextProvider(props) {
   return (
     <PagesContext.Provider
       value={{
-        selectedSheet, setSelectedSheet
+        selectedSheet,
+        setSelectedSheet,
       }}
     >
       {props.children}
