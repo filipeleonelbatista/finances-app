@@ -279,7 +279,7 @@ export default function Reports() {
       <ScrollView flex={1} w={"100%"} h={"100%"}>
         <Header
           title="Relatório"
-          iconComponent={
+          isRightIconComponent={
             <IconButton
               size={10}
               borderRadius="full"

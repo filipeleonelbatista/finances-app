@@ -13,6 +13,7 @@ import ActionSheet from "./pages/ActionSheet";
 import AddButton from "./components/AddButtton";
 import { useSettings } from "./hooks/useSettings";
 import { useIsKeyboardOpen } from "./hooks/useIsKeyboardOpen";
+import MarketStackRoutes from "./market-stack-routes";
 
 const Tab = createBottomTabNavigator();
 
@@ -90,7 +91,7 @@ export default function BottomTabRoutes() {
       />
       <Tab.Screen
         name="Mercado"
-        component={Market}
+        component={MarketStackRoutes}
         options={{
           tabBarLabel: ({ focused }) => (
             <Text color={focused ? theme.colors.purple[600] : text}>

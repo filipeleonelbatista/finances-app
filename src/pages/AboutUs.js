@@ -7,13 +7,9 @@ import {
   HStack,
   IconButton,
   Image,
-  Input,
-  Text,
-  VStack,
-  useColorMode,
+  Input, Link, Text, useColorMode,
   useColorModeValue,
-  useTheme,
-  Link,
+  useTheme, VStack
 } from "native-base";
 import React from "react";
 import {
@@ -21,7 +17,7 @@ import {
   BackHandler,
   Linking,
   Switch,
-  ToastAndroid,
+  ToastAndroid
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -34,20 +30,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   useFocusEffect,
   useIsFocused,
-  useNavigation,
+  useNavigation
 } from "@react-navigation/native";
+import { useEffect, useState } from "react";
 import { jsonToCSV, readString } from "react-native-csv";
 import { v4 } from "uuid";
 import userImg from "../assets/icon.png";
 import Header from "../components/Header";
+import { database } from "../databases";
 import { useMarket } from "../hooks/useMarket";
+import { useOpenAi } from "../hooks/useOpenAi";
 import { usePayments } from "../hooks/usePayments";
 import { useRuns } from "../hooks/useRuns";
 import { useSettings } from "../hooks/useSettings";
-import { useOpenAi } from "../hooks/useOpenAi";
-import { useState } from "react";
-import { useEffect } from "react";
-import { database } from "../databases";
 
 export default function AboutUs() {
   const theme = useTheme();
@@ -396,9 +391,8 @@ export default function AboutUs() {
     <VStack flex={1} bg={bg}>
       <ScrollView flex={1} w={"100%"} h={"100%"}>
         <Header
-          isLeft
           title="Configuraçõe"
-          iconComponent={
+          isLeftIconComponent={
             <IconButton
               size={10}
               borderRadius="full"

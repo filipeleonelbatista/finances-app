@@ -152,7 +152,7 @@ export default function Runs() {
       <ScrollView flex={1} w={"100%"} h={"100%"}>
         <Header
           title="Corrida"
-          iconComponent={
+          isRightIconComponent={
             <IconButton
               size={10}
               borderRadius="full"

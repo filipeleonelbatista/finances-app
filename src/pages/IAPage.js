@@ -293,7 +293,7 @@ export default function IAPage() {
                     isShort
                     isLeft
                     title="Conversa"
-                    iconComponent={
+                    isLeftIconComponent={
                         <IconButton
                             size={10}
                             borderRadius='full'

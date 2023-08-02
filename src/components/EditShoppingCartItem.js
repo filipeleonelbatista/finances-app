@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { useFormik } from 'formik';
-import { Button, Input, ScrollView, IconButton, Text, VStack, HStack, useColorModeValue, useTheme } from 'native-base';
+import { Button, HStack, IconButton, Input, ScrollView, Text, useColorModeValue, useTheme, VStack } from 'native-base';
 import * as Yup from 'yup';
 import { useMarket } from '../hooks/useMarket';
 import { useSettings } from '../hooks/useSettings';

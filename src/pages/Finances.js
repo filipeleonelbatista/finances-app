@@ -170,7 +170,7 @@ export default function Finances() {
       <ScrollView flex={1} w={"100%"} h={"100%"}>
         <Header
           title="Finança"
-          iconComponent={
+          isRightIconComponent={
             <IconButton
               size={10}
               borderRadius="full"
