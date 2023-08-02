@@ -8,6 +8,8 @@ buildscript {
         targetSdkVersion = Integer.parseInt(findProperty('android.targetSdkVersion') ?: '33')
         kotlinVersion = findProperty('android.kotlinVersion') ?: '1.6.0'
         frescoVersion = findProperty('expo.frescoVersion') ?: '2.5.0'
+        versionText = findProperty('expo.version') ?: '2.0.6'
+        versionCode = Integer.parseInt(findProperty('android.versionCode') ?: '206')
 
         // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
         ndkVersion = "23.1.7779620"

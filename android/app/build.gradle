@@ -118,8 +118,8 @@ android {
         applicationId 'com.finances'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 204
-        versionName "2.0.2"
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionText
     }
 
     splits {

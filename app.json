@@ -5,7 +5,7 @@
     },
     "name": "Financas",
     "slug": "finances",
-    "version": "2.0.2",
+    "version": "2.0.6",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -18,7 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.finances",
-      "buildNumber": "2.0.4",
+      "buildNumber": "2.0.6",
       "usesIcloudStorage": true,
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Permitir que $(PRODUCT_NAME) acesse suas fotos.",
@@ -37,7 +37,7 @@
         "backgroundColor": "#581C87"
       },
       "package": "com.finances",
-      "versionCode": 204
+      "versionCode": 206
     },
     "web": {
       "favicon": "./assets/favicon.png"
