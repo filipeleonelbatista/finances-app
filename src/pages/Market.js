@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 
-import { Feather, FontAwesome } from "@expo/vector-icons";
+import {
+  Feather,
+  FontAwesome,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import {
   Actionsheet,
   Box,
-  Button,
   HStack,
   IconButton,
   Input,
@@ -24,16 +27,16 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { useEffect } from "react";
 import { useWindowDimensions } from "react-native";
+import AIComponent from "../components/AIComponent";
 import EditShoppingCartItem from "../components/EditShoppingCartItem";
 import EmptyMessage from "../components/EmptyMessage";
 import ErrorSheet from "../components/ErrorSheet";
 import EstimativeForm from "../components/EstimativeForm";
 import Header from "../components/Header";
+import { useIsKeyboardOpen } from "../hooks/useIsKeyboardOpen";
 import { useMarket } from "../hooks/useMarket";
 import { usePages } from "../hooks/usePages";
 import { useSettings } from "../hooks/useSettings";
-import { useIsKeyboardOpen } from "../hooks/useIsKeyboardOpen";
-import AIComponent from "../components/AIComponent";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -61,7 +64,7 @@ export default function Market() {
 
   useEffect(() => {
     if (isFocused) {
-      setSelectedSheet("Listas");
+      setSelectedSheet("Stock");
     }
   }, [isFocused]);
 
@@ -73,7 +76,7 @@ export default function Market() {
 
   const { height } = useWindowDimensions();
 
-  const { marketSimplifiedItems } = useSettings();
+  const { marketSimplifiedItems, isAiEnabled } = useSettings();
 
   const {
     filteredList,
@@ -92,8 +95,34 @@ export default function Market() {
 
   return (
     <VStack flex={1} bg={bg}>
+      <IconButton
+        position={"absolute"}
+        bottom={isAiEnabled ? 82 : 8}
+        left={4}
+        bgColor={"purple.600"}
+        w={10}
+        h={10}
+        zIndex={100}
+        alignItems={"center"}
+        justifyContent={"center"}
+        onPress={() => navigation.navigate("List")}
+        borderRadius={"full"}
+        shadow={4}
+        _pressed={{
+          color: theme.colors.purple[900],
+        }}
+        icon={
+          <MaterialCommunityIcons
+            name="format-list-bulleted"
+            size={20}
+            color={theme.colors.white}
+          />
+        }
+      />
+
       <ScrollView flex={1} w={"100%"} h={"100%"}>
         <Header
+          isShort
           title="Compra"
           isRightIconComponent={
             <IconButton
@@ -108,150 +137,7 @@ export default function Market() {
           }
         />
 
-        <ScrollView
-          horizontal
-          w={"100%"}
-          mt={-50}
-          h={150}
-          ItemSeparatorComponent={() => <Box m={2} />}
-          showsHorizontalScrollIndicator={false}
-          _contentContainerStyle={{
-            height: 130,
-            paddingHorizontal: 8,
-          }}
-        >
-          <Pressable
-            onPress={() => {
-              setSelectedSheetOpen("estimativa");
-              onOpen();
-            }}
-          >
-            <VStack
-              mx={1}
-              shadow={2}
-              bg={bgCard}
-              minW={180}
-              h={110}
-              borderRadius={4}
-              p={4}
-            >
-              <HStack justifyContent="space-between">
-                <Text color={text} fontSize={18}>
-                  Estimativa
-                </Text>
-                <Feather
-                  name="arrow-up-circle"
-                  size={48}
-                  color={theme.colors.green[500]}
-                />
-              </HStack>
-              <Text
-                color={text}
-                fontSize={estimative < 10000 ? 26 : 20}
-                numberOfLines={1}
-                maxW={170}
-              >
-                {estimative.toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                  useGrouping: true,
-                })}
-              </Text>
-            </VStack>
-          </Pressable>
-
-          <VStack
-            mx={1}
-            shadow={2}
-            bg={bgCard}
-            minW={180}
-            h={110}
-            borderRadius={4}
-            p={4}
-          >
-            <HStack justifyContent="space-between">
-              <Text color={text} fontSize={18}>
-                Subtotal
-              </Text>
-              <Feather
-                name="arrow-down-circle"
-                size={48}
-                color={theme.colors.red[500]}
-              />
-            </HStack>
-            <Text
-              color={text}
-              fontSize={listTotal < 10000 ? 26 : 20}
-              numberOfLines={1}
-              maxW={170}
-            >
-              {listTotal.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true,
-              })}
-            </Text>
-          </VStack>
-
-          <VStack
-            mx={1}
-            shadow={2}
-            bg={theme.colors.purple[900]}
-            minW={180}
-            h={110}
-            borderRadius={4}
-            p={4}
-          >
-            <HStack justifyContent="space-between">
-              <Text color={"white"} fontSize={18}>
-                Total
-              </Text>
-              <Feather name="dollar-sign" size={48} color={"white"} />
-            </HStack>
-            <Text
-              color={"white"}
-              fontSize={estimative - listTotal < 10000 ? 26 : 20}
-              numberOfLines={1}
-              maxW={170}
-            >
-              {(estimative - listTotal).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                useGrouping: true,
-              })}
-            </Text>
-          </VStack>
-        </ScrollView>
-
-        <VStack px={4} mt={-36} space={4}>
-          <Text fontSize={14} color={text}>
-            * Toque em estimativa para definir um limite de gastos
-          </Text>
-          <Button
-            variant={"outline"}
-            onPress={() => {
-              navigation.navigate("List");
-            }}
-            colorScheme={"purple"}
-            borderRadius={"full"}
-            borderWidth={1}
-            borderColor={"purple.500"}
-            _text={{
-              color: "purple.500",
-              fontSize: 16,
-            }}
-            _pressed={{
-              bgColor: theme.colors.purple[600],
-            }}
-          >
-            Listas de compras
-          </Button>
+        <VStack p={4} space={4}>
           <HStack justifyContent="space-between" alignItems={"center"} mt={-4}>
             <Text bold fontSize={20} color={text}>
               Seu estoque
@@ -471,7 +357,7 @@ export default function Market() {
         )}
       </ScrollView>
 
-      <AIComponent />
+      {isAiEnabled && <AIComponent />}
 
       <Actionsheet
         isOpen={isOpen}

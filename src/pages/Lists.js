@@ -59,7 +59,7 @@ export default function List() {
 
   useEffect(() => {
     if (isFocused) {
-      setSelectedSheet("Mercado");
+      setSelectedSheet("List");
     }
   }, [isFocused]);
 
