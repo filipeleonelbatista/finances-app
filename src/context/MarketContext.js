@@ -4,27 +4,23 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  useState
+  useState,
 } from "react";
 import { Alert, ToastAndroid } from "react-native";
-import { v4 } from "uuid";
+import { database } from "../databases";
+import { useLists } from "../hooks/useLists";
 import { usePayments } from "../hooks/usePayments";
 
 export const MarketContext = createContext({});
 
 export function MarketContextProvider(props) {
   const { addTrasaction: addPaymentTransaction } = usePayments();
+  const { addTrasaction: addListsTransaction, addItemToList } = useLists();
   const [MarketList, setMarketList] = useState([]);
-  const [estimative, setEstimative] = useState(0);
 
   const [selectedTransaction, setSelectedTransaction] = useState();
   const [selectedCategory, setSelectedCategory] = useState("Todos os itens");
   const [search, setSearch] = useState("");
-
-  const setEstimativeValue = async (value) => {
-    setEstimative(value);
-    await AsyncStorage.setItem("estimative", JSON.stringify(value));
-  };
 
   const filteredList = useMemo(() => {
     const filteredCategory = MarketList.filter((item) => {
@@ -53,6 +49,63 @@ export function MarketContextProvider(props) {
     return TotalList;
   }, [filteredList]);
 
+  async function handleAddItensOnBuyList() {
+    Alert.alert(
+      "Adicionar itens do estoque",
+      "Deseja adicionar itens do estoque a uma lista de compras?",
+      [
+        {
+          text: "Cancelar",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Somente em falta",
+          onPress: async () => {
+            const lowestStockList = MarketList.filter(
+              (item) => item.quantity < item.quantityDesired
+            );
+
+            if (lowestStockList.length > 0) {
+              const createdList = {
+                description: "Itens em falta",
+                location: "",
+                amount: 0,
+                quantity: 0,
+                data: Date.now(),
+              };
+
+              const currentId = await addListsTransaction(createdList);
+
+              if (currentId !== null) {
+                for (const item of lowestStockList) {
+                  const data = {
+                    list_id: currentId,
+                    description: item.description,
+                    category: item.category,
+                    amount: item.amount,
+                    quantity: item.quantity,
+                    quantityDesired: item.quantityDesired,
+                  };
+                  await addItemToList(data);
+                }
+              }
+            } else {
+              ToastAndroid.show(
+                "Nenhuma item em falta para criar esta lista",
+                ToastAndroid.SHORT
+              );
+            }
+          },
+        },
+        {
+          text: "Todos os itens",
+          onPress: () => Alert.alert("Cancel Pressed"),
+        },
+      ]
+    );
+  }
+
   async function handleAddFinances() {
     const data = {
       description: `Lista Compras`,
@@ -68,41 +121,61 @@ export function MarketContextProvider(props) {
   }
 
   async function updateTransaction(currentTransaction) {
-    const index = MarketList.findIndex(
-      (item) => item.id === currentTransaction.id
-    );
-    if (index !== -1) {
-      const newTransactionList = MarketList;
-      newTransactionList[index] = currentTransaction;
+    try {
+      const itemToUpdate = await database
+        .get("stock")
+        .find(currentTransaction.id);
 
-      await AsyncStorage.setItem("market", JSON.stringify(newTransactionList));
-
-      loadTransactions();
-
-      ToastAndroid.show("Item atualizado com sucesso", ToastAndroid.SHORT);
+      await database.write(async () => {
+        await itemToUpdate.update((data) => {
+          data._raw.description = currentTransaction.description;
+          data._raw.amount = currentTransaction.amount;
+          data._raw.category = currentTransaction.category;
+          data._raw.quantity = currentTransaction.quantity;
+          data._raw.quantityDesired = currentTransaction.quantityDesired;
+        });
+      });
+    } catch (error) {
+      console.log("updateTransaction error", error);
     }
+
+    loadTransactions();
+
+    ToastAndroid.show("Item atualizado com sucesso", ToastAndroid.SHORT);
   }
 
-  async function updateStock(currentTransaction, isAdd = false) {
-    const index = MarketList.findIndex(
-      (item) => item.id === currentTransaction.id
-    );
-    if (index !== -1) {
-      const newTransactionList = MarketList;
+  async function updateStock(
+    currentTransaction,
+    isAdd = false,
+    isSubtract = false
+  ) {
+    try {
+      const itemToUpdate = await database
+        .get("stock")
+        .find(currentTransaction.id);
 
-      const newTransaction = currentTransaction;
-      newTransaction.quantity = isAdd
-        ? newTransaction.quantity + 1
-        : newTransaction.quantity - 1;
+      const currentQuantity = isAdd
+        ? currentTransaction.quantity + 1
+        : isSubtract
+        ? currentTransaction.quantity - 1
+        : currentTransaction.quantityisAdd;
 
-      newTransactionList[index] = newTransaction;
-
-      await AsyncStorage.setItem("market", JSON.stringify(newTransactionList));
-
-      loadTransactions();
-
-      ToastAndroid.show("Item atualizado com sucesso", ToastAndroid.SHORT);
+      await database.write(async () => {
+        await itemToUpdate.update((data) => {
+          data._raw.description = currentTransaction.description;
+          data._raw.amount = currentTransaction.amount;
+          data._raw.category = currentTransaction.category;
+          data._raw.quantity = currentQuantity;
+          data._raw.quantityDesired = currentTransaction.quantityDesired;
+        });
+      });
+    } catch (error) {
+      console.log("updateTransaction error", error);
     }
+
+    loadTransactions();
+
+    ToastAndroid.show("Item atualizado com sucesso", ToastAndroid.SHORT);
   }
 
   async function importMarket(importedList) {
@@ -128,14 +201,17 @@ export function MarketContextProvider(props) {
         {
           text: "Sim",
           onPress: async () => {
-            const newTransactionList = MarketList.filter(
-              (item) => item.id !== currentTransaction.id
-            );
+            try {
+              const itemToDelete = await database
+                .get("stock")
+                .find(currentTransaction.id);
 
-            await AsyncStorage.setItem(
-              "market",
-              JSON.stringify(newTransactionList)
-            );
+              await database.write(async () => {
+                await itemToDelete.destroyPermanently();
+              });
+            } catch (error) {
+              console.log("deleteTransaction error", error);
+            }
 
             loadTransactions();
 
@@ -147,15 +223,19 @@ export function MarketContextProvider(props) {
   }
 
   async function addTrasaction(newTransaction) {
-    const newTransactionList = [
-      ...MarketList,
-      {
-        id: v4(),
-        ...newTransaction,
-      },
-    ];
-
-    await AsyncStorage.setItem("market", JSON.stringify(newTransactionList));
+    try {
+      await database.write(async () => {
+        await database.get("stock").create((data) => {
+          data._raw.description = newTransaction.description;
+          data._raw.amount = newTransaction.amount;
+          data._raw.category = newTransaction.category;
+          data._raw.quantity = newTransaction.quantity;
+          data._raw.quantityDesired = newTransaction.quantityDesired;
+        });
+      });
+    } catch (error) {
+      console.log("addTrasaction error", error);
+    }
 
     loadTransactions();
 
@@ -164,24 +244,14 @@ export function MarketContextProvider(props) {
 
   const loadTransactions = useCallback(async () => {
     try {
-      const value = await AsyncStorage.getItem("market");
-      if (value !== null) {
-        const valueArray = JSON.parse(value);
-        setMarketList(valueArray);
-      } else {
-        await AsyncStorage.setItem("fuel", JSON.stringify([]));
-      }
-
-      const estimative = await AsyncStorage.getItem("estimative");
-      if (estimative !== null) {
-        const estimativeParsed = JSON.parse(estimative ?? "0");
-        setEstimative(estimativeParsed);
-      } else {
-        await AsyncStorage.setItem("estimative", JSON.stringify(0));
-      }
-    } catch (e) {
-      console.log(e);
+      const stockCollection = database.get("stock");
+      const response = await stockCollection.query().fetch();
+      const currentList = response.map((item) => item._raw);
+      setMarketList(currentList);
+    } catch (error) {
+      setMarketList([]);
     }
+
     return;
   }, [setMarketList]);
 
@@ -204,12 +274,11 @@ export function MarketContextProvider(props) {
         setSelectedTransaction,
         updateTransaction,
         handleAddFinances,
-        estimative,
-        setEstimativeValue,
         importMarket,
         search,
         setSearch,
         updateStock,
+        handleAddItensOnBuyList,
       }}
     >
       {props.children}

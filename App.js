@@ -21,6 +21,7 @@ import { SettingsContextProvider } from "./src/context/SettingsContext";
 
 import { LogBox } from "react-native";
 import Loading from "./src/components/Loading";
+import { ListsContextProvider } from "./src/context/ListsContext";
 
 LogBox.ignoreLogs([
   "In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.",
@@ -55,11 +56,13 @@ export default function App() {
           <SettingsContextProvider>
             <PaymentsContextProvider>
               <RunsContextProvider>
-                <MarketContextProvider>
-                  <GoalsContextProvider>
-                    <Routes />
-                  </GoalsContextProvider>
-                </MarketContextProvider>
+                <ListsContextProvider>
+                  <MarketContextProvider>
+                    <GoalsContextProvider>
+                      <Routes />
+                    </GoalsContextProvider>
+                  </MarketContextProvider>
+                </ListsContextProvider>
               </RunsContextProvider>
             </PaymentsContextProvider>
           </SettingsContextProvider>

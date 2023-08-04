@@ -85,7 +85,8 @@ export default function Market() {
     setSelectedCategory,
     selectedTransaction,
     setSelectedTransaction,
-    estimative,
+    MarketList,
+    handleAddItensOnBuyList,
     search,
     setSearch,
     updateStock,
@@ -95,6 +96,32 @@ export default function Market() {
 
   return (
     <VStack flex={1} bg={bg}>
+      <IconButton
+        position={"absolute"}
+        bottom={isAiEnabled ? 132 : 20}
+        left={4}
+        bgColor={"purple.600"}
+        w={10}
+        h={10}
+        zIndex={100}
+        alignItems={"center"}
+        justifyContent={"center"}
+        onPress={() => {
+          handleAddItensOnBuyList();
+        }}
+        borderRadius={"full"}
+        shadow={4}
+        _pressed={{
+          color: theme.colors.purple[900],
+        }}
+        icon={
+          <MaterialCommunityIcons
+            name="file-plus-outline"
+            size={20}
+            color={theme.colors.white}
+          />
+        }
+      />
       <IconButton
         position={"absolute"}
         bottom={isAiEnabled ? 82 : 8}
@@ -168,7 +195,7 @@ export default function Market() {
           </HStack>
         </VStack>
 
-        {filteredList.length > 0 && (
+        {MarketList.length > 0 && (
           <Input
             placeholder="Pesquise os itens..."
             onChangeText={(text) => setSearch(text)}
@@ -281,7 +308,8 @@ export default function Market() {
                               borderWidth={1}
                               borderColor={theme.colors.red[600]}
                               onPress={() =>
-                                item.quantity > 0 && updateStock(item)
+                                item.quantity > 0 &&
+                                updateStock(item, false, true)
                               }
                               _pressed={{
                                 bgColor: theme.colors.red[300],
@@ -302,7 +330,7 @@ export default function Market() {
                               }
                               borderWidth={1}
                               borderColor={theme.colors.green[600]}
-                              onPress={() => updateStock(item, true)}
+                              onPress={() => updateStock(item, true, false)}
                               _pressed={{
                                 bgColor: theme.colors.purple[300],
                               }}
@@ -348,11 +376,6 @@ export default function Market() {
                 </Text>
               </HStack>
             </VStack>
-
-            <Text color={text} fontSize={14} px={4} lineHeight={16} mb={8}>
-              Caso queira adicionar o total como um item em finanças vá em
-              configurações e na sessão Mercado clique em Add Total em Finanças
-            </Text>
           </>
         )}
       </ScrollView>

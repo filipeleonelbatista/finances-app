@@ -98,7 +98,7 @@ export default function List() {
             size={10}
             borderRadius="full"
             icon={<Feather name="arrow-left" size={20} color={headerText} />}
-            onPress={() => navigation.navigate("Stock")}
+            onPress={() => navigation.navigate("Lists")}
             _pressed={{
               bgColor: theme.colors.purple[900],
             }}

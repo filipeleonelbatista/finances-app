@@ -32,6 +32,8 @@ import { useIsKeyboardOpen } from "../hooks/useIsKeyboardOpen";
 import { useMarket } from "../hooks/useMarket";
 import { usePages } from "../hooks/usePages";
 import { useSettings } from "../hooks/useSettings";
+import { useLists } from "../hooks/useLists";
+import EmptyMessage from "../components/EmptyMessage";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -71,20 +73,7 @@ export default function Lists() {
 
   const { height } = useWindowDimensions();
 
-  const { marketSimplifiedItems } = useSettings();
-
-  const {
-    filteredList,
-    listTotal,
-    selectedCategory,
-    setSelectedCategory,
-    selectedTransaction,
-    setSelectedTransaction,
-    estimative,
-    search,
-    setSearch,
-    updateStock,
-  } = useMarket();
+  const { lists, setSelectedList } = useLists();
 
   const [selectedSheetOpen, setSelectedSheetOpen] = useState(null);
 
@@ -117,7 +106,72 @@ export default function Lists() {
         }
       />
 
-      
+      <ScrollView flex={1} w={"100%"} h={"100%"}>
+        <VStack p={4} space={2}>
+          <Text bold fontSize={20} color={text}>
+            Suas listas de compras
+          </Text>
+          <Text mb={4} fontSize={14} color={text}>
+            Crie suas listas de compra e adicione ao estoque para seu controle.
+          </Text>
+
+          <VStack>
+            {lists.length === 0 ? (
+              <EmptyMessage />
+            ) : (
+              lists.map((item, index) => (
+                <Pressable
+                  w="100%"
+                  key={index}
+                  bgColor={bgCard}
+                  shadow={2}
+                  borderRadius={4}
+                  p={2}
+                  my={1}
+                  _pressed={{
+                    bgColor: "gray.200",
+                  }}
+                  onPress={() => {
+                    setSelectedList(item);
+                    navigation.navigate("List");
+                  }}
+                >
+                  <HStack alignItems="center" space={2}>
+                    <Box mx={2}>
+                      <Feather name={"shopping-cart"} size={28} color={text} />
+                    </Box>
+                    <VStack flex={1}>
+                      <Text fontSize={18} color={text}>
+                        {item.description}
+                      </Text>
+                      <Text fontSize={14} color={text}>
+                        {item.location === ""
+                          ? "Sem mercado definido"
+                          : item.location}
+                      </Text>
+                      <Text fontSize={14} color={text}>
+                        {item.quantity} itens
+                      </Text>
+                    </VStack>
+                    <VStack alignItems="flex-end" width="34%">
+                      <Text fontSize={18} numberOfLines={1} color={text}>
+                        {item.amount.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                          useGrouping: true,
+                        })}
+                      </Text>
+                    </VStack>
+                  </HStack>
+                </Pressable>
+              ))
+            )}
+          </VStack>
+        </VStack>
+      </ScrollView>
+
       <AIComponent />
       <Actionsheet
         isOpen={isOpen}
