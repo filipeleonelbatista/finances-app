@@ -6,15 +6,17 @@ import {
   useDisclose,
   useTheme,
 } from "native-base";
-import { useWindowDimensions } from "react-native";
-import { usePages } from "../hooks/usePages";
-import AddItemForm from "./AddItemForm";
-import AddFuelForm from "./AddFuelForm";
-import AddShoppingCartItem from "./AddShoppingCartItem";
-import AddGoalForm from "./AddGoalForm";
-import ErrorSheet from "./ErrorSheet";
 import { useMemo } from "react";
+import { useWindowDimensions } from "react-native";
 import { useIsKeyboardOpen } from "../hooks/useIsKeyboardOpen";
+import { usePages } from "../hooks/usePages";
+import AddFuelForm from "./AddFuelForm";
+import AddGoalForm from "./AddGoalForm";
+import AddItemForm from "./AddItemForm";
+import AddItemListItem from "./AddItemListtItem";
+import AddListForm from "./AddListForm";
+import AddShoppingCartItem from "./AddShoppingCartItem";
+import ErrorSheet from "./ErrorSheet";
 
 export default function AddButton() {
   const theme = useTheme();
@@ -34,9 +36,9 @@ export default function AddButton() {
       case "Stock":
         return <AddShoppingCartItem onClose={onClose} />;
       case "Lists":
-        return <AddShoppingCartItem onClose={onClose} />;
+        return <AddListForm onClose={onClose} />;
       case "List":
-        return <AddShoppingCartItem onClose={onClose} />;
+        return <AddItemListItem onClose={onClose} />;
       case "Relatórios":
         return <AddGoalForm onClose={onClose} />;
       default:

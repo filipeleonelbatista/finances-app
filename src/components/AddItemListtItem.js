@@ -14,17 +14,18 @@ import {
   VStack,
 } from "native-base";
 import * as Yup from "yup";
-import { useMarket } from "../hooks/useMarket";
+import { useLists } from "../hooks/useLists";
 import { useSettings } from "../hooks/useSettings";
+import { ToastAndroid } from "react-native";
 
-export default function AddShoppingCartItem({ onClose }) {
+export default function AddItemListItem({ onClose }) {
   const theme = useTheme();
   const text = useColorModeValue(
     theme.colors.gray[600],
     theme.colors.gray[200]
   );
 
-  const { addTransaction } = useMarket();
+  const { addItemToList, selectedList } = useLists();
 
   const { marketSimplifiedItems } = useSettings();
 
@@ -35,8 +36,11 @@ export default function AddShoppingCartItem({ onClose }) {
       category: Yup.string().required("O campo Categoria é obrigatório"),
       quantity: Yup.string().required("O campo Quantidade é obrigatório"),
       quantityDesired: Yup.string(),
+      location: Yup.string(),
+      date: Yup.string(),
     });
   }, []);
+  const startedDate = new Date();
 
   const formik = useFormik({
     initialValues: {
@@ -45,6 +49,16 @@ export default function AddShoppingCartItem({ onClose }) {
       category: "Mercearia",
       quantity: "1",
       quantityDesired: "",
+      location: selectedList.location ?? "",
+      date: `${
+        startedDate.getDate() < 10
+          ? "0" + startedDate.getDate()
+          : startedDate.getDate()
+      }/${
+        startedDate.getMonth() + 1 < 10
+          ? "0" + (startedDate.getMonth() + 1)
+          : startedDate.getMonth() + 1
+      }/${startedDate.getFullYear()}`,
     },
     validationSchema: formSchema,
     onSubmit: (values) => {
@@ -53,7 +67,10 @@ export default function AddShoppingCartItem({ onClose }) {
   });
 
   async function handleSubmitForm(formValues) {
+    const submittedDate = formValues.date !== "" && formValues.date.split("/");
+
     const data = {
+      list_id: selectedList.id,
       amount: parseFloat(
         formValues.amount.replaceAll(".", "").replace(",", ".")
       ),
@@ -63,8 +80,16 @@ export default function AddShoppingCartItem({ onClose }) {
       quantityDesired: !!formValues.quantityDesired
         ? parseInt(formValues.quantityDesired)
         : "",
+      location: formValues.location,
+      date:
+        new Date(
+          `${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`
+        ).getTime() + 43200000,
     };
-    addTransaction(data);
+
+    await addItemToList(data);
+
+    ToastAndroid.show("Item adicionado com sucesso", ToastAndroid.SHORT);
     onClose();
   }
 
@@ -76,10 +101,26 @@ export default function AddShoppingCartItem({ onClose }) {
     return value;
   }
 
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    formik.setFieldValue(
+      "date",
+      `${
+        currentDate.getDate() < 10
+          ? "0" + currentDate.getDate()
+          : currentDate.getDate()
+      }/${
+        currentDate.getMonth() + 1 < 10
+          ? "0" + (currentDate.getMonth() + 1)
+          : currentDate.getMonth() + 1
+      }/${currentDate.getFullYear()}`
+    );
+  };
+
   return (
     <ScrollView w={"100%"} px={4}>
       <Text bold fontSize={24} color={text}>
-        Adicionar produto ao estoque
+        Adicionar item na lista
       </Text>
       <Text color={text} mb={4}>
         Adicione itens para suas compras de mercado.
@@ -162,22 +203,72 @@ export default function AddShoppingCartItem({ onClose }) {
         </VStack>
 
         {!marketSimplifiedItems && (
-          <VStack space={2}>
-            <Text color={text}>Quantidade desejada</Text>
-            <Input
-              errors={!!formik.errors.quantityDesired}
-              helperText={formik.errors.quantityDesired}
-              placeholder="Quantidade desejada"
-              keyboardType="decimal-pad"
-              onChangeText={(text) =>
-                formik.setFieldValue("quantityDesired", text)
-              }
-              value={formik.values.quantityDesired}
-            />
-            {formik.errors.quantityDesired && (
-              <Text color="red.600">{formik.errors.quantityDesired}</Text>
-            )}
-          </VStack>
+          <>
+            <VStack space={2}>
+              <Text color={text}>Quantidade desejada</Text>
+              <Input
+                errors={!!formik.errors.quantityDesired}
+                helperText={formik.errors.quantityDesired}
+                placeholder="Quantidade desejada"
+                keyboardType="decimal-pad"
+                onChangeText={(text) =>
+                  formik.setFieldValue("quantityDesired", text)
+                }
+                value={formik.values.quantityDesired}
+              />
+              {formik.errors.quantityDesired && (
+                <Text color="red.600">{formik.errors.quantityDesired}</Text>
+              )}
+            </VStack>
+
+            <VStack space={2}>
+              <Text color={text}>Local de compra</Text>
+              <Input
+                errors={!!formik.errors.location}
+                helperText={formik.errors.location}
+                placeholder="Local de compra"
+                onChangeText={(text) => formik.setFieldValue("location", text)}
+                value={formik.values.location}
+              />
+              {formik.errors.location && (
+                <Text color="red.600">{formik.errors.location}</Text>
+              )}
+            </VStack>
+
+            <VStack space={2}>
+              <Text color={text}>Data de compra</Text>
+              <Input
+                errors={!!formik.errors.date}
+                helperText={formik.errors.date}
+                placeholder="DD/MM/AAAA"
+                value={formik.values.date}
+                editable={false}
+                rightElement={
+                  <Button
+                    size="xs"
+                    rounded="none"
+                    w="1/4"
+                    p={0}
+                    h="full"
+                    bgColor={theme.colors.purple[600]}
+                    onPress={() => {
+                      DateTimePickerAndroid.open({
+                        value: new Date(Date.now()),
+                        onChange,
+                        mode: "date",
+                        is24Hour: false,
+                      });
+                    }}
+                  >
+                    <Feather name="calendar" size={24} color="#FFF" />
+                  </Button>
+                }
+              />
+              {formik.errors.date && (
+                <Text color="red.600">{formik.errors.date}</Text>
+              )}
+            </VStack>
+          </>
         )}
         <Button
           onPress={formik.submitForm}

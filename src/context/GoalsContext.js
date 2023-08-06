@@ -8,7 +8,7 @@ export function GoalsContextProvider(props) {
   const [GoalsList, setGoalsList] = useState([]);
   const [selectedTransaction, setSelectedTransaction] = useState();
 
-  async function addTrasaction(newGoal) {
+  async function addTransaction(newGoal) {
     try {
       await database.write(async () => {
         await database.get("goals").create((data) => {
@@ -19,7 +19,7 @@ export function GoalsContextProvider(props) {
         });
       });
     } catch (error) {
-      console.log("addTrasaction error", error);
+      console.log("addTransaction error", error);
     }
     loadData();
 
@@ -102,7 +102,7 @@ export function GoalsContextProvider(props) {
       value={{
         GoalsList,
         setGoalsList,
-        addTrasaction,
+        addTransaction,
         deleteTransaction,
         updateTransaction,
         selectedTransaction,

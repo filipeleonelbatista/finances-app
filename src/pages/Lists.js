@@ -73,7 +73,7 @@ export default function Lists() {
 
   const { height } = useWindowDimensions();
 
-  const { lists, setSelectedList } = useLists();
+  const { lists, handleSelectList, handleDeleteList } = useLists();
 
   const [selectedSheetOpen, setSelectedSheetOpen] = useState(null);
 
@@ -113,6 +113,7 @@ export default function Lists() {
           </Text>
           <Text mb={4} fontSize={14} color={text}>
             Crie suas listas de compra e adicione ao estoque para seu controle.
+            Pressione e segure para remover uma lista.
           </Text>
 
           <VStack>
@@ -132,8 +133,11 @@ export default function Lists() {
                     bgColor: "gray.200",
                   }}
                   onPress={() => {
-                    setSelectedList(item);
+                    handleSelectList(item.id);
                     navigation.navigate("List");
+                  }}
+                  onLongPress={() => {
+                    handleDeleteList(item.id);
                   }}
                 >
                   <HStack alignItems="center" space={2}>

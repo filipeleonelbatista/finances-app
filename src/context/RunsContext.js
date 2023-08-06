@@ -9,7 +9,7 @@ export const RunsContext = createContext({});
 
 export function RunsContextProvider(props) {
   const {
-    addTrasaction: addPaymentTransaction,
+    addTransaction: addPaymentTransaction,
     deleteTransaction: deletePayentTransaction,
   } = usePayments();
   const { willAddFuelToTransactionList } = useSettings();
@@ -65,7 +65,7 @@ export function RunsContextProvider(props) {
     );
   }
 
-  async function addTrasaction(newTransaction) {
+  async function addTransaction(newTransaction) {
     try {
       await database.write(async () => {
         await database.get("runs").create((data) => {
@@ -78,7 +78,7 @@ export function RunsContextProvider(props) {
         });
       });
     } catch (error) {
-      console.log("addTrasaction error", error);
+      console.log("addTransaction error", error);
     }
 
     if (willAddFuelToTransactionList) {
@@ -138,7 +138,7 @@ export function RunsContextProvider(props) {
         setFuelList,
         autonomy,
         setAutonomyValue,
-        addTrasaction,
+        addTransaction,
         deleteTransaction,
         importRuns,
       }}

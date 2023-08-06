@@ -2,6 +2,13 @@
   "name": "family-finances",
   "version": "1.0.0",
   "scripts": {
+    "prebuild": "expo prebuild",
+    "clean-android": "cd android && ./gradlew clean && cd ..",
+    "clean-ios": "cd ios && rm -rf Pods && rm -rf Podfile.lock && pod cache clean --all && pod deintegrate && pod setup && cd ..",
+    "android:build:apk": "cd android && ./gradlew assembleRelease && cd ..",
+    "android:build:aab": "cd android && ./gradlew bundleRelease && cd ..",
+    "android:build:apk:install": "cd android && ./gradlew installRelease && cd ..",
+    "android:build:aab:install": "cd android && ./gradlew installRelease && cd ..",
     "start": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",

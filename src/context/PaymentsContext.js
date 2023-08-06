@@ -403,7 +403,7 @@ export function PaymentsContextProvider(props) {
     ToastAndroid.show("Importação feita com sucesso", ToastAndroid.SHORT);
   }
 
-  async function addTrasaction(newTransaction) {
+  async function addTransaction(newTransaction) {
     try {
       await database.write(async () => {
         await database.get("finances").create((data) => {
@@ -418,7 +418,7 @@ export function PaymentsContextProvider(props) {
         });
       });
     } catch (error) {
-      console.log("addTrasaction error", error);
+      console.log("addTransaction error", error);
     }
 
     loadTransactions();
@@ -453,7 +453,7 @@ export function PaymentsContextProvider(props) {
         Total,
         Tithe,
         Saldo,
-        addTrasaction,
+        addTransaction,
         updateTransaction,
         deleteTransaction,
         selectedTransaction,

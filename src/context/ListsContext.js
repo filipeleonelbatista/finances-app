@@ -1,28 +1,127 @@
-import React, { createContext, useCallback, useEffect, useState } from "react";
+import { Q } from "@nozbe/watermelondb";
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Alert, ToastAndroid } from "react-native";
 import { database } from "../databases";
-import { usePayments } from "../hooks/usePayments";
 
 export const ListsContext = createContext({});
 
 export function ListsContextProvider(props) {
   const [lists, setLists] = useState([]);
 
+  const [selectedCategory, setSelectedCategory] = useState("Todos os itens");
+
   const [selectedList, setSelectedList] = useState();
+  const [selectedListItems, setSelectedListItems] = useState([]);
+  const [search, setSearch] = useState("");
+
+  const filteredList = useMemo(() => {
+    const filteredCategory = selectedListItems.filter((item) => {
+      if (selectedCategory === "Todos os itens") {
+        return true;
+      } else {
+        return item.category === selectedCategory;
+      }
+    });
+
+    const filteredWords =
+      search === ""
+        ? filteredCategory
+        : filteredCategory.filter((item) => item.description.includes(search));
+
+    return filteredWords ?? [];
+  }, [selectedListItems, selectedCategory, search]);
+
+  const listTotal = useMemo(() => {
+    let TotalList = 0.0;
+
+    for (const item of filteredList) {
+      TotalList = TotalList + item.amount * item.quantity;
+    }
+
+    return TotalList;
+  }, [filteredList]);
+
+  async function handleDeleteList(id) {
+    Alert.alert(
+      "Deseja realmente deletar esse registro?",
+      "Esta ação é irreversível! Deseja continuar?",
+      [
+        {
+          text: "Não",
+          style: "cancel",
+          onPress: () => console.log("Não pressed"),
+        },
+        {
+          text: "Sim",
+          onPress: async () => {
+            try {
+              const itemToDelete = await database.get("lists").find(id);
+
+              await database.write(async () => {
+                await itemToDelete.destroyPermanently();
+              });
+
+              await database.write(async () => {
+                const itemsCollection = database.collections.get("items");
+                const allItemsFromThisList = await itemsCollection
+                  .query(Q.where("list_id", id))
+                  .fetch();
+                for (const item of allItemsFromThisList) {
+                  await item.destroyPermanently();
+                }
+              });
+
+              ToastAndroid.show("Lista excluida", ToastAndroid.SHORT);
+            } catch (error) {
+              console.log("deleteTransaction error", error);
+
+              ToastAndroid.show("Lista não foi excluida", ToastAndroid.SHORT);
+            }
+
+            loadTransactions();
+          },
+        },
+      ]
+    );
+  }
+
+  async function handleSelectList(id) {
+    const itemToUpdate = await database.get("lists").find(id);
+    setSelectedList(itemToUpdate._raw);
+
+    try {
+      const itemsCollection = database.get("items");
+      const response = await itemsCollection
+        .query(Q.where("list_id", id))
+        .fetch();
+
+      const currentList = response.map((item) => item._raw);
+
+      setSelectedListItems(currentList);
+    } catch (error) {
+      setSelectedListItems([]);
+    }
+  }
 
   async function updateTransaction(currentTransaction) {
     try {
       const itemToUpdate = await database
-        .get("stock")
+        .get("lists")
         .find(currentTransaction.id);
 
       await database.write(async () => {
         await itemToUpdate.update((data) => {
           data._raw.description = currentTransaction.description;
+          data._raw.location = currentTransaction.location;
           data._raw.amount = currentTransaction.amount;
-          data._raw.category = currentTransaction.category;
           data._raw.quantity = currentTransaction.quantity;
-          data._raw.quantityDesired = currentTransaction.quantityDesired;
+          data._raw.date = currentTransaction.date;
         });
       });
     } catch (error) {
@@ -31,7 +130,10 @@ export function ListsContextProvider(props) {
 
     loadTransactions();
 
-    ToastAndroid.show("Item atualizado com sucesso", ToastAndroid.SHORT);
+    ToastAndroid.show(
+      "Informações da lista atualizadas com sucesso",
+      ToastAndroid.SHORT
+    );
   }
 
   async function deleteTransaction(currentTransaction) {
@@ -68,6 +170,65 @@ export function ListsContextProvider(props) {
     );
   }
 
+  async function deleteItemToList(currentTransaction) {
+    Alert.alert(
+      "Deseja realmente deletar esse registro?",
+      "Esta ação é irreversível! Deseja continuar?",
+      [
+        {
+          text: "Não",
+          style: "cancel",
+          onPress: () => console.log("Não pressed"),
+        },
+        {
+          text: "Sim",
+          onPress: async () => {
+            try {
+              const itemToDelete = await database
+                .get("items")
+                .find(currentTransaction.id);
+
+              await database.write(async () => {
+                await itemToDelete.destroyPermanently();
+              });
+            } catch (error) {
+              console.log("deleteTransaction error", error);
+            }
+
+            loadTransactions();
+
+            ToastAndroid.show("Item removido do carrinho", ToastAndroid.SHORT);
+          },
+        },
+      ]
+    );
+  }
+
+  async function updateItemToList(currentTransaction) {
+    try {
+      const itemToUpdate = await database
+        .get("items")
+        .find(currentTransaction.id);
+
+      await database.write(async () => {
+        await itemToUpdate.update((data) => {
+          data._raw.list_id = currentTransaction.list_id;
+          data._raw.description = currentTransaction.description;
+          data._raw.category = currentTransaction.category;
+          data._raw.amount = currentTransaction.amount;
+          data._raw.quantity = currentTransaction.quantity;
+          data._raw.quantityDesired = currentTransaction.quantityDesired;
+          data._raw.location = currentTransaction.location;
+          data._raw.date = currentTransaction.date;
+        });
+      });
+    } catch (error) {
+      console.log("updateItemToList error", error);
+    }
+
+    loadTransactions();
+  }
+
   async function addItemToList(newTransaction) {
     try {
       await database.write(async () => {
@@ -78,16 +239,18 @@ export function ListsContextProvider(props) {
           data._raw.amount = newTransaction.amount;
           data._raw.quantity = newTransaction.quantity;
           data._raw.quantityDesired = newTransaction.quantityDesired;
+          data._raw.location = newTransaction.location;
+          data._raw.date = newTransaction.date;
         });
       });
     } catch (error) {
-      console.log("addTrasaction error", error);
+      console.log("addItemToList error", error);
     }
 
     loadTransactions();
   }
 
-  async function addTrasaction(newTransaction) {
+  async function addTransaction(newTransaction) {
     let createdId = null;
     try {
       await database.write(async () => {
@@ -100,10 +263,8 @@ export function ListsContextProvider(props) {
           data._raw.date = newTransaction.date;
         });
       });
-
-      console.log("createdId", createdId);
     } catch (error) {
-      console.log("addTrasaction error", error);
+      console.log("addTransaction error", error);
     }
 
     loadTransactions();
@@ -127,8 +288,16 @@ export function ListsContextProvider(props) {
       setLists([]);
     }
 
+    try {
+      if (!!selectedList) {
+        await handleSelectList(selectedList.id);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+
     return;
-  }, [setLists]);
+  }, [setLists, selectedList]);
 
   useEffect(() => {
     loadTransactions();
@@ -138,12 +307,24 @@ export function ListsContextProvider(props) {
     <ListsContext.Provider
       value={{
         lists,
-        addTrasaction,
+        addTransaction,
         deleteTransaction,
         selectedList,
         setSelectedList,
         updateTransaction,
         addItemToList,
+        updateItemToList,
+        deleteItemToList,
+        handleSelectList,
+        handleDeleteList,
+        selectedListItems,
+        setSelectedListItems,
+        listTotal,
+        search,
+        setSearch,
+        selectedCategory,
+        setSelectedCategory,
+        filteredList,
       }}
     >
       {props.children}

@@ -8,6 +8,13 @@ import { runsSchema } from "./runsSchema";
 import { stockSchema } from "./stockScheme";
 
 export const schemas = appSchema({
-  version: 11,
-  tables: [financesSchema, runsSchema, goalsSchema, stockSchema, listsSchema, itemsSchema],
+  version: 16,
+  tables: [
+    financesSchema,
+    runsSchema,
+    goalsSchema,
+    stockSchema,
+    listsSchema,
+    itemsSchema,
+  ],
 });

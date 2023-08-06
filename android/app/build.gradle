@@ -118,7 +118,7 @@ android {
         applicationId 'com.finances'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode rootProject.ext.versionCode
+        versionCode 206
         versionName rootProject.ext.versionText
     }
 

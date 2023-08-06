@@ -6,9 +6,11 @@ class ItemsModel extends Model {
 
   @field("list_id") list_id;
   @field("description") description;
+  @field("category") category;
+  @field("amount") amount;
   @field("quantity") quantity;
   @field("quantityDesired") quantityDesired;
-  @field("amount") amount;
+  @field("location") location;
   @field("date") date;
 }
 

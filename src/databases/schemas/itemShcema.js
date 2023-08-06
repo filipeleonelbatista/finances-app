@@ -12,19 +12,27 @@ export const itemsSchema = tableSchema({
       type: "string",
     },
     {
-      name: "quantity",
-      type: "number",
+      name: "category",
+      type: "string",
     },
     {
       name: "amount",
       type: "number",
     },
     {
-      name: "date",
+      name: "quantity",
       type: "number",
     },
     {
       name: "desiredQuantity",
+      type: "number",
+    },
+    {
+      name: "location",
+      type: "string",
+    },
+    {
+      name: "date",
       type: "number",
     },
   ],

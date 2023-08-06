@@ -23,7 +23,7 @@ export default function AddFuelForm({ onClose }) {
     theme.colors.gray[200]
   );
 
-  const { addTrasaction } = useRuns();
+  const { addTransaction } = useRuns();
 
   const formSchema = useMemo(() => {
     return Yup.object().shape({
@@ -80,7 +80,7 @@ export default function AddFuelForm({ onClose }) {
         ).getTime() + 43200000,
       location: formValues.location,
     };
-    addTrasaction(data);
+    addTransaction(data);
     onClose();
   }
 

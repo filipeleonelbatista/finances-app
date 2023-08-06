@@ -13,7 +13,7 @@ export default function AddGoalForm({ onClose }) {
     const theme = useTheme();
     const text = useColorModeValue(theme.colors.gray[600], theme.colors.gray[200]);
 
-    const { addTrasaction } = useGoals();
+    const { addTransaction } = useGoals();
 
     const formSchema = useCallback(() => {
         return Yup.object().shape({
@@ -45,7 +45,7 @@ export default function AddGoalForm({ onClose }) {
             date: formValues.date !== '' ? new Date(`${submittedDate[2]}-${submittedDate[1]}-${submittedDate[0]}`).getTime() + 43200000 : '',
             description: formValues.description,
         }
-        addTrasaction(data)
+        addTransaction(data)
         onClose()
     }
 

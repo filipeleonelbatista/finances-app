@@ -14,8 +14,8 @@ import { usePayments } from "../hooks/usePayments";
 export const MarketContext = createContext({});
 
 export function MarketContextProvider(props) {
-  const { addTrasaction: addPaymentTransaction } = usePayments();
-  const { addTrasaction: addListsTransaction, addItemToList } = useLists();
+  const { addTransaction: addPaymentTransaction } = usePayments();
+  const { addTransaction: addListsTransaction, addItemToList } = useLists();
   const [MarketList, setMarketList] = useState([]);
 
   const [selectedTransaction, setSelectedTransaction] = useState();
@@ -67,12 +67,16 @@ export function MarketContextProvider(props) {
             );
 
             if (lowestStockList.length > 0) {
+              const totalAmount = lowestStockList.reduce((acc, transaction) => {
+                return acc + transaction.amount;
+              }, 0);
+
               const createdList = {
-                description: "Itens em falta",
+                description: "Em falta no estoque",
                 location: "",
-                amount: 0,
-                quantity: 0,
-                data: Date.now(),
+                amount: totalAmount,
+                quantity: lowestStockList.length,
+                date: new Date(Date.now()).getTime() + 43200000,
               };
 
               const currentId = await addListsTransaction(createdList);
@@ -86,13 +90,15 @@ export function MarketContextProvider(props) {
                     amount: item.amount,
                     quantity: item.quantity,
                     quantityDesired: item.quantityDesired,
+                    location: createdList.location,
+                    date: createdList.date,
                   };
                   await addItemToList(data);
                 }
               }
             } else {
               ToastAndroid.show(
-                "Nenhuma item em falta para criar esta lista",
+                "Nenhum item em falta para criar esta lista",
                 ToastAndroid.SHORT
               );
             }
@@ -100,7 +106,44 @@ export function MarketContextProvider(props) {
         },
         {
           text: "Todos os itens",
-          onPress: () => Alert.alert("Cancel Pressed"),
+          onPress: async () => {
+            if (MarketList.length > 0) {
+              const totalAmount = MarketList.reduce((acc, transaction) => {
+                return acc + transaction.amount;
+              }, 0);
+
+              const createdList = {
+                description: "Itens do estoque",
+                location: "",
+                amount: totalAmount,
+                quantity: MarketList.length,
+                date: new Date(Date.now()).getTime() + 43200000,
+              };
+
+              const currentId = await addListsTransaction(createdList);
+
+              if (currentId !== null) {
+                for (const item of MarketList) {
+                  const data = {
+                    list_id: currentId,
+                    description: item.description,
+                    category: item.category,
+                    amount: item.amount,
+                    quantity: item.quantity,
+                    quantityDesired: item.quantityDesired,
+                    location: createdList.location,
+                    date: createdList.date,
+                  };
+                  await addItemToList(data);
+                }
+              }
+            } else {
+              ToastAndroid.show(
+                "Nenhum item para criar esta lista",
+                ToastAndroid.SHORT
+              );
+            }
+          },
         },
       ]
     );
@@ -222,7 +265,7 @@ export function MarketContextProvider(props) {
     );
   }
 
-  async function addTrasaction(newTransaction) {
+  async function addTransaction(newTransaction) {
     try {
       await database.write(async () => {
         await database.get("stock").create((data) => {
@@ -234,7 +277,7 @@ export function MarketContextProvider(props) {
         });
       });
     } catch (error) {
-      console.log("addTrasaction error", error);
+      console.log("addTransaction error", error);
     }
 
     loadTransactions();
@@ -268,7 +311,7 @@ export function MarketContextProvider(props) {
         listTotal,
         selectedCategory,
         setSelectedCategory,
-        addTrasaction,
+        addTransaction,
         deleteTransaction,
         selectedTransaction,
         setSelectedTransaction,

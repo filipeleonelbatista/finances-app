@@ -26,7 +26,7 @@ export default function AddItemForm({ onClose }) {
     theme.colors.gray[200]
   );
 
-  const { addTrasaction, categoriesList } = usePayments();
+  const { addTransaction, categoriesList } = usePayments();
   const { simpleFinancesItem } = useSettings();
 
   const formSchema = useMemo(() => {
@@ -83,7 +83,7 @@ export default function AddItemForm({ onClose }) {
       isEnabled: formValues.isEnabled,
       isFavorited: false,
     };
-    addTrasaction(data);
+    addTransaction(data);
     onClose();
   }
 
