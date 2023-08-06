@@ -61,6 +61,10 @@ export default function Finances() {
     theme.colors.gray[600],
     theme.colors.gray[200]
   );
+  const bgCardPressed = useColorModeValue(
+    theme.colors.warmGray[100],
+    theme.colors.gray[700]
+  );
 
   const { setSelectedSheet } = usePages();
 
@@ -393,6 +397,9 @@ export default function Finances() {
                         p={0}
                         h="full"
                         bgColor={theme.colors.purple[600]}
+                        _pressed={{
+                          bgColor: "purple.800",
+                        }}
                         onPress={() => {
                           DateTimePickerAndroid.open({
                             value: new Date(Date.now()),
@@ -421,6 +428,9 @@ export default function Finances() {
                         p={2}
                         h="full"
                         bgColor={theme.colors.purple[600]}
+                        _pressed={{
+                          bgColor: "purple.800",
+                        }}
                         onPress={() => {
                           DateTimePickerAndroid.open({
                             value: new Date(Date.now()),
@@ -605,16 +615,15 @@ export default function Finances() {
                 onLongPress={() => {
                   handleFavorite(item);
                 }}
+                shadow={2}
+                p={2}
+                borderRadius={4}
+                bg={bgCard}
+                _pressed={{
+                  bgColor: bgCardPressed,
+                }}
               >
-                <HStack
-                  alignItems="center"
-                  w="100%"
-                  space={2}
-                  bgColor={bgCard}
-                  shadow={2}
-                  borderRadius={4}
-                  p={2}
-                >
+                <HStack alignItems="center" w="100%" space={2}>
                   <HStack position={"absolute"} top={3} right={3} space={2}>
                     {!simpleFinancesItem && item.isEnabled === 1 && (
                       <Box

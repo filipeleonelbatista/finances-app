@@ -209,6 +209,9 @@ export default function AddItemForm({ onClose }) {
               p={0}
               h="full"
               bgColor={theme.colors.purple[600]}
+              _pressed={{
+                bgColor: "purple.800",
+              }}
               onPress={() => {
                 DateTimePickerAndroid.open({
                   value: new Date(Date.now()),
@@ -274,6 +277,9 @@ export default function AddItemForm({ onClose }) {
                   p={0}
                   h="full"
                   bgColor={theme.colors.purple[600]}
+                  _pressed={{
+                    bgColor: "purple.800",
+                  }}
                   onPress={() => {
                     DateTimePickerAndroid.open({
                       value: new Date(Date.now()),

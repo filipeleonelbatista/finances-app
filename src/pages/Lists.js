@@ -54,6 +54,10 @@ export default function Lists() {
     theme.colors.gray[600],
     theme.colors.gray[200]
   );
+  const bgCardPressed = useColorModeValue(
+    theme.colors.warmGray[100],
+    theme.colors.gray[700]
+  );
 
   const { setSelectedSheet } = usePages();
 
@@ -130,7 +134,7 @@ export default function Lists() {
                   p={2}
                   my={1}
                   _pressed={{
-                    bgColor: "gray.200",
+                    bgColor: bgCardPressed,
                   }}
                   onPress={() => {
                     handleSelectList(item.id);

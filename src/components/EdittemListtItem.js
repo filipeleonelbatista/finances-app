@@ -16,10 +16,10 @@ import {
   useTheme,
   VStack,
 } from "native-base";
+import { ToastAndroid } from "react-native";
 import * as Yup from "yup";
 import { useLists } from "../hooks/useLists";
 import { useSettings } from "../hooks/useSettings";
-import { ToastAndroid } from "react-native";
 
 export default function EditItemListItem({ onClose, selectedTransaction }) {
   const theme = useTheme();
@@ -296,6 +296,9 @@ export default function EditItemListItem({ onClose, selectedTransaction }) {
                     p={0}
                     h="full"
                     bgColor={theme.colors.purple[600]}
+                    _pressed={{
+                      bgColor: "purple.800",
+                    }}
                     onPress={() => {
                       isEditable &&
                         DateTimePickerAndroid.open({

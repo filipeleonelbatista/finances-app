@@ -49,6 +49,16 @@ export default function Reports() {
     theme.colors.warmGray[50],
     theme.colors.gray[800]
   );
+  const bgCardButton = useColorModeValue(
+    theme.colors.warmGray[100],
+    theme.colors.gray[700]
+  );
+
+  const bgCardPressed = useColorModeValue(
+    theme.colors.warmGray[100],
+    theme.colors.gray[700]
+  );
+
   const headerText = useColorModeValue("white", theme.colors.gray[800]);
   const text = useColorModeValue(
     theme.colors.gray[600],
@@ -73,31 +83,8 @@ export default function Reports() {
 
   const { width, height } = useWindowDimensions();
 
-  const { simpleFinancesItem } = useSettings();
-
-  const {
-    Incomings,
-    Expenses,
-    filteredList,
-    selectedtypeofpayment,
-    setselectedtypeofpayment,
-    pamentStatusLabel,
-    selectedPaymentStatus,
-    setSelectedPaymentStatus,
-    selectedDateOrderFilter,
-    setSelectedDateOrderFilter,
-    dateOrderOptions,
-    selectedFavoritedFilter,
-    setSelectedFavoritedFilter,
-    favoritedFilterLabel,
-    categoriesList,
-    selectedPaymentCategory,
-    setSelectedPaymentCategory,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-  } = usePayments();
+  const { Incomings, Expenses, filteredList, setStartDate, setEndDate } =
+    usePayments();
 
   const {
     GoalsList: goalsList,
@@ -106,8 +93,6 @@ export default function Reports() {
   } = useGoals();
 
   const { FuelList } = useRuns();
-
-  const [openFilter, setOpenFilter] = useState(false);
 
   const formatCurrency = (value) => {
     return value.toLocaleString("pt-BR", {
@@ -270,10 +255,6 @@ export default function Reports() {
     setStartDate(dayjs(selectedDate).format("DD/MM/YYYY"));
   };
 
-  const onChangeEndDate = (_, selectedDate) => {
-    setEndDate(dayjs(selectedDate).format("DD/MM/YYYY"));
-  };
-
   return (
     <VStack flex={1} bg={bg}>
       <ScrollView flex={1} w={"100%"} h={"100%"}>
@@ -395,11 +376,11 @@ export default function Reports() {
                   mb={4}
                   shadow={2}
                   borderRadius={4}
-                  bg="gray.100"
+                  bg={bgCardButton}
                   w={"100%"}
                 >
                   <Pressable
-                    bgColor="gray.100"
+                    bgColor={bgCardButton}
                     p={2}
                     flex={1}
                     borderTopLeftRadius={4}
@@ -407,18 +388,21 @@ export default function Reports() {
                     alignItems="center"
                     justifyContent="center"
                     borderBottomColor={
-                      selectedRunsFilter === "litro" ? "purple.500" : "gray.100"
+                      selectedRunsFilter === "litro"
+                        ? "purple.500"
+                        : bgCardButton
                     }
                     borderBottomWidth={2}
                     onPress={() => setSelectedRunsFilter("litro")}
+                    _pressed={{
+                      bgColor: bgCard,
+                    }}
                   >
                     <Text
                       fontSize={14}
                       fontWeight={500}
                       color={
-                        selectedRunsFilter === "litro"
-                          ? "purple.500"
-                          : "gray.800"
+                        selectedRunsFilter === "litro" ? "purple.500" : text
                       }
                     >
                       Por Litro
@@ -426,7 +410,7 @@ export default function Reports() {
                   </Pressable>
 
                   <Pressable
-                    bgColor="gray.100"
+                    bgColor={bgCardButton}
                     p={2}
                     flex={1}
                     borderTopLeftRadius={4}
@@ -434,25 +418,28 @@ export default function Reports() {
                     alignItems="center"
                     justifyContent="center"
                     borderBottomColor={
-                      selectedRunsFilter === "pago" ? "purple.500" : "gray.100"
+                      selectedRunsFilter === "pago"
+                        ? "purple.500"
+                        : bgCardButton
                     }
                     borderBottomWidth={2}
                     onPress={() => setSelectedRunsFilter("pago")}
+                    _pressed={{
+                      bgColor: bgCard,
+                    }}
                   >
                     <Text
                       fontSize={14}
                       fontWeight={500}
                       color={
-                        selectedRunsFilter === "pago"
-                          ? "purple.500"
-                          : "gray.800"
+                        selectedRunsFilter === "pago" ? "purple.500" : text
                       }
                     >
                       Pago
                     </Text>
                   </Pressable>
                 </HStack>
-                <HStack ml={-2}>
+                <HStack ml={-5}>
                   <LineChart
                     data={{
                       labels: runsChartData.labels,
@@ -471,7 +458,7 @@ export default function Reports() {
                       backgroundGradientFromOpacity: 1,
                       backgroundGradientTo: bgCard,
                       backgroundGradientToOpacity: 1,
-                      color: () => theme.colors.black,
+                      color: () => text,
                       barPercentage: 0.5,
                       useShadowColorFromDataset: true,
                       propsForVerticalLabels: {
@@ -486,246 +473,6 @@ export default function Reports() {
               </VStack>
             )}
           </VStack>
-
-          <VStack mt={-2} space={4}>
-            <Text fontSize={14} color={text}>
-              * Totais apenas dos itens do período selecionado
-            </Text>
-            <HStack justifyContent="space-between">
-              <Text bold fontSize={20} color={text}>
-                Relatórios
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setOpenFilter(!openFilter);
-                }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 28,
-                  paddingVertical: 6,
-                  borderWidth: 1,
-                  borderRadius: 20,
-                  backgroundColor: "transparent",
-                  borderColor: "#9c44dc",
-                }}
-              >
-                <Text fontSize={16} color={theme.colors.purple[600]}>
-                  <Feather
-                    name="filter"
-                    size={18}
-                    color={theme.colors.purple[600]}
-                  />{" "}
-                  Filtros
-                </Text>
-              </TouchableOpacity>
-            </HStack>
-            {openFilter && (
-              <VStack space={2}>
-                <VStack space={2}>
-                  <Text color={text} fontSize={16} bold>
-                    Filtrar por período
-                  </Text>
-                  <HStack w={"100%"} space={2}>
-                    <Input
-                      flex={1}
-                      type={"text"}
-                      py="0"
-                      placeholder="Data inicio"
-                      value={startDate}
-                      editable={false}
-                      InputRightElement={
-                        <Button
-                          size="xs"
-                          rounded="none"
-                          w="1/4"
-                          p={0}
-                          h="full"
-                          bgColor={theme.colors.purple[600]}
-                          onPress={() => {
-                            DateTimePickerAndroid.open({
-                              value: new Date(Date.now()),
-                              onChange: onChangeStartDate,
-                              mode: "date",
-                              is24Hour: false,
-                            });
-                          }}
-                        >
-                          <Feather name="calendar" size={24} color="#FFF" />
-                        </Button>
-                      }
-                    />
-                    <Input
-                      flex={1}
-                      type={"text"}
-                      py="0"
-                      placeholder="Data Fim"
-                      value={endDate}
-                      editable={false}
-                      InputRightElement={
-                        <Button
-                          size="xs"
-                          rounded="none"
-                          w="1/4"
-                          p={2}
-                          h="full"
-                          bgColor={theme.colors.purple[600]}
-                          onPress={() => {
-                            DateTimePickerAndroid.open({
-                              value: new Date(Date.now()),
-                              onChange: onChangeEndDate,
-                              mode: "date",
-                              is24Hour: false,
-                            });
-                          }}
-                        >
-                          <Feather name="calendar" size={24} color="#FFF" />
-                        </Button>
-                      }
-                    />
-                  </HStack>
-                </VStack>
-
-                <HStack justifyContent="space-between" alignItems="center">
-                  <Text color={text} fontSize={16} bold>
-                    Entradas/Saídas
-                  </Text>
-                  <Picker
-                    selectedValue={selectedtypeofpayment}
-                    onValueChange={(itemValue, itemIndex) =>
-                      setselectedtypeofpayment(itemValue)
-                    }
-                    mode="dropdown"
-                    dropdownIconColor={theme.colors.purple[600]}
-                    dropdownIconRippleColor={theme.colors.purple[600]}
-                    enabled
-                    style={{
-                      width: "50%",
-                      borderRadius: 4,
-                      color: text,
-                    }}
-                  >
-                    <Picker.Item label="Todas" value="0" />
-                    <Picker.Item label="Entradas" value="1" />
-                    <Picker.Item label="Saídas" value="2" />
-                  </Picker>
-                </HStack>
-                {!simpleFinancesItem && (
-                  <>
-                    <HStack justifyContent="space-between" alignItems="center">
-                      <Text color={text} fontSize={16} bold>
-                        Categoria de gastos
-                      </Text>
-                      <Picker
-                        selectedValue={selectedPaymentCategory}
-                        onValueChange={(itemValue, itemIndex) =>
-                          setSelectedPaymentCategory(itemValue)
-                        }
-                        mode="dropdown"
-                        dropdownIconColor={theme.colors.purple[600]}
-                        dropdownIconRippleColor={theme.colors.purple[600]}
-                        enabled
-                        style={{
-                          width: "50%",
-                          borderRadius: 4,
-                          color: text,
-                        }}
-                      >
-                        {categoriesList.map((cat, index) => (
-                          <Picker.Item key={index} label={cat} value={cat} />
-                        ))}
-                      </Picker>
-                    </HStack>
-
-                    <VStack space={2}>
-                      <Text color={text} fontSize={16} bold>
-                        Status de pagamento
-                      </Text>
-                      <FlatList
-                        showsHorizontalScrollIndicator={false}
-                        horizontal
-                        ItemSeparatorComponent={() => <Box w={2} h={"100%"} />}
-                        data={pamentStatusLabel}
-                        renderItem={({ item }) => (
-                          <TouchableOpacity
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              paddingHorizontal: 8,
-                              paddingVertical: 4,
-                              borderWidth: 1,
-                              borderRadius: 16,
-                              backgroundColor: "transparent",
-                              borderColor:
-                                item === selectedPaymentStatus
-                                  ? theme.colors.purple[600]
-                                  : text,
-                            }}
-                            onPress={() => setSelectedPaymentStatus(item)}
-                          >
-                            <Text
-                              color={
-                                item === selectedPaymentStatus
-                                  ? theme.colors.purple[600]
-                                  : text
-                              }
-                            >
-                              {item}
-                            </Text>
-                          </TouchableOpacity>
-                        )}
-                      />
-                    </VStack>
-                  </>
-                )}
-
-                <VStack>
-                  <Text color={text} fontSize={16} bold>
-                    Favoritos
-                  </Text>
-                  <FlatList
-                    showsHorizontalScrollIndicator={false}
-                    horizontal
-                    ItemSeparatorComponent={() => <Box w={2} h={"100%"} />}
-                    data={favoritedFilterLabel}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          borderWidth: 1,
-                          borderRadius: 16,
-                          backgroundColor: "transparent",
-                          borderColor:
-                            item === selectedFavoritedFilter
-                              ? theme.colors.purple[600]
-                              : text,
-                        }}
-                        onPress={() => setSelectedFavoritedFilter(item)}
-                      >
-                        <Text
-                          color={
-                            item === selectedFavoritedFilter
-                              ? theme.colors.purple[600]
-                              : text
-                          }
-                        >
-                          {item}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  />
-                </VStack>
-              </VStack>
-            )}
-          </VStack>
-
-          <Divider />
 
           <VStack space={2}>
             <Text bold fontSize={20} color={text}>
@@ -744,6 +491,10 @@ export default function Reports() {
               onPress={() => {
                 setSelectedTransaction(goal);
                 onOpen();
+              }}
+              bg={bgCard}
+              _pressed={{
+                bgColor: bgCardPressed
               }}
             >
               <VStack

@@ -261,6 +261,9 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
               p={0}
               h="full"
               bgColor={theme.colors.purple[600]}
+              _pressed={{
+                bgColor: "purple.800",
+              }}
               onPress={() => {
                 isEditable &&
                   DateTimePickerAndroid.open({
@@ -328,6 +331,9 @@ export default function EditItemForm({ onClose, selectedTransaction }) {
                   p={0}
                   h="full"
                   bgColor={theme.colors.purple[600]}
+                  _pressed={{
+                    bgColor: "purple.800",
+                  }}
                   onPress={() => {
                     isEditable &&
                       DateTimePickerAndroid.open({

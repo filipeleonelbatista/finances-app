@@ -38,7 +38,10 @@ dayjs.extend(isSameOrBefore);
 
 export default function Runs() {
   const theme = useTheme();
-
+  const bgCardPressed = useColorModeValue(
+    theme.colors.warmGray[100],
+    theme.colors.gray[700]
+  );
   const bg = useColorModeValue(
     theme.colors.warmGray[50],
     theme.colors.gray[900]
@@ -202,16 +205,20 @@ export default function Runs() {
             </Text>
           </VStack>
 
-          <Pressable onPress={() => onOpen()}>
-            <VStack
-              mx={1}
-              shadow={2}
-              bg={bgCard}
-              minW={180}
-              h={110}
-              borderRadius={4}
-              p={4}
-            >
+          <Pressable
+            bg={bgCard}
+            _pressed={{
+              bgColor: bgCardPressed,
+            }}
+            mx={1}
+            shadow={2}
+            minW={180}
+            h={110}
+            borderRadius={4}
+            p={4}
+            onPress={() => onOpen()}
+          >
+            <VStack>
               <HStack justifyContent="space-between">
                 <Text color={text} fontSize={18}>
                   Autonomia
@@ -290,6 +297,9 @@ export default function Runs() {
                     p={0}
                     h="full"
                     bgColor={theme.colors.purple[600]}
+                    _pressed={{
+                      bgColor: "purple.800",
+                    }}
                     onPress={() => {
                       DateTimePickerAndroid.open({
                         value: new Date(Date.now()),
@@ -318,6 +328,9 @@ export default function Runs() {
                     p={2}
                     h="full"
                     bgColor={theme.colors.purple[600]}
+                    _pressed={{
+                      bgColor: "purple.800",
+                    }}
                     onPress={() => {
                       DateTimePickerAndroid.open({
                         value: new Date(Date.now()),
@@ -342,20 +355,19 @@ export default function Runs() {
             <>
               {filteredList.map((item) => (
                 <Pressable
+                  bgColor={bgCard}
+                  _pressed={{
+                    bgColor: bgCardPressed,
+                  }}
+                  shadow={2}
+                  borderRadius={4}
+                  p={2}
                   key={item.id}
                   onPress={() => {
                     deleteTransaction(item);
                   }}
                 >
-                  <HStack
-                    alignItems="center"
-                    w="100%"
-                    space={2}
-                    bgColor={bgCard}
-                    shadow={2}
-                    borderRadius={4}
-                    p={2}
-                  >
+                  <HStack alignItems="center" w="100%" space={2}>
                     <MaterialCommunityIcons
                       name={"fuel"}
                       size={28}

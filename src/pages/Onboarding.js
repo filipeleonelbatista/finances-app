@@ -151,6 +151,9 @@ export default function Onboarding() {
                 color: "white",
                 fontSize: 16,
               }}
+              _pressed={{
+                bgColor: "purple.800",
+              }}
             >
               Vamos comecar?!
             </Button>

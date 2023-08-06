@@ -57,6 +57,10 @@ export default function Market() {
     theme.colors.gray[600],
     theme.colors.gray[200]
   );
+  const bgCardPressed = useColorModeValue(
+    theme.colors.warmGray[100],
+    theme.colors.gray[700]
+  );
 
   const { setSelectedSheet } = usePages();
 
@@ -112,7 +116,7 @@ export default function Market() {
         borderRadius={"full"}
         shadow={4}
         _pressed={{
-          color: theme.colors.purple[900],
+          bgColor: theme.colors.purple[900],
         }}
         icon={
           <MaterialCommunityIcons
@@ -136,7 +140,7 @@ export default function Market() {
         borderRadius={"full"}
         shadow={4}
         _pressed={{
-          color: theme.colors.purple[900],
+          bgColor: theme.colors.purple[900],
         }}
         icon={
           <MaterialCommunityIcons
@@ -222,15 +226,16 @@ export default function Market() {
                     onOpen();
                   }}
                   key={item.id}
+                  bg={bgCard}
+                  _pressed={{
+                    bgColor: bgCardPressed,
+                  }}
+                  shadow={2}
+                  borderRadius={4}
+                  px={4}
+                  py={2}
                 >
-                  <HStack
-                    alignItems={"center"}
-                    bgColor={bgCard}
-                    shadow={2}
-                    borderRadius={4}
-                    px={4}
-                    py={2}
-                  >
+                  <HStack alignItems={"center"}>
                     <HStack position={"absolute"} top={3} right={3} space={2}>
                       {!marketSimplifiedItems && (
                         <Box

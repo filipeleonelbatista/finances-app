@@ -47,6 +47,36 @@ export function ListsContextProvider(props) {
     return TotalList;
   }, [filteredList]);
 
+  async function updateListInfo(id) {
+    const itemToUpdate = await database.get("lists").find(id);
+
+    const itemsCollection = database.get("items");
+    const response = await itemsCollection
+      .query(Q.where("list_id", id))
+      .fetch();
+
+    const currentList = response.map((item) => item._raw);
+
+    const totalAmount = currentList.reduce((acc, transaction) => {
+      return acc + transaction.amount;
+    }, 0);
+
+    const totalQuantity = currentList.reduce((acc, transaction) => {
+      return acc + transaction.quantity;
+    }, 0);
+
+    const updatedListInfo = {
+      id: id,
+      description: itemToUpdate._raw.description,
+      location: itemToUpdate._raw.location,
+      amount: totalAmount,
+      quantity: totalQuantity,
+      date: itemToUpdate._raw.date,
+    };
+
+    await updateTransaction(updatedListInfo);
+  }
+
   async function handleDeleteList(id) {
     Alert.alert(
       "Deseja realmente deletar esse registro?",
@@ -114,7 +144,6 @@ export function ListsContextProvider(props) {
       const itemToUpdate = await database
         .get("lists")
         .find(currentTransaction.id);
-
       await database.write(async () => {
         await itemToUpdate.update((data) => {
           data._raw.description = currentTransaction.description;
@@ -195,6 +224,8 @@ export function ListsContextProvider(props) {
               console.log("deleteTransaction error", error);
             }
 
+            await updateListInfo(currentTransaction.list_id);
+
             loadTransactions();
 
             ToastAndroid.show("Item removido do carrinho", ToastAndroid.SHORT);
@@ -202,6 +233,43 @@ export function ListsContextProvider(props) {
         },
       ]
     );
+  }
+
+  async function updateItemQuantityToList(
+    currentTransaction,
+    isAdd = false,
+    isSubtract = false
+  ) {
+    try {
+      const itemToUpdate = await database
+        .get("items")
+        .find(currentTransaction.id);
+
+      const currentQuantity = isAdd
+        ? currentTransaction.quantity + 1
+        : isSubtract
+        ? currentTransaction.quantity - 1
+        : currentTransaction.quantityisAdd;
+
+      await database.write(async () => {
+        await itemToUpdate.update((data) => {
+          data._raw.list_id = currentTransaction.list_id;
+          data._raw.description = currentTransaction.description;
+          data._raw.category = currentTransaction.category;
+          data._raw.amount = currentTransaction.amount;
+          data._raw.quantity = currentQuantity;
+          data._raw.quantityDesired = currentTransaction.quantityDesired;
+          data._raw.location = currentTransaction.location;
+          data._raw.date = currentTransaction.date;
+        });
+      });
+    } catch (error) {
+      console.log("updateItemQuantityToList error", error);
+    }
+
+    await updateListInfo(currentTransaction.list_id);
+
+    loadTransactions();
   }
 
   async function updateItemToList(currentTransaction) {
@@ -226,6 +294,8 @@ export function ListsContextProvider(props) {
       console.log("updateItemToList error", error);
     }
 
+    await updateListInfo(currentTransaction.list_id);
+
     loadTransactions();
   }
 
@@ -246,6 +316,8 @@ export function ListsContextProvider(props) {
     } catch (error) {
       console.log("addItemToList error", error);
     }
+
+    await updateListInfo(newTransaction.list_id);
 
     loadTransactions();
   }
@@ -289,7 +361,7 @@ export function ListsContextProvider(props) {
     }
 
     try {
-      if (!!selectedList) {
+      if (selectedList) {
         await handleSelectList(selectedList.id);
       }
     } catch (error) {
@@ -325,6 +397,7 @@ export function ListsContextProvider(props) {
         selectedCategory,
         setSelectedCategory,
         filteredList,
+        updateItemQuantityToList,
       }}
     >
       {props.children}

@@ -54,6 +54,10 @@ export default function List() {
     theme.colors.gray[600],
     theme.colors.gray[200]
   );
+  const bgCardPressed = useColorModeValue(
+    theme.colors.warmGray[100],
+    theme.colors.gray[700]
+  );
 
   const { setSelectedSheet } = usePages();
 
@@ -82,6 +86,7 @@ export default function List() {
     listTotal,
     search,
     setSearch,
+    updateItemQuantityToList,
   } = useLists();
 
   const [selectedSheetOpen, setSelectedSheetOpen] = useState(null);
@@ -153,7 +158,7 @@ export default function List() {
                 onOpen();
               }}
               _pressed={{
-                bgColor: theme.colors.green[200],
+                bgColor: theme.colors.green[800],
               }}
             />
           </HStack>
@@ -209,15 +214,16 @@ export default function List() {
                     onOpen();
                   }}
                   key={item.id}
+                  bgColor={bgCard}
+                  shadow={2}
+                  borderRadius={4}
+                  px={4}
+                  py={2}
+                  _pressed={{
+                    bgColor: bgCardPressed,
+                  }}
                 >
-                  <HStack
-                    alignItems={"center"}
-                    bgColor={bgCard}
-                    shadow={2}
-                    borderRadius={4}
-                    px={4}
-                    py={2}
-                  >
+                  <HStack alignItems={"center"}>
                     <HStack position={"absolute"} top={3} right={3} space={2}>
                       {!marketSimplifiedItems && (
                         <Box
@@ -296,7 +302,7 @@ export default function List() {
                               borderColor={theme.colors.red[600]}
                               onPress={() =>
                                 item.quantity > 0 &&
-                                updateStock(item, false, true)
+                                updateItemQuantityToList(item, false, true)
                               }
                               _pressed={{
                                 bgColor: theme.colors.red[300],
@@ -317,7 +323,9 @@ export default function List() {
                               }
                               borderWidth={1}
                               borderColor={theme.colors.green[600]}
-                              onPress={() => updateStock(item, true, false)}
+                              onPress={() =>
+                                updateItemQuantityToList(item, true, false)
+                              }
                               _pressed={{
                                 bgColor: theme.colors.purple[300],
                               }}

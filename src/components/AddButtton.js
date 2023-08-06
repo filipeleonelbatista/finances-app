@@ -57,7 +57,7 @@ export default function AddButton() {
         mt={-6}
         shadow={4}
         _pressed={{
-          color: theme.colors.purple[900],
+          bgColor: theme.colors.purple[900],
         }}
         icon={<Feather name="plus" size={26} color={theme.colors.white} />}
       />

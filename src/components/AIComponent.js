@@ -145,7 +145,7 @@ export default function AIComponent() {
           borderRadius={'full'}
           shadow={4}
           _pressed={{
-            color: theme.colors.purple[900]
+            bgColor: theme.colors.purple[900]
           }}
           icon={<MaterialCommunityIcons name="robot-outline" size={20} color={theme.colors.white} />}
         />

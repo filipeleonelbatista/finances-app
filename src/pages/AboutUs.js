@@ -7,9 +7,13 @@ import {
   HStack,
   IconButton,
   Image,
-  Input, Link, Text, useColorMode,
+  Input,
+  Link,
+  Text,
+  useColorMode,
   useColorModeValue,
-  useTheme, VStack
+  useTheme,
+  VStack,
 } from "native-base";
 import React from "react";
 import {
@@ -17,7 +21,7 @@ import {
   BackHandler,
   Linking,
   Switch,
-  ToastAndroid
+  ToastAndroid,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -30,7 +34,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   useFocusEffect,
   useIsFocused,
-  useNavigation
+  useNavigation,
 } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { jsonToCSV, readString } from "react-native-csv";
@@ -110,8 +114,23 @@ export default function AboutUs() {
         {
           text: "Sim",
           onPress: async () => {
-            await AsyncStorage.setItem("market", JSON.stringify([]));
-            setMarketList([]);
+            await database.write(async () => {
+              const stockCollection = database.collections.get("stock");
+              const allStock = await stockCollection.query().fetch();
+              for (const item of allStock) {
+                await item.destroyPermanently();
+              }
+              const listsCollection = database.collections.get("lists");
+              const allLists = await listsCollection.query().fetch();
+              for (const item of allLists) {
+                await item.destroyPermanently();
+              }
+              const itemsCollection = database.collections.get("items");
+              const allItems = await itemsCollection.query().fetch();
+              for (const item of allItems) {
+                await item.destroyPermanently();
+              }
+            });
 
             ToastAndroid.show(
               "Compras removidas com sucesso!",
@@ -775,27 +794,6 @@ export default function AboutUs() {
           >
             Apagar Compras
           </Button>
-
-          <Button
-            onPress={handleAddFinances}
-            shadow={2}
-            colorScheme={"purple"}
-            borderRadius={"full"}
-            leftIcon={<Feather name="dollar-sign" size={24} color="#FFF" />}
-            _text={{
-              color: "white",
-              fontSize: 16,
-            }}
-            _pressed={{
-              bgColor: theme.colors.purple[900],
-            }}
-          >
-            Add Total em Finanças
-          </Button>
-
-          <Text color={text} px={2} textAlign="center">
-            Para remover basta clicar no item em Finanças e excluir.
-          </Text>
         </VStack>
 
         <HStack px={4} my={2}>
