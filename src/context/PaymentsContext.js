@@ -299,9 +299,11 @@ export function PaymentsContextProvider(props) {
           data._raw.category = currentTransaction.category;
           data._raw.date = currentTransaction.date;
           data._raw.paymentDate = currentTransaction.paymentDate;
-          data._raw.paymentStatus = currentTransaction.paymentStatus ? 1 : 0;
-          data._raw.isEnabled = currentTransaction.isEnabled ? 1 : 0;
-          data._raw.isFavorited = !currentTransaction.isFavorited ? 1 : 0;
+          data._raw.paymentStatus = Number(currentTransaction.paymentStatus);
+          data._raw.isEnabled = Number(currentTransaction.isEnabled);
+          data._raw.isFavorited = Number(
+            currentTransaction.isFavorited === "1" ? "0" : "1"
+          );
         });
       });
     } catch (error) {
@@ -330,9 +332,9 @@ export function PaymentsContextProvider(props) {
           data._raw.category = currentTransaction.category;
           data._raw.date = currentTransaction.date;
           data._raw.paymentDate = currentTransaction.paymentDate;
-          data._raw.paymentStatus = currentTransaction.paymentStatus ? 1 : 0;
-          data._raw.isEnabled = currentTransaction.isEnabled ? 1 : 0;
-          data._raw.isFavorited = currentTransaction.isFavorited ? 1 : 0;
+          data._raw.paymentStatus = Number(currentTransaction.paymentStatus);
+          data._raw.isEnabled = Number(currentTransaction.isEnabled);
+          data._raw.isFavorited = Number(currentTransaction.isFavorited);
         });
       });
     } catch (error) {
@@ -379,6 +381,7 @@ export function PaymentsContextProvider(props) {
   }
 
   async function importTransactions(importedList) {
+    console.log("importedList", importedList);
     for (const importedItem of importedList) {
       try {
         await database.write(async () => {
@@ -388,9 +391,9 @@ export function PaymentsContextProvider(props) {
             data._raw.category = importedItem.category;
             data._raw.date = importedItem.date;
             data._raw.paymentDate = importedItem.paymentDate;
-            data._raw.paymentStatus = importedItem.paymentStatus ? 1 : 0;
-            data._raw.isEnabled = importedItem.isEnabled ? 1 : 0;
-            data._raw.isFavorited = importedItem.isFavorited ? 1 : 0;
+            data._raw.paymentStatus = Number(importedItem.paymentStatus);
+            data._raw.isEnabled = Number(importedItem.isEnabled);
+            data._raw.isFavorited = Number(importedItem.isFavorited);
           });
         });
       } catch (error) {
@@ -412,9 +415,9 @@ export function PaymentsContextProvider(props) {
           data._raw.category = newTransaction.category;
           data._raw.date = newTransaction.date;
           data._raw.paymentDate = newTransaction.paymentDate;
-          data._raw.paymentStatus = newTransaction.paymentStatus ? 1 : 0;
-          data._raw.isEnabled = newTransaction.isEnabled ? 1 : 0;
-          data._raw.isFavorited = newTransaction.isFavorited ? 1 : 0;
+          data._raw.paymentStatus = Number(newTransaction.paymentStatus);
+          data._raw.isEnabled = Number(newTransaction.isEnabled);
+          data._raw.isFavorited = Number(newTransaction.isFavorited);
         });
       });
     } catch (error) {
@@ -431,6 +434,7 @@ export function PaymentsContextProvider(props) {
       const financesCollection = database.get("finances");
       const response = await financesCollection.query().fetch();
       const currentList = response.map((item) => item._raw);
+      console.log("currentList", currentList);
       setTransactionsList(currentList);
     } catch (error) {
       setTransactionsList([]);

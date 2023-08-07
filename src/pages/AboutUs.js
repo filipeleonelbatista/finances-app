@@ -337,6 +337,10 @@ export default function AboutUs() {
       newArray.push(newRowObject);
     }
 
+    if (newArray[newArray.length - 1].description === undefined) {
+      newArray.pop();
+    }
+
     return newArray;
   }
 
@@ -357,15 +361,14 @@ export default function AboutUs() {
           if (csvFormated) {
             const importedTransactions = csvFormated.map((item) => {
               const row = {
-                id: v4(),
                 amount: Number(item.amount),
                 date: item.date !== "" ? Number(item.date) : "",
                 paymentDate: item.paymentDate !== "" ? Number(item.date) : "",
                 description: item.description,
                 category: item.category,
-                paymentStatus: item.paymentStatus === "true",
-                isEnabled: item.isEnabled === "true",
-                isFavorited: item.isFavorited === "true",
+                paymentStatus: item.paymentStatus,
+                isEnabled: item.isEnabled,
+                isFavorited: item.isFavorited,
               };
 
               return row;
