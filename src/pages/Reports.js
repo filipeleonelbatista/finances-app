@@ -23,7 +23,9 @@ import * as Progress from "react-native-progress";
 import AIComponent from "../components/AIComponent";
 import EditGoalForm from "../components/EditGoalForm";
 import EmptyMessage from "../components/EmptyMessage";
+import ErrorSheet from "../components/ErrorSheet";
 import Header from "../components/Header";
+import ViewFuelReport from "../components/ViewFuelReport";
 import { useGoals } from "../hooks/useGoals";
 import { useIsKeyboardOpen } from "../hooks/useIsKeyboardOpen";
 import { usePages } from "../hooks/usePages";
@@ -73,6 +75,9 @@ export default function Reports() {
 
   const { isOpen, onOpen, onClose } = useDisclose();
 
+  const [currentSelectedSheet, setCurrentSelectedSheet] = useState(null);
+  const [selectedValue, setSelectedValue] = useState(0);
+
   const navigation = useNavigation();
 
   const { width, height } = useWindowDimensions();
@@ -118,7 +123,7 @@ export default function Reports() {
       selectedRunsFilter === "litro" ? item.unityAmount : item.amount
     );
 
-    return { labels, data };
+    return { labels, data, fullList: last8Elements };
   }, [FuelList, selectedRunsFilter]);
 
   const expensesByCatData = useMemo(() => {
@@ -244,10 +249,6 @@ export default function Reports() {
 
     return sortedData;
   }, [filteredList]);
-
-  const onChangeStartDate = (_, selectedDate) => {
-    setStartDate(dayjs(selectedDate).format("DD/MM/YYYY"));
-  };
 
   return (
     <VStack flex={1} bg={bg}>
@@ -435,6 +436,11 @@ export default function Reports() {
                 </HStack>
                 <HStack ml={-5}>
                   <LineChart
+                    onDataPointClick={({ index, ...rest }) => {
+                      setCurrentSelectedSheet("fuel");
+                      setSelectedValue(index);
+                      onOpen();
+                    }}
                     data={{
                       labels: runsChartData.labels,
                       datasets: [
@@ -590,10 +596,18 @@ export default function Reports() {
         h={height * (isKeyboardOpen ? 0.9 : 1.09)}
       >
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
-          <EditGoalForm
-            onClose={onClose}
-            selectedTransaction={selectedTransaction}
-          />
+          {currentSelectedSheet === "editar" ? (
+            <EditGoalForm
+              onClose={onClose}
+              selectedTransaction={selectedTransaction}
+            />
+          ) : currentSelectedSheet === "fuel" ? (
+            <ViewFuelReport
+              selectedValue={runsChartData.fullList[selectedValue]}
+            />
+          ) : (
+            <ErrorSheet />
+          )}
           <Box h={16} w={"100%"} />
         </Actionsheet.Content>
       </Actionsheet>

@@ -66,7 +66,6 @@ export default function Onboarding() {
             const requestedDirPerm =
               await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
             await handleUpdateSelectedFolderToSave(
-              "selectedFolderToSave",
               requestedDirPerm.directoryUri
             );
             ToastAndroid.show("Pasta selecionada!", ToastAndroid.SHORT);

@@ -71,5 +71,9 @@ export const configSchema = tableSchema({
       name: "veicleAutonomy",
       type: "number",
     },
+    {
+      name: "selectedFolderToSave",
+      type: "string",
+    },
   ],
 });

@@ -21,6 +21,7 @@ class ConfigModel extends Model {
   @field("veicleColor") veicleColor;
   @field("veiclePlate") veiclePlate;
   @field("veicleAutonomy") veicleAutonomy;
+  @field("selectedFolderToSave") selectedFolderToSave;
 }
 
 export default ConfigModel;

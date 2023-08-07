@@ -13,7 +13,7 @@ import {
   useColorMode,
   useColorModeValue,
   useTheme,
-  VStack,
+  VStack
 } from "native-base";
 import React from "react";
 import {
@@ -21,7 +21,7 @@ import {
   BackHandler,
   Linking,
   Switch,
-  ToastAndroid,
+  ToastAndroid
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -30,23 +30,22 @@ import * as MediaLibrary from "expo-media-library";
 
 import * as DocumentPicker from "expo-document-picker";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   useFocusEffect,
   useIsFocused,
-  useNavigation,
+  useNavigation
 } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { jsonToCSV, readString } from "react-native-csv";
 import userImg from "../assets/icon.png";
 import Header from "../components/Header";
 import { database } from "../databases";
+import { useLists } from "../hooks/useLists";
 import { useMarket } from "../hooks/useMarket";
 import { useOpenAi } from "../hooks/useOpenAi";
 import { usePayments } from "../hooks/usePayments";
 import { useRuns } from "../hooks/useRuns";
 import { useSettings } from "../hooks/useSettings";
-import { useLists } from "../hooks/useLists";
 
 export default function AboutUs() {
   const theme = useTheme();
