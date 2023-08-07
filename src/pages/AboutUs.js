@@ -46,6 +46,7 @@ import { useOpenAi } from "../hooks/useOpenAi";
 import { usePayments } from "../hooks/usePayments";
 import { useRuns } from "../hooks/useRuns";
 import { useSettings } from "../hooks/useSettings";
+import { useLists } from "../hooks/useLists";
 
 export default function AboutUs() {
   const theme = useTheme();
@@ -73,6 +74,12 @@ export default function AboutUs() {
 
   const { setFuelList, handleImportRuns, handleExportRuns } = useRuns();
 
+  const { handleImportStock, handleExportStock, loadTransactions } =
+    useMarket();
+
+  const { loadTransactions: loadTransactionsLists, handleImportList } =
+    useLists();
+
   const {
     isEnableTitheCard,
     handleSwitchViewTitheCard,
@@ -84,7 +91,7 @@ export default function AboutUs() {
     handleSetPrefixTithe,
     isEnableTotalHistoryCard,
     handleSwitchViewTotalHistoryCard,
-    handleCleanAsyncStorage,
+    handleCleanStorage,
     simpleFinancesItem,
     handleSetSimpleFinancesItem,
     marketSimplifiedItems,
@@ -94,6 +101,8 @@ export default function AboutUs() {
     handleToggleTheme,
     handleSetIsAiEnabled,
     isAiEnabled,
+    selectedFolderToSave,
+    handleResetConfigs,
   } = useSettings();
 
   async function handleClearMarket() {
@@ -102,12 +111,55 @@ export default function AboutUs() {
       "Esta ação é irreversível! Deseja continuar?",
       [
         {
-          text: "Não",
+          text: "Cancelar",
           style: "cancel",
           onPress: () => console.log("Não pressed"),
         },
         {
-          text: "Sim",
+          text: "Apagar Listas",
+          onPress: async () => {
+            await database.write(async () => {
+              const listsCollection = database.collections.get("lists");
+              const allLists = await listsCollection.query().fetch();
+              for (const item of allLists) {
+                await item.destroyPermanently();
+              }
+              const itemsCollection = database.collections.get("items");
+              const allItems = await itemsCollection.query().fetch();
+              for (const item of allItems) {
+                await item.destroyPermanently();
+              }
+            });
+
+            await loadTransactionsLists();
+
+            ToastAndroid.show(
+              "Listas de compras removidas com sucesso!",
+              ToastAndroid.SHORT
+            );
+          },
+        },
+        {
+          text: "Apagar estoque",
+          onPress: async () => {
+            await database.write(async () => {
+              const stockCollection = database.collections.get("stock");
+              const allStock = await stockCollection.query().fetch();
+              for (const item of allStock) {
+                await item.destroyPermanently();
+              }
+            });
+
+            await loadTransactions();
+
+            ToastAndroid.show(
+              "Estoque removido com sucesso!",
+              ToastAndroid.SHORT
+            );
+          },
+        },
+        {
+          text: "Apagar tudo",
           onPress: async () => {
             await database.write(async () => {
               const stockCollection = database.collections.get("stock");
@@ -126,6 +178,9 @@ export default function AboutUs() {
                 await item.destroyPermanently();
               }
             });
+
+            await loadTransactions();
+            await loadTransactionsLists();
 
             ToastAndroid.show(
               "Compras removidas com sucesso!",
@@ -179,26 +234,7 @@ export default function AboutUs() {
       {
         text: "Sim",
         onPress: async () => {
-          const defaultSettings = {
-            isEnableTitheCard: false,
-            isEnableTotalHistoryCard: false,
-            willAddFuelToTransactionList: false,
-            willUsePrefixToRemoveTihteSum: false,
-            prefixTithe: "",
-            simpleFinancesItem: false,
-          };
-
-          await AsyncStorage.setItem(
-            "Settings",
-            JSON.stringify(defaultSettings)
-          );
-
-          handleSwitchViewTitheCard(false);
-          handleSwitchViewTotalHistoryCard(false);
-          handleToggleWillAddFuel(false);
-          handleWillRemovePrefixToRemove(false);
-          handleSetPrefixTithe("");
-          handleSetSimpleFinancesItem(false);
+          await handleResetConfigs();
 
           ToastAndroid.show(
             "Configs. redefinidas com sucesso!",
@@ -274,7 +310,7 @@ export default function AboutUs() {
     const currentDate = new Date();
     try {
       const CSV = jsonToCSV(transactionsList);
-      const directoryUri = await AsyncStorage.getItem("@selectedFolderToSave");
+      const directoryUri = selectedFolderToSave;
       const fileName = `financas-${
         currentDate.getDate() < 10
           ? "0" + currentDate.getDate()
@@ -795,7 +831,7 @@ export default function AboutUs() {
 
         <VStack space={2} px={4} py={2}>
           <Text color={text} bold fontSize={22}>
-            Mercado
+            Compras
           </Text>
           <HStack alignItems={"center"}>
             <Switch
@@ -816,6 +852,67 @@ export default function AboutUs() {
               Usar formulário simplificado de itens
             </Text>
           </HStack>
+          <Button
+            onPress={handleExportStock}
+            shadow={2}
+            colorScheme={"purple"}
+            borderRadius={"full"}
+            leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+            _text={{
+              color: "white",
+              fontSize: 16,
+            }}
+            _pressed={{
+              bgColor: theme.colors.purple[900],
+            }}
+          >
+            Exportar Estoque
+          </Button>
+          <Button
+            onPress={handleImportStock}
+            shadow={2}
+            colorScheme={"purple"}
+            borderRadius={"full"}
+            leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+            _text={{
+              color: "white",
+              fontSize: 16,
+            }}
+            _pressed={{
+              bgColor: theme.colors.purple[900],
+            }}
+          >
+            Importar Estoque
+          </Button>
+
+          <Text color={text} px={2} textAlign="center">
+            Use um arquivo{" "}
+            <Text color={text} bold fontSize={16}>
+              .csv{" "}
+            </Text>
+            gerado pelo sistema para importar os dados de um amigo ou familiar.
+          </Text>
+
+          <Button
+            onPress={handleImportList}
+            shadow={2}
+            colorScheme={"purple"}
+            borderRadius={"full"}
+            leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+            _text={{
+              color: "white",
+              fontSize: 16,
+            }}
+            _pressed={{
+              bgColor: theme.colors.purple[900],
+            }}
+          >
+            Importar Lista de compras
+          </Button>
+
+          <Text color={text} px={2} textAlign="center">
+            Para exportar pressione e segure o card da lista que quer exportar.
+          </Text>
 
           <Button
             onPress={handleClearMarket}
@@ -862,7 +959,7 @@ export default function AboutUs() {
           </Button>
 
           <Button
-            onPress={handleCleanAsyncStorage}
+            onPress={handleCleanStorage}
             shadow={2}
             colorScheme={"purple"}
             borderRadius={"full"}

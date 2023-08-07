@@ -169,6 +169,8 @@ export default function Finances() {
     setEndDate(dayjs(selectedDate).format("DD/MM/YYYY"));
   };
 
+  const { isAiEnabled } = useSettings();
+
   return (
     <VStack flex={1} bg={bg}>
       <ScrollView flex={1} w={"100%"} h={"100%"}>
@@ -746,6 +748,8 @@ export default function Finances() {
             </HStack>
           </VStack>
         )}
+
+        {isAiEnabled && <Box w={"100%"} h={16} />}
       </ScrollView>
 
       <AIComponent />

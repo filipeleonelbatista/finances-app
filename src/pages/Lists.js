@@ -4,7 +4,6 @@ import { Feather } from "@expo/vector-icons";
 import {
   Actionsheet,
   Box,
-  Button,
   HStack,
   IconButton,
   Pressable,
@@ -16,7 +15,6 @@ import {
   VStack,
 } from "native-base";
 
-import { Picker } from "@react-native-picker/picker";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
@@ -25,20 +23,20 @@ import { useEffect } from "react";
 import { useWindowDimensions } from "react-native";
 import AIComponent from "../components/AIComponent";
 import EditShoppingCartItem from "../components/EditShoppingCartItem";
+import EmptyMessage from "../components/EmptyMessage";
 import ErrorSheet from "../components/ErrorSheet";
 import EstimativeForm from "../components/EstimativeForm";
 import Header from "../components/Header";
 import { useIsKeyboardOpen } from "../hooks/useIsKeyboardOpen";
-import { useMarket } from "../hooks/useMarket";
+import { useLists } from "../hooks/useLists";
 import { usePages } from "../hooks/usePages";
 import { useSettings } from "../hooks/useSettings";
-import { useLists } from "../hooks/useLists";
-import EmptyMessage from "../components/EmptyMessage";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
 export default function Lists() {
+  const { isAiEnabled } = useSettings();
   const theme = useTheme();
 
   const bg = useColorModeValue(
@@ -77,7 +75,7 @@ export default function Lists() {
 
   const { height } = useWindowDimensions();
 
-  const { lists, handleSelectList, handleDeleteList } = useLists();
+  const { lists, handleSelectList, handleExportList } = useLists();
 
   const [selectedSheetOpen, setSelectedSheetOpen] = useState(null);
 
@@ -117,7 +115,7 @@ export default function Lists() {
           </Text>
           <Text mb={4} fontSize={14} color={text}>
             Crie suas listas de compra e adicione ao estoque para seu controle.
-            Pressione e segure para remover uma lista.
+            Pressione e segure para exportar uma lista.
           </Text>
 
           <VStack>
@@ -140,9 +138,7 @@ export default function Lists() {
                     handleSelectList(item.id);
                     navigation.navigate("List");
                   }}
-                  onLongPress={() => {
-                    handleDeleteList(item.id);
-                  }}
+                  onLongPress={() => handleExportList(item.id)}
                 >
                   <HStack alignItems="center" space={2}>
                     <Box mx={2}>
@@ -180,7 +176,10 @@ export default function Lists() {
         </VStack>
       </ScrollView>
 
+      {isAiEnabled && <Box w={"100%"} h={16} />}
+
       <AIComponent />
+
       <Actionsheet
         isOpen={isOpen}
         onClose={onClose}

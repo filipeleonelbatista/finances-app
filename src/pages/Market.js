@@ -111,7 +111,7 @@ export default function Market() {
         alignItems={"center"}
         justifyContent={"center"}
         onPress={() => {
-          handleAddItensOnBuyList();
+          handleAddItensOnBuyList(() => navigation.navigate("Lists"));
         }}
         borderRadius={"full"}
         shadow={4}
@@ -385,7 +385,9 @@ export default function Market() {
         )}
       </ScrollView>
 
-      {isAiEnabled && <AIComponent />}
+      {isAiEnabled && <Box w={"100%"} h={16} />}
+      
+      <AIComponent />
 
       <Actionsheet
         isOpen={isOpen}

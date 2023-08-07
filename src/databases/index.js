@@ -1,5 +1,6 @@
 import { Database } from "@nozbe/watermelondb";
 import SQLiteAdapter from "@nozbe/watermelondb/adapters/sqlite";
+import ConfigModel from "./Model/configModel";
 
 import FinancesModel from "./Model/financesModel";
 import GoalsModel from "./Model/goalsModel";
@@ -23,5 +24,6 @@ export const database = new Database({
     StockModel,
     ListsModel,
     ItemsModel,
+    ConfigModel,
   ],
 });

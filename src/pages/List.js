@@ -87,6 +87,7 @@ export default function List() {
     search,
     setSearch,
     updateItemQuantityToList,
+    handleDeleteList,
   } = useLists();
 
   const [selectedSheetOpen, setSelectedSheetOpen] = useState(null);
@@ -141,26 +142,49 @@ export default function List() {
                 {new Date(selectedList?.date).toLocaleDateString("pt-BR")}
               </Text>
             </VStack>
-            <IconButton
-              size={12}
-              borderRadius="full"
-              borderColor={theme.colors.green[500]}
-              borderWidth={1}
-              icon={
-                <Feather
-                  name="edit"
-                  size={20}
-                  color={theme.colors.green[500]}
-                />
-              }
-              onPress={() => {
-                setSelectedSheetOpen("editar");
-                onOpen();
-              }}
-              _pressed={{
-                bgColor: theme.colors.green[800],
-              }}
-            />
+            <HStack space={2}>
+              <IconButton
+                size={10}
+                borderRadius="full"
+                borderColor={theme.colors.green[500]}
+                borderWidth={1}
+                icon={
+                  <Feather
+                    name="edit"
+                    size={20}
+                    color={theme.colors.green[500]}
+                  />
+                }
+                onPress={() => {
+                  setSelectedSheetOpen("editar");
+                  onOpen();
+                }}
+                _pressed={{
+                  bgColor: theme.colors.green[800],
+                }}
+              />
+              <IconButton
+                size={10}
+                borderRadius="full"
+                borderColor={theme.colors.red[500]}
+                borderWidth={1}
+                icon={
+                  <Feather
+                    name="trash"
+                    size={20}
+                    color={theme.colors.red[500]}
+                  />
+                }
+                onPress={async () => {
+                  await handleDeleteList(selectedList.id, () =>
+                    navigation.navigate("Lists")
+                  );
+                }}
+                _pressed={{
+                  bgColor: theme.colors.red[800],
+                }}
+              />
+            </HStack>
           </HStack>
 
           <HStack justifyContent="space-between" alignItems={"center"} mt={-4}>
@@ -379,8 +403,9 @@ export default function List() {
             </HStack>
           )}
         </VStack>
-      </ScrollView>
 
+        {isAiEnabled && <Box w={"100%"} h={16} />}
+      </ScrollView>
       <AIComponent />
       <Actionsheet
         isOpen={isOpen}

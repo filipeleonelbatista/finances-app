@@ -1,11 +1,8 @@
 import {
   Actionsheet,
   Box,
-  Button,
-  Divider,
   HStack,
   IconButton,
-  Input,
   Pressable,
   ScrollView,
   Text,
@@ -15,30 +12,27 @@ import {
   VStack,
 } from "native-base";
 import React, { useMemo, useState } from "react";
-import { FlatList, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { Feather } from "@expo/vector-icons";
-import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
-import { Picker } from "@react-native-picker/picker";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { differenceInCalendarDays } from "date-fns";
 import { useEffect } from "react";
 import { useWindowDimensions } from "react-native";
 import { LineChart, PieChart } from "react-native-chart-kit";
 import * as Progress from "react-native-progress";
+import AIComponent from "../components/AIComponent";
 import EditGoalForm from "../components/EditGoalForm";
 import EmptyMessage from "../components/EmptyMessage";
 import Header from "../components/Header";
 import { useGoals } from "../hooks/useGoals";
+import { useIsKeyboardOpen } from "../hooks/useIsKeyboardOpen";
 import { usePages } from "../hooks/usePages";
 import { usePayments } from "../hooks/usePayments";
-import { useSettings } from "../hooks/useSettings";
-import { useIsKeyboardOpen } from "../hooks/useIsKeyboardOpen";
-import AIComponent from "../components/AIComponent";
 import { useRuns } from "../hooks/useRuns";
+import { useSettings } from "../hooks/useSettings";
 
 export default function Reports() {
+  const { isAiEnabled } = useSettings();
   const theme = useTheme();
 
   const bg = useColorModeValue(
@@ -494,7 +488,7 @@ export default function Reports() {
               }}
               bg={bgCard}
               _pressed={{
-                bgColor: bgCardPressed
+                bgColor: bgCardPressed,
               }}
             >
               <VStack
@@ -584,6 +578,8 @@ export default function Reports() {
         </VStack>
         <Box h={4} w={"100%"} />
       </ScrollView>
+
+      {isAiEnabled && <Box w={"100%"} h={16} />}
 
       <AIComponent />
 

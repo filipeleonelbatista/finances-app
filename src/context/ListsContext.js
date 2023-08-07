@@ -9,10 +9,18 @@ import React, {
 import { Alert, ToastAndroid } from "react-native";
 import { database } from "../databases";
 
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
+
+import * as DocumentPicker from "expo-document-picker";
+import { jsonToCSV, readString } from "react-native-csv";
+import { useSettings } from "../hooks/useSettings";
+
 export const ListsContext = createContext({});
 
 export function ListsContextProvider(props) {
   const [lists, setLists] = useState([]);
+  const { selectedFolderToSave } = useSettings();
 
   const [selectedCategory, setSelectedCategory] = useState("Todos os itens");
 
@@ -47,6 +55,208 @@ export function ListsContextProvider(props) {
     return TotalList;
   }, [filteredList]);
 
+  const checkPermissions = async () => {
+    try {
+      const result = await MediaLibrary.getPermissionsAsync();
+
+      if (!result) {
+        const granted = await MediaLibrary.requestPermissionsAsync();
+
+        if (granted === MediaLibrary.PermissionStatus.GRANTED) {
+          return true;
+        } else {
+          Alert.alert("Error", "As permissões não foram concedidas");
+
+          return false;
+        }
+      } else {
+        return true;
+      }
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
+
+  async function handleCSVtoArrayFormat(data) {
+    const [headers, ...rows] = data;
+    let newArray = [];
+
+    for (const row of rows) {
+      let i = 0;
+      let newRowObject = {};
+      for (const header of headers) {
+        newRowObject[header] = row[i];
+        i = i + 1;
+      }
+      newArray.push(newRowObject);
+    }
+
+    if (newArray[newArray.length - 1].description === undefined) {
+      newArray.pop();
+    }
+
+    return newArray;
+  }
+
+  async function handleImportList() {
+    try {
+      const result = await checkPermissions();
+      if (result) {
+        const result = await DocumentPicker.getDocumentAsync({
+          copyToCacheDirectory: false,
+          type: "text/*",
+        });
+        if (result.type === "success") {
+          let fileContent = await FileSystem.readAsStringAsync(result.uri, {
+            encoding: "utf8",
+          });
+          const dataFromCSV = readString(fileContent);
+          const csvFormated = await handleCSVtoArrayFormat(dataFromCSV.data);
+          if (csvFormated) {
+            const importedTransactions = csvFormated.map((item) => {
+              const row = {
+                location: item.location,
+                date: Number(item.date),
+                description: item.description,
+                amount: Number(item.amount),
+                category: item.category,
+                quantity: Number(item.quantity),
+                quantityDesired: Number(item.quantityDesired),
+              };
+
+              return row;
+            });
+            await importTransactions(importedTransactions);
+          } else {
+            ToastAndroid.show(
+              "Houve um problema ao exportar as finanças!",
+              ToastAndroid.SHORT
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      ToastAndroid.show(
+        "Houve um problema ao importar as finanças!",
+        ToastAndroid.SHORT
+      );
+    }
+  }
+
+  async function importTransactions(importedList) {
+    let createdId = null;
+
+    const totalAmount = importedList.reduce((acc, transaction) => {
+      return acc + Number(transaction.amount) * Number(transaction.quantity);
+    }, 0);
+
+    const totalQuantity = importedList.reduce((acc, transaction) => {
+      return acc + transaction.quantity;
+    }, 0);
+
+    try {
+      await database.write(async () => {
+        await database.get("lists").create((data) => {
+          createdId = data._raw.id;
+          data._raw.description = "Lista importada";
+          data._raw.location = "";
+          data._raw.amount = totalAmount;
+          data._raw.quantity = totalQuantity;
+          data._raw.date = new Date(Date.now()).getTime() + 43200000;
+        });
+      });
+    } catch (error) {
+      console.log("addTransaction error", error);
+    }
+
+    for (const importedItem of importedList) {
+      try {
+        await database.write(async () => {
+          await database.get("items").create((data) => {
+            data._raw.list_id = createdId;
+            data._raw.description = importedItem.description;
+            data._raw.location = importedItem.location;
+            data._raw.date = Number(importedItem.date);
+            data._raw.amount = Number(importedItem.amount);
+            data._raw.category = importedItem.category;
+            data._raw.quantity = Number(importedItem.quantity);
+            data._raw.quantityDesired = Number(importedItem.quantityDesired);
+          });
+        });
+      } catch (error) {
+        console.log("importTransactions error", error);
+      }
+    }
+
+    loadTransactions();
+
+    ToastAndroid.show("Importação feita com sucesso", ToastAndroid.SHORT);
+  }
+
+  async function handleExportList(id) {
+    const exportedListInfo = await database.get("lists").find(id);
+
+    const itemsCollection = database.get("items");
+    const response = await itemsCollection
+      .query(Q.where("list_id", id))
+      .fetch();
+
+    const currentList = response.map((item) => item._raw);
+
+    const currentDate = new Date();
+    try {
+      const CSV = jsonToCSV(currentList);
+
+      const directoryUri = selectedFolderToSave;
+
+      const fileName = `lista-${
+        currentDate.getDate() < 10
+          ? "0" + currentDate.getDate()
+          : currentDate.getDate()
+      }-${
+        currentDate.getMonth() + 1 < 10
+          ? "0" + (currentDate.getMonth() + 1)
+          : currentDate.getMonth() + 1
+      }-${currentDate.getFullYear()}_${currentDate.getHours()}-${currentDate.getMinutes()}.csv`;
+
+      const result = await checkPermissions();
+
+      if (result) {
+        const createdFile =
+          await FileSystem.StorageAccessFramework.createFileAsync(
+            directoryUri,
+            fileName,
+            "text/*"
+          );
+
+        const writedFile =
+          await FileSystem.StorageAccessFramework.writeAsStringAsync(
+            createdFile,
+            CSV,
+            { encoding: "utf8" }
+          );
+
+        ToastAndroid.show(
+          "Lista exportada com sucesso para a pasta selecionada",
+          ToastAndroid.SHORT
+        );
+      } else {
+        ToastAndroid.show(
+          "Houve um problema ao exportar a lista!",
+          ToastAndroid.SHORT
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      ToastAndroid.show(
+        "Houve um problema ao exportar a lista!",
+        ToastAndroid.SHORT
+      );
+    }
+  }
+
   async function updateListInfo(id) {
     const itemToUpdate = await database.get("lists").find(id);
 
@@ -77,7 +287,7 @@ export function ListsContextProvider(props) {
     await updateTransaction(updatedListInfo);
   }
 
-  async function handleDeleteList(id) {
+  async function handleDeleteList(id, goBack) {
     Alert.alert(
       "Deseja realmente deletar esse registro?",
       "Esta ação é irreversível! Deseja continuar?",
@@ -85,7 +295,9 @@ export function ListsContextProvider(props) {
         {
           text: "Não",
           style: "cancel",
-          onPress: () => console.log("Não pressed"),
+          onPress: () => {
+            console.log("Não pressed");
+          },
         },
         {
           text: "Sim",
@@ -108,6 +320,8 @@ export function ListsContextProvider(props) {
               });
 
               ToastAndroid.show("Lista excluida", ToastAndroid.SHORT);
+
+              goBack();
             } catch (error) {
               console.log("deleteTransaction error", error);
 
@@ -398,6 +612,9 @@ export function ListsContextProvider(props) {
         setSelectedCategory,
         filteredList,
         updateItemQuantityToList,
+        handleExportList,
+        loadTransactions,
+        handleImportList,
       }}
     >
       {props.children}

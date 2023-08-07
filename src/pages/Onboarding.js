@@ -6,6 +6,7 @@ import { Button, FlatList, Image, Text, useTheme, VStack } from "native-base";
 import { useEffect, useState } from "react";
 import { Alert, ToastAndroid, useWindowDimensions } from "react-native";
 import Loading from "../components/Loading";
+import { useSettings } from "../hooks/useSettings";
 
 export default function Onboarding() {
   const theme = useTheme();
@@ -13,6 +14,9 @@ export default function Onboarding() {
   const { width } = useWindowDimensions();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
+
+  const { selectedFolderToSave, handleUpdateSelectedFolderToSave } =
+    useSettings();
 
   const [isOnboardingPassed, setIsOnboardingPassed] = useState("waiting");
 
@@ -61,9 +65,8 @@ export default function Onboarding() {
           onPress: async () => {
             const requestedDirPerm =
               await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-            console.log("requestedDirPerm", requestedDirPerm.directoryUri);
-            await AsyncStorage.setItem(
-              "@selectedFolderToSave",
+            await handleUpdateSelectedFolderToSave(
+              "selectedFolderToSave",
               requestedDirPerm.directoryUri
             );
             ToastAndroid.show("Pasta selecionada!", ToastAndroid.SHORT);

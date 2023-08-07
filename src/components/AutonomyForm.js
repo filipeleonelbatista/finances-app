@@ -5,13 +5,11 @@ import {
   Button,
   Input,
   ScrollView,
-  Text,
-  VStack,
-  useColorModeValue,
-  useTheme,
+  Text, useColorModeValue,
+  useTheme, VStack
 } from "native-base";
 import * as Yup from "yup";
-import { useRuns } from "../hooks/useRuns";
+import { useSettings } from "../hooks/useSettings";
 
 export default function AutonomyForm({ onClose }) {
   const theme = useTheme();
@@ -20,7 +18,7 @@ export default function AutonomyForm({ onClose }) {
     theme.colors.gray[200]
   );
 
-  const { setAutonomyValue, autonomy } = useRuns();
+  const { veicleAutonomy, handleVeicleAutonomy } = useSettings();
 
   const formSchema = useMemo(() => {
     return Yup.object().shape({
@@ -30,7 +28,7 @@ export default function AutonomyForm({ onClose }) {
 
   const formik = useFormik({
     initialValues: {
-      autonomy: String(autonomy),
+      autonomy: String(veicleAutonomy),
     },
     validationSchema: formSchema,
     onSubmit: (values) => {
@@ -39,7 +37,7 @@ export default function AutonomyForm({ onClose }) {
   });
 
   async function handleSubmitForm(formValues) {
-    setAutonomyValue(Number(formValues.autonomy));
+    handleVeicleAutonomy(Number(formValues.autonomy));
     onClose();
   }
 

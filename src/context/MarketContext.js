@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
   createContext,
   useCallback,
@@ -11,11 +10,19 @@ import { database } from "../databases";
 import { useLists } from "../hooks/useLists";
 import { usePayments } from "../hooks/usePayments";
 
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
+
+import * as DocumentPicker from "expo-document-picker";
+import { jsonToCSV, readString } from "react-native-csv";
+import { useSettings } from "../hooks/useSettings";
+
 export const MarketContext = createContext({});
 
 export function MarketContextProvider(props) {
   const { addTransaction: addPaymentTransaction } = usePayments();
   const { addTransaction: addListsTransaction, addItemToList } = useLists();
+  const { selectedFolderToSave } = useSettings();
   const [MarketList, setMarketList] = useState([]);
 
   const [selectedTransaction, setSelectedTransaction] = useState();
@@ -49,7 +56,170 @@ export function MarketContextProvider(props) {
     return TotalList;
   }, [filteredList]);
 
-  async function handleAddItensOnBuyList() {
+  const checkPermissions = async () => {
+    try {
+      const result = await MediaLibrary.getPermissionsAsync();
+
+      if (!result) {
+        const granted = await MediaLibrary.requestPermissionsAsync();
+
+        if (granted === MediaLibrary.PermissionStatus.GRANTED) {
+          return true;
+        } else {
+          Alert.alert("Error", "As permissões não foram concedidas");
+
+          return false;
+        }
+      } else {
+        return true;
+      }
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
+
+  async function handleCSVtoArrayFormat(data) {
+    const [headers, ...rows] = data;
+    let newArray = [];
+
+    for (const row of rows) {
+      let i = 0;
+      let newRowObject = {};
+      for (const header of headers) {
+        newRowObject[header] = row[i];
+        i = i + 1;
+      }
+      newArray.push(newRowObject);
+    }
+
+    if (newArray[newArray.length - 1].description === undefined) {
+      newArray.pop();
+    }
+
+    return newArray;
+  }
+
+  async function handleExportStock() {
+    const currentDate = new Date();
+    try {
+      const CSV = jsonToCSV(MarketList);
+
+      const directoryUri = selectedFolderToSave;
+
+      const fileName = `estoque-${
+        currentDate.getDate() < 10
+          ? "0" + currentDate.getDate()
+          : currentDate.getDate()
+      }-${
+        currentDate.getMonth() + 1 < 10
+          ? "0" + (currentDate.getMonth() + 1)
+          : currentDate.getMonth() + 1
+      }-${currentDate.getFullYear()}_${currentDate.getHours()}-${currentDate.getMinutes()}.csv`;
+
+      const result = await checkPermissions();
+
+      if (result) {
+        const createdFile =
+          await FileSystem.StorageAccessFramework.createFileAsync(
+            directoryUri,
+            fileName,
+            "text/*"
+          );
+
+        const writedFile =
+          await FileSystem.StorageAccessFramework.writeAsStringAsync(
+            createdFile,
+            CSV,
+            { encoding: "utf8" }
+          );
+
+        ToastAndroid.show(
+          "Estoque exportados com sucesso para a pasta selecionada",
+          ToastAndroid.SHORT
+        );
+      } else {
+        ToastAndroid.show(
+          "Houve um problema ao exportar os estoques!",
+          ToastAndroid.SHORT
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      ToastAndroid.show(
+        "Houve um problema ao exportar os estoques!",
+        ToastAndroid.SHORT
+      );
+    }
+  }
+
+  async function handleImportStock() {
+    try {
+      const result = await checkPermissions();
+      if (result) {
+        const result = await DocumentPicker.getDocumentAsync({
+          copyToCacheDirectory: false,
+          type: "text/*",
+        });
+        if (result.type === "success") {
+          let fileContent = await FileSystem.readAsStringAsync(result.uri, {
+            encoding: "utf8",
+          });
+          const dataFromCSV = readString(fileContent);
+          const csvFormated = await handleCSVtoArrayFormat(dataFromCSV.data);
+          if (csvFormated) {
+            const importedTransactions = csvFormated.map((item) => {
+              const row = {
+                description: item.description,
+                amount: Number(item.amount),
+                category: item.category,
+                quantity: Number(item.quantity),
+                quantityDesired: Number(item.quantityDesired),
+              };
+
+              return row;
+            });
+            await importTransactions(importedTransactions);
+          } else {
+            ToastAndroid.show(
+              "Houve um problema ao exportar as finanças!",
+              ToastAndroid.SHORT
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      ToastAndroid.show(
+        "Houve um problema ao importar as finanças!",
+        ToastAndroid.SHORT
+      );
+    }
+  }
+
+  async function importTransactions(importedList) {
+    for (const importedItem of importedList) {
+      try {
+        await database.write(async () => {
+          await database.get("stock").create((data) => {
+            data._raw.description = importedItem.description;
+            data._raw.amount = Number(importedItem.amount);
+            data._raw.category = importedItem.category;
+            data._raw.quantity = Number(importedItem.quantity);
+            data._raw.quantityDesired = Number(importedItem.quantityDesired);
+          });
+        });
+      } catch (error) {
+        console.log("importTransactions error", error);
+      }
+    }
+
+    loadTransactions();
+
+    ToastAndroid.show("Importação feita com sucesso", ToastAndroid.SHORT);
+  }
+
+  async function handleAddItensOnBuyList(goListsPage) {
     Alert.alert(
       "Adicionar itens do estoque",
       "Deseja adicionar itens do estoque a uma lista de compras?",
@@ -68,14 +238,24 @@ export function MarketContextProvider(props) {
 
             if (lowestStockList.length > 0) {
               const totalAmount = lowestStockList.reduce((acc, transaction) => {
-                return acc + transaction.amount;
+                return (
+                  acc +
+                  Number(transaction.amount) * Number(transaction.quantity)
+                );
               }, 0);
+
+              const totalQuantity = lowestStockList.reduce(
+                (acc, transaction) => {
+                  return acc + Number(transaction.quantity);
+                },
+                0
+              );
 
               const createdList = {
                 description: "Em falta no estoque",
                 location: "",
                 amount: totalAmount,
-                quantity: lowestStockList.length,
+                quantity: totalQuantity,
                 date: new Date(Date.now()).getTime() + 43200000,
               };
 
@@ -96,6 +276,7 @@ export function MarketContextProvider(props) {
                   await addItemToList(data);
                 }
               }
+              goListsPage();
             } else {
               ToastAndroid.show(
                 "Nenhum item em falta para criar esta lista",
@@ -109,14 +290,21 @@ export function MarketContextProvider(props) {
           onPress: async () => {
             if (MarketList.length > 0) {
               const totalAmount = MarketList.reduce((acc, transaction) => {
-                return acc + transaction.amount;
+                return (
+                  acc +
+                  Number(transaction.amount) * Number(transaction.quantity)
+                );
+              }, 0);
+
+              const totalQuantity = MarketList.reduce((acc, transaction) => {
+                return acc + Number(transaction.quantity);
               }, 0);
 
               const createdList = {
                 description: "Itens do estoque",
                 location: "",
                 amount: totalAmount,
-                quantity: MarketList.length,
+                quantity: totalQuantity,
                 date: new Date(Date.now()).getTime() + 43200000,
               };
 
@@ -137,6 +325,7 @@ export function MarketContextProvider(props) {
                   await addItemToList(data);
                 }
               }
+              goListsPage();
             } else {
               ToastAndroid.show(
                 "Nenhum item para criar esta lista",
@@ -151,14 +340,14 @@ export function MarketContextProvider(props) {
 
   async function handleAddFinances() {
     const data = {
-      description: `Lista Compras`,
+      description: `Compras`,
       amount: listTotal,
-      date: Date.now(),
+      date: new Date(Date.now()).getTime() + 43200000,
       category: "Mercado",
       paymentDate: "",
-      paymentStatus: false,
-      isEnabled: true,
-      isFavorited: true,
+      paymentStatus: 0,
+      isEnabled: 1,
+      isFavorited: 0,
     };
     addPaymentTransaction(data);
   }
@@ -172,10 +361,12 @@ export function MarketContextProvider(props) {
       await database.write(async () => {
         await itemToUpdate.update((data) => {
           data._raw.description = currentTransaction.description;
-          data._raw.amount = currentTransaction.amount;
+          data._raw.amount = Number(currentTransaction.amount);
           data._raw.category = currentTransaction.category;
-          data._raw.quantity = currentTransaction.quantity;
-          data._raw.quantityDesired = currentTransaction.quantityDesired;
+          data._raw.quantity = Number(currentTransaction.quantity);
+          data._raw.quantityDesired = Number(
+            currentTransaction.quantityDesired
+          );
         });
       });
     } catch (error) {
@@ -198,18 +389,20 @@ export function MarketContextProvider(props) {
         .find(currentTransaction.id);
 
       const currentQuantity = isAdd
-        ? currentTransaction.quantity + 1
+        ? Number(currentTransaction.quantity) + 1
         : isSubtract
-        ? currentTransaction.quantity - 1
-        : currentTransaction.quantityisAdd;
+        ? Number(currentTransaction.quantity) - 1
+        : currentTransaction.quantity;
 
       await database.write(async () => {
         await itemToUpdate.update((data) => {
           data._raw.description = currentTransaction.description;
-          data._raw.amount = currentTransaction.amount;
+          data._raw.amount = Number(currentTransaction.amount);
           data._raw.category = currentTransaction.category;
-          data._raw.quantity = currentQuantity;
-          data._raw.quantityDesired = currentTransaction.quantityDesired;
+          data._raw.quantity = Number(currentQuantity);
+          data._raw.quantityDesired = Number(
+            currentTransaction.quantityDesired
+          );
         });
       });
     } catch (error) {
@@ -219,16 +412,6 @@ export function MarketContextProvider(props) {
     loadTransactions();
 
     ToastAndroid.show("Item atualizado com sucesso", ToastAndroid.SHORT);
-  }
-
-  async function importMarket(importedList) {
-    const newTransactionList = [...MarketList, ...importedList];
-
-    await AsyncStorage.setItem("market", JSON.stringify(newTransactionList));
-
-    loadTransactions();
-
-    ToastAndroid.show("Importação feita com sucesso", ToastAndroid.SHORT);
   }
 
   async function deleteTransaction(currentTransaction) {
@@ -270,10 +453,10 @@ export function MarketContextProvider(props) {
       await database.write(async () => {
         await database.get("stock").create((data) => {
           data._raw.description = newTransaction.description;
-          data._raw.amount = newTransaction.amount;
+          data._raw.amount = Number(newTransaction.amount);
           data._raw.category = newTransaction.category;
-          data._raw.quantity = newTransaction.quantity;
-          data._raw.quantityDesired = newTransaction.quantityDesired;
+          data._raw.quantity = Number(newTransaction.quantity);
+          data._raw.quantityDesired = Number(newTransaction.quantityDesired);
         });
       });
     } catch (error) {
@@ -317,11 +500,13 @@ export function MarketContextProvider(props) {
         setSelectedTransaction,
         updateTransaction,
         handleAddFinances,
-        importMarket,
+        handleImportStock,
+        handleExportStock,
         search,
         setSearch,
         updateStock,
         handleAddItensOnBuyList,
+        loadTransactions,
       }}
     >
       {props.children}

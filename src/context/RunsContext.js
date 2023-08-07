@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { Alert, ToastAndroid } from "react-native";
 import { database } from "../databases";
@@ -18,14 +17,8 @@ export function RunsContextProvider(props) {
     addTransaction: addPaymentTransaction,
     deleteTransaction: deletePayentTransaction,
   } = usePayments();
-  const { willAddFuelToTransactionList } = useSettings();
+  const { willAddFuelToTransactionList, selectedFolderToSave } = useSettings();
   const [FuelList, setFuelList] = useState([]);
-  const [autonomy, setAutonomy] = useState(0);
-
-  const setAutonomyValue = async (value) => {
-    setAutonomy(value);
-    await AsyncStorage.setItem("autonomy", JSON.stringify(value));
-  };
 
   const checkPermissions = async () => {
     try {
@@ -76,7 +69,7 @@ export function RunsContextProvider(props) {
     try {
       const CSV = jsonToCSV(FuelList);
 
-      const directoryUri = await AsyncStorage.getItem("@selectedFolderToSave");
+      const directoryUri = selectedFolderToSave;
 
       const fileName = `corridas-${
         currentDate.getDate() < 10
@@ -272,19 +265,6 @@ export function RunsContextProvider(props) {
       setFuelList([]);
     }
 
-    // TODO: autonomy vai vir da tabela application depois junto de veicle information
-    try {
-      const autonomyValue = await AsyncStorage.getItem("autonomy");
-      if (autonomyValue !== null) {
-        const autonomyValueParsed = JSON.parse(autonomyValue ?? "0");
-        setAutonomy(autonomyValueParsed);
-      } else {
-        await AsyncStorage.setItem("autonomy", JSON.stringify(0));
-      }
-    } catch (e) {
-      console.log(e);
-    }
-
     return;
   }, [setFuelList]);
 
@@ -297,8 +277,6 @@ export function RunsContextProvider(props) {
       value={{
         FuelList,
         setFuelList,
-        autonomy,
-        setAutonomyValue,
         addTransaction,
         deleteTransaction,
         handleImportRuns,

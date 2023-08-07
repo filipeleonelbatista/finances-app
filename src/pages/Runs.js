@@ -3,21 +3,21 @@ import React, { useMemo, useState } from "react";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   Actionsheet,
+  Box,
   Button,
   HStack,
   IconButton,
   Input,
-  KeyboardAvoidingView,
   Pressable,
   ScrollView,
   Text,
-  VStack,
   useColorModeValue,
   useDisclose,
   useTheme,
-  Box,
+  VStack,
 } from "native-base";
 
+import { Ionicons } from "@expo/vector-icons";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import dayjs from "dayjs";
@@ -25,13 +25,16 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { useEffect } from "react";
 import { useWindowDimensions } from "react-native";
+import AIComponent from "../components/AIComponent";
 import AutonomyForm from "../components/AutonomyForm";
 import EmptyMessage from "../components/EmptyMessage";
 import Header from "../components/Header";
+import { useIsKeyboardOpen } from "../hooks/useIsKeyboardOpen";
 import { usePages } from "../hooks/usePages";
 import { useRuns } from "../hooks/useRuns";
-import { useIsKeyboardOpen } from "../hooks/useIsKeyboardOpen";
-import AIComponent from "../components/AIComponent";
+import { useSettings } from "../hooks/useSettings";
+import ErrorSheet from "../components/ErrorSheet";
+import EditVeicleForm from "../components/EditVeicleForm";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -81,9 +84,8 @@ export default function Runs() {
     dayjs().endOf("month").format("DD/MM/YYYY")
   );
 
-  const { FuelList, autonomy, deleteTransaction } = useRuns();
-
-  const [selectedSheetOpen, setSelectedSheetOpen] = useState(null);
+  const { FuelList, deleteTransaction } = useRuns();
+  const { veicleAutonomy, isAiEnabled } = useSettings();
 
   const filteredList = useMemo(() => {
     if (FuelList.length > 0) {
@@ -136,13 +138,13 @@ export default function Runs() {
 
   const currentEstimative = useMemo(() => {
     const result = filteredList[0]
-      ? (Number(autonomy) * Number(filteredList[0]?.amount)) /
+      ? (Number(veicleAutonomy) * Number(filteredList[0]?.amount)) /
           Number(filteredList[0]?.unityAmount) +
         Number(filteredList[0]?.currentDistance)
       : 0;
 
     return result.toFixed(0);
-  }, [filteredList, autonomy]);
+  }, [filteredList, veicleAutonomy]);
 
   const onChangeStartDate = (_, selectedDate) => {
     setStartDate(dayjs(selectedDate).format("DD/MM/YYYY"));
@@ -152,8 +154,38 @@ export default function Runs() {
     setEndDate(dayjs(selectedDate).format("DD/MM/YYYY"));
   };
 
+  const [selectedSheetOpen, setSelectedSheetOpen] = useState(null);
+
   return (
     <VStack flex={1} bg={bg}>
+      <IconButton
+        position={"absolute"}
+        bottom={isAiEnabled ? 82 : 8}
+        left={4}
+        bgColor={"purple.600"}
+        w={10}
+        h={10}
+        zIndex={100}
+        alignItems={"center"}
+        justifyContent={"center"}
+        onPress={() => {
+          setSelectedSheetOpen("veicle");
+          onOpen();
+        }}
+        borderRadius={"full"}
+        shadow={4}
+        _pressed={{
+          bgColor: theme.colors.purple[900],
+        }}
+        icon={
+          <Ionicons
+            name="car-sport-outline"
+            size={20}
+            color={theme.colors.white}
+          />
+        }
+      />
+
       <ScrollView flex={1} w={"100%"} h={"100%"}>
         <Header
           title="Corrida"
@@ -218,7 +250,10 @@ export default function Runs() {
             h={110}
             borderRadius={4}
             p={4}
-            onPress={() => onOpen()}
+            onPress={() => {
+              setSelectedSheetOpen("autonomy");
+              onOpen();
+            }}
           >
             <VStack>
               <HStack justifyContent="space-between">
@@ -233,11 +268,11 @@ export default function Runs() {
               </HStack>
               <Text
                 color={text}
-                fontSize={(autonomy ?? 0) < 10000 ? 26 : 20}
+                fontSize={(veicleAutonomy ?? 0) < 10000 ? 26 : 20}
                 numberOfLines={1}
                 maxW={170}
               >
-                {autonomy ?? 0}L
+                {veicleAutonomy ?? 0}L
               </Text>
             </VStack>
           </Pressable>
@@ -429,6 +464,8 @@ export default function Runs() {
         </VStack>
       </ScrollView>
 
+      {isAiEnabled && <Box w={"100%"} h={16} />}
+
       <AIComponent />
 
       <Actionsheet
@@ -438,7 +475,13 @@ export default function Runs() {
         h={height * (isKeyboardOpen ? 0.9 : 1.09)}
       >
         <Actionsheet.Content pb={isKeyboardOpen ? 24 : 0}>
-          <AutonomyForm onClose={onClose} />
+          {selectedSheetOpen === "veicle" ? (
+            <EditVeicleForm onClose={onClose} />
+          ) : selectedSheetOpen === "autonomy" ? (
+            <AutonomyForm onClose={onClose} />
+          ) : (
+            <ErrorSheet />
+          )}
           <Box h={16} w={"100%"} />
         </Actionsheet.Content>
       </Actionsheet>
