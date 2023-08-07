@@ -86,7 +86,7 @@ export default function Runs() {
   const [selectedSheetOpen, setSelectedSheetOpen] = useState(null);
 
   const filteredList = useMemo(() => {
-    if (FuelList) {
+    if (FuelList.length > 0) {
       const filteredByPeriod = FuelList.filter((item) => {
         const itemDate = dayjs(item.date);
         const currentStartDate = dayjs(
@@ -136,9 +136,11 @@ export default function Runs() {
 
   const currentEstimative = useMemo(() => {
     const result = filteredList[0]
-      ? autonomy * (filteredList[0]?.amount / filteredList[0]?.unityAmount) +
-        filteredList[0]?.currentDistance
+      ? (Number(autonomy) * Number(filteredList[0]?.amount)) /
+          Number(filteredList[0]?.unityAmount) +
+        Number(filteredList[0]?.currentDistance)
       : 0;
+
     return result.toFixed(0);
   }, [filteredList, autonomy]);
 

@@ -381,7 +381,6 @@ export function PaymentsContextProvider(props) {
   }
 
   async function importTransactions(importedList) {
-    console.log("importedList", importedList);
     for (const importedItem of importedList) {
       try {
         await database.write(async () => {
@@ -434,7 +433,6 @@ export function PaymentsContextProvider(props) {
       const financesCollection = database.get("finances");
       const response = await financesCollection.query().fetch();
       const currentList = response.map((item) => item._raw);
-      console.log("currentList", currentList);
       setTransactionsList(currentList);
     } catch (error) {
       setTransactionsList([]);

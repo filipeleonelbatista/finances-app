@@ -13,7 +13,7 @@ import {
   useColorMode,
   useColorModeValue,
   useTheme,
-  VStack,
+  VStack
 } from "native-base";
 import React from "react";
 import {
@@ -21,7 +21,7 @@ import {
   BackHandler,
   Linking,
   Switch,
-  ToastAndroid,
+  ToastAndroid
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -34,11 +34,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   useFocusEffect,
   useIsFocused,
-  useNavigation,
+  useNavigation
 } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { jsonToCSV, readString } from "react-native-csv";
-import { v4 } from "uuid";
 import userImg from "../assets/icon.png";
 import Header from "../components/Header";
 import { database } from "../databases";
@@ -69,12 +68,10 @@ export default function AboutUs() {
   const isFocused = useIsFocused();
   const [inputOpenAiText, setInputOpenAiText] = useState("");
 
-  const { transactionsList, Tithe, importTransactions, setTransactionsList } =
+  const { transactionsList, importTransactions, setTransactionsList } =
     usePayments();
 
-  const { setMarketList, MarketList, importMarket } = useMarket();
-
-  const { setFuelList, FuelList, importRuns } = useRuns();
+  const { setFuelList, handleImportRuns, handleExportRuns } = useRuns();
 
   const {
     isEnableTitheCard,
@@ -98,8 +95,6 @@ export default function AboutUs() {
     handleSetIsAiEnabled,
     isAiEnabled,
   } = useSettings();
-
-  const { handleAddFinances } = useMarket();
 
   async function handleClearMarket() {
     Alert.alert(
@@ -735,6 +730,47 @@ export default function AboutUs() {
               Habilitar adicionar abastecimento automaticamente em finanças
             </Text>
           </HStack>
+          <Button
+            onPress={handleExportRuns}
+            shadow={2}
+            colorScheme={"purple"}
+            borderRadius={"full"}
+            leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+            _text={{
+              color: "white",
+              fontSize: 16,
+            }}
+            _pressed={{
+              bgColor: theme.colors.purple[900],
+            }}
+          >
+            Exportar Abastecimentos
+          </Button>
+          <Button
+            onPress={handleImportRuns}
+            shadow={2}
+            colorScheme={"purple"}
+            borderRadius={"full"}
+            leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+            _text={{
+              color: "white",
+              fontSize: 16,
+            }}
+            _pressed={{
+              bgColor: theme.colors.purple[900],
+            }}
+          >
+            Importar Abastecimentos
+          </Button>
+
+          <Text color={text} px={2} textAlign="center">
+            Use um arquivo{" "}
+            <Text color={text} bold fontSize={16}>
+              .csv{" "}
+            </Text>
+            gerado pelo sistema para importar os dados de um amigo ou familiar.
+          </Text>
+
           <Button
             onPress={handleClearRuns}
             shadow={2}
