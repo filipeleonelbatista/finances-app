@@ -13,7 +13,7 @@ import {
   useColorMode,
   useColorModeValue,
   useTheme,
-  VStack
+  VStack,
 } from "native-base";
 import React from "react";
 import {
@@ -21,7 +21,7 @@ import {
   BackHandler,
   Linking,
   Switch,
-  ToastAndroid
+  ToastAndroid,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -34,7 +34,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   useFocusEffect,
   useIsFocused,
-  useNavigation
+  useNavigation,
 } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { jsonToCSV, readString } from "react-native-csv";
@@ -709,7 +709,7 @@ export default function AboutUs() {
 
         <VStack space={2} px={4} py={2}>
           <Text color={text} bold fontSize={22}>
-            Combustível
+            Corridas
           </Text>
           <HStack alignItems={"center"}>
             <Switch
@@ -785,7 +785,7 @@ export default function AboutUs() {
               bgColor: theme.colors.purple[900],
             }}
           >
-            Apagar Combustível
+            Apagar Abastecimentos
           </Button>
         </VStack>
 
