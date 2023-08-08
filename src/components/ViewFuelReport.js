@@ -30,8 +30,6 @@ export default function ViewFuelReport({ selectedValue }) {
     });
   }
 
-  console.log("selectedValue", selectedValue);
-
   return (
     <ScrollView w={"100%"} px={4}>
       <Text bold fontSize={24} color={text}>

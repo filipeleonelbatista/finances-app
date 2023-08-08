@@ -302,7 +302,7 @@ export function PaymentsContextProvider(props) {
           data._raw.paymentStatus = Number(currentTransaction.paymentStatus);
           data._raw.isEnabled = Number(currentTransaction.isEnabled);
           data._raw.isFavorited = Number(
-            currentTransaction.isFavorited === "1" ? "0" : "1"
+            currentTransaction.isFavorited === 1 ? 0 : 1
           );
         });
       });
