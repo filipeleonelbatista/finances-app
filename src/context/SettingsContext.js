@@ -249,8 +249,6 @@ export function SettingsContextProvider(props) {
       console.log("updateConfiguration error", error);
     }
 
-    await AsyncStorage.clear();
-
     loadData();
   };
 
@@ -268,6 +266,8 @@ export function SettingsContextProvider(props) {
     } catch (error) {
       console.log("updateConfiguration error", error);
     }
+
+    await AsyncStorage.clear();
 
     loadData();
   };
@@ -313,6 +313,7 @@ export function SettingsContextProvider(props) {
         }
       } else {
         setColorModeState(currentList[0].colorModeState);
+        setColorMode(currentList[0].colorModeState);
         setApiKey(currentList[0].apiKey);
         setIsAiEnabled(currentList[0].isAiEnabled === 1);
         setIsShowLabelOnNavigation(
