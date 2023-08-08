@@ -618,20 +618,26 @@ export default function Finances() {
                   handleFavorite(item);
                 }}
                 shadow={2}
-                p={2}
                 borderRadius={4}
                 bg={bgCard}
                 _pressed={{
                   bgColor: bgCardPressed,
                 }}
+                position="relative"
               >
-                <HStack alignItems="center" w="100%" space={2}>
-                  <HStack position={"absolute"} top={3} right={3} space={2}>
+                <HStack alignItems="center" w="100%" space={2} p={2}>
+                  <HStack
+                    position={"absolute"}
+                    top={2}
+                    right={2}
+                    space={2}
+                    alignItems="center"
+                  >
                     {!simpleFinancesItem && item.isEnabled === 1 && (
                       <Box
                         alignItems={"center"}
                         justifyContent={"center"}
-                        py={1}
+                        py={0.5}
                         px={2}
                         borderWidth={1}
                         borderColor={
@@ -643,7 +649,7 @@ export default function Finances() {
                         bgColor={"transparent"}
                       >
                         <Text
-                          fontSize={12}
+                          fontSize={10}
                           color={
                             item.paymentStatus === 1
                               ? theme.colors.green[600]
