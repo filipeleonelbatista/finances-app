@@ -24,7 +24,7 @@ export default function Onboarding() {
     {
       id: "1",
       image: require("../assets/onboarding/1.png"),
-      title: "Organize seus gastos",
+      title: "Organize suas finanças",
       subtitle:
         "Organize as contas a receber, seus ganhos, edite, delete, favorite e filtre para facilitar sua organização.",
       show: false,
@@ -32,25 +32,48 @@ export default function Onboarding() {
     {
       id: "2",
       image: require("../assets/onboarding/2.png"),
+      title: "Exporte e importe os dados",
+      subtitle:
+        "Importe ou exporte dados para compartilhar suas listas com quem quiser",
+      show: false,
+    },
+    {
+      id: "3",
+      image: require("../assets/onboarding/3.png"),
+      title: "Organize suas compras",
+      subtitle:
+        "Crie sua lista de compras para se programar para as compras do mes. Atualize e remova, se quiser, os itens, gerencie seu estoque de mantimentos e muito mais.",
+      show: false,
+    },
+    {
+      id: 4,
+      image: require("../assets/onboarding/4.png"),
       title: "Controle a autonomia do veículo",
       subtitle:
         "Adicione os abastecimentos e tenha o controle da autonomia do veículo e adicione automaticamente os abastecimentos erm finanças",
       show: false,
     },
     {
-      id: "3",
-      image: require("../assets/onboarding/3.png"),
-      title: "Faça sua lista de compras",
+      id: "5",
+      image: require("../assets/onboarding/5.png"),
+      title: "Veja os relatórios",
       subtitle:
-        "Crie sua lista de compras para se programar para as compras do mes. Atualize e remova, se quiser, os itens.",
+        "Explore suas finanças e abastecimentos com relatórios e crie metas para alcançar seus sonhos mais rápido",
       show: false,
     },
     {
-      id: "4",
-      image: require("../assets/onboarding/4.png"),
-      title: "Veja os relatórios",
+      id: "6",
+      image: require("../assets/onboarding/6.png"),
+      title: "Integrado com Inteligência artificial",
       subtitle:
-        "Explore suas finanças com relatórios e crie metas para alcançar seus sonhos mais rápido",
+        "Use inteligência artificial para conversar e obter dicas sobre suas finanças.",
+      show: false,
+    },
+    {
+      id: "7",
+      image: require("../assets/onboarding/7.png"),
+      title: "Modo escuro",
+      subtitle: "Ideal para ambientes com baixa luminosidade.",
       show: true,
     },
   ];
