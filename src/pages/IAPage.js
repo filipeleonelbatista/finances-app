@@ -173,7 +173,7 @@ export default function IAPage() {
 
       setInputText("");
     } catch (error) {
-      console.log("Erro: ", error.response);
+      console.log(" handleAskForFinancialTips Erro: ", error, error.response);
       setError(openaiErrorHandler(error));
     } finally {
       setIsLoading(false);
@@ -218,7 +218,7 @@ export default function IAPage() {
 
       setInputText("");
     } catch (error) {
-      console.log("Erro: ", error);
+      console.log("handleAskForFuelCostsTips Erro: ", error);
       setError(openaiErrorHandler(error));
     } finally {
       setIsLoading(false);
@@ -263,7 +263,7 @@ export default function IAPage() {
 
       setInputText("");
     } catch (error) {
-      console.log("Erro: ", error);
+      console.log("handleAskForMarketCostsTips Erro: ", error);
       setError(openaiErrorHandler(error));
     } finally {
       setIsLoading(false);

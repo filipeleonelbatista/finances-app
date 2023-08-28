@@ -38,7 +38,7 @@ export function useOpenAi() {
 
   const checkIfApiKeyExists = async () => {
     if (currentApiKey.length > 0) {
-      setApiKey(value);
+      setApiKey(currentApiKey);
       return true;
     }
     return false;
