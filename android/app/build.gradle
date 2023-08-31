@@ -118,8 +118,8 @@ android {
         applicationId 'com.finances'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode Integer.parseInt(findProperty('expo.android.versionCode') ?: '208')
-        versionName findProperty('expo.version') ?: '2.0.8'
+        versionCode 208 // MUDAR VERSÃO AQUI SEMPRE QUE BUILDAR
+        versionName '2.0.8' // MUDAR VERSÃO AQUI SEMPRE QUE BUILDAR
     }
 
     splits {
