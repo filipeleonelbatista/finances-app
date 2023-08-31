@@ -13,7 +13,7 @@ import {
   useColorMode,
   useColorModeValue,
   useTheme,
-  VStack
+  VStack,
 } from "native-base";
 import React from "react";
 import {
@@ -21,7 +21,7 @@ import {
   BackHandler,
   Linking,
   Switch,
-  ToastAndroid
+  ToastAndroid,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -33,7 +33,7 @@ import * as DocumentPicker from "expo-document-picker";
 import {
   useFocusEffect,
   useIsFocused,
-  useNavigation
+  useNavigation,
 } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { jsonToCSV, readString } from "react-native-csv";
@@ -46,6 +46,7 @@ import { useOpenAi } from "../hooks/useOpenAi";
 import { usePayments } from "../hooks/usePayments";
 import { useRuns } from "../hooks/useRuns";
 import { useSettings } from "../hooks/useSettings";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function AboutUs() {
   const theme = useTheme();
@@ -101,8 +102,100 @@ export default function AboutUs() {
     handleSetIsAiEnabled,
     isAiEnabled,
     selectedFolderToSave,
+    handleUpdateSelectedFolderToSave,
     handleResetConfigs,
   } = useSettings();
+
+  async function getAllDataAsJSON() {
+    try {
+      // Obtenha todas as chaves do AsyncStorage
+      const keys = await AsyncStorage.getAllKeys();
+
+      // Mapeie as chaves para objetos JSON contendo chave e valor
+      const data = await Promise.all(
+        keys.map(async (key) => {
+          const value = await AsyncStorage.getItem(key);
+          return { key, value };
+        })
+      );
+
+      return data;
+    } catch (error) {
+      console.error("Erro ao obter dados do AsyncStorage: ", error);
+      throw error;
+    }
+  }
+
+  async function exportSomeData(data, format, filePrefix) {
+    try {
+      const currentDate = new Date();
+
+      const currentDateString = `${
+        currentDate.getDate() < 10
+          ? "0" + currentDate.getDate()
+          : currentDate.getDate()
+      }-${
+        currentDate.getMonth() + 1 < 10
+          ? "0" + (currentDate.getMonth() + 1)
+          : currentDate.getMonth() + 1
+      }-${currentDate.getFullYear()}_${currentDate.getHours()}-${currentDate.getMinutes()}`.replaceAll(
+        " ",
+        ""
+      );
+
+      const directoryUri = selectedFolderToSave;
+      const fileName = `${filePrefix.replace(
+        /[^\w\s]/gi,
+        ""
+      )}-${currentDateString}.${format}`;
+
+      const result = await checkPermissions();
+      if (result) {
+        const createdFile =
+          await FileSystem.StorageAccessFramework.createFileAsync(
+            directoryUri,
+            fileName,
+            "text/*"
+          );
+        const writedFile =
+          await FileSystem.StorageAccessFramework.writeAsStringAsync(
+            createdFile,
+            data,
+            { encoding: "utf8" }
+          );
+
+        ToastAndroid.show(
+          `Exportação ${filePrefix.replace(
+            /[^\w\s]/gi,
+            ""
+          )} realizada com sucesso!`,
+          ToastAndroid.SHORT
+        );
+      } else {
+        ToastAndroid.show(
+          `Houve um problema ao exportar ${filePrefix.replace(
+            /[^\w\s]/gi,
+            ""
+          )}!`,
+          ToastAndroid.SHORT
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      ToastAndroid.show(
+        `Houve um problema ao exportar ${filePrefix.replace(/[^\w\s]/gi, "")}!`,
+        ToastAndroid.SHORT
+      );
+    }
+  }
+
+  async function saveStorageToExportedFile() {
+    let storageStringfyData = (await getAllDataAsJSON()) ?? "";
+
+    for (const table of storageStringfyData) {
+      await exportSomeData(table.value, "txt", table.key);
+    }
+  }
 
   async function handleClearMarket() {
     Alert.alert(
@@ -811,7 +904,7 @@ export default function AboutUs() {
             shadow={2}
             colorScheme={"purple"}
             borderRadius={"full"}
-            leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+            leftIcon={<Feather name="trash" size={24} color="#FFF" />}
             _text={{
               color: "white",
               fontSize: 16,
@@ -918,7 +1011,7 @@ export default function AboutUs() {
             shadow={2}
             colorScheme={"purple"}
             borderRadius={"full"}
-            leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+            leftIcon={<Feather name="trash" size={24} color="#FFF" />}
             _text={{
               color: "white",
               fontSize: 16,
@@ -976,6 +1069,51 @@ export default function AboutUs() {
 
           <Text color={text} px={2} textAlign="center">
             Essa opção apagará todos os registros do app.
+          </Text>
+
+          <Button
+            onPress={async () => {
+              const requestedDirPerm =
+                await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+              await handleUpdateSelectedFolderToSave(
+                requestedDirPerm.directoryUri
+              );
+              ToastAndroid.show("Pasta selecionada!", ToastAndroid.SHORT);
+            }}
+            shadow={2}
+            colorScheme={"purple"}
+            borderRadius={"full"}
+            leftIcon={<Feather name="folder" size={24} color="#FFF" />}
+            _text={{
+              color: "white",
+              fontSize: 16,
+            }}
+            _pressed={{
+              bgColor: theme.colors.purple[900],
+            }}
+          >
+            Alterar pasta de exportação
+          </Button>
+
+          <Button
+            onPress={saveStorageToExportedFile}
+            shadow={2}
+            colorScheme={"purple"}
+            borderRadius={"full"}
+            leftIcon={<Feather name="file-text" size={24} color="#FFF" />}
+            _text={{
+              color: "white",
+              fontSize: 16,
+            }}
+            _pressed={{
+              bgColor: theme.colors.purple[900],
+            }}
+          >
+            Exportar finanças antigo
+          </Button>
+
+          <Text color={text} px={2} textAlign="center">
+            Essa opção exporta o modelo de finanças do app antigo.
           </Text>
         </VStack>
 
