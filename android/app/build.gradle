@@ -108,6 +108,7 @@ def reactNativeArchitectures() {
     return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
 }
 
+// MUDAR VERSÃO AQUI SEMPRE QUE BUILDAR
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -118,9 +119,8 @@ android {
         applicationId 'com.finances'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 208 // MUDAR VERSÃO AQUI SEMPRE QUE BUILDAR
-        versionName '2.0.8' // MUDAR VERSÃO AQUI SEMPRE QUE BUILDAR
-    }
+        versionCode 208
+        versionName '2.0.8'
 
     splits {
         abi {
