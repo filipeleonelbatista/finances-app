@@ -758,7 +758,6 @@ export default function AboutUs() {
               Prefixo
             </Text>
             <Input
-              keyboardType="decimal-pad"
               placeholder="Prefixo"
               onChangeText={handleSetPrefixTithe}
               value={prefixTithe}

@@ -433,6 +433,7 @@ export function PaymentsContextProvider(props) {
       const financesCollection = database.get("finances");
       const response = await financesCollection.query().fetch();
       const currentList = response.map((item) => item._raw);
+      console.log("currentList", currentList);
       setTransactionsList(currentList);
     } catch (error) {
       setTransactionsList([]);

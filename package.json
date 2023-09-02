@@ -16,6 +16,8 @@
     "build:dev": "eas build -p android --profile development",
     "build:apk": "eas build -p android --profile preview",
     "build:store": "eas build -p android --profile production",
+    "build:apk:local": "eas build -p android --profile preview --local",
+    "build:store:local": "eas build -p android --profile production --local",
     "start:emulator": "emulator -avd Pixel_2_API_33"
   },
   "dependencies": {
