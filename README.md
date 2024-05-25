@@ -1,6 +1,6 @@
-<a href="https://github.com/filipeleonelbatista/finances-app/blob/master/README.md" target="_blank">
-  <img src="https://raw.githubusercontent.com/filipeleonelbatista/filipeleonelbatista/master/assets/brasil_bandeira.png" width="28px" />
-  Version in Brasilian Portuguese
+<a href="https://github.com/filipeleonelbatista/finances-app/blob/master/README_EN.md" target="_blank">
+  <img src="https://raw.githubusercontent.com/filipeleonelbatista/filipeleonelbatista/master/assets/usa_flag.png" width="28px" />
+  Version in English
 </a>
 </br>
 </br>
